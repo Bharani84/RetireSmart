@@ -69,6 +69,31 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .lp{padding:10px 10px 28px;background:var(--lp);border-right:1px solid var(--bdr)}
 .rp{padding:13px 16px 40px;background:var(--bg)}
 
+/* ═══ MODAL ═════════════════════════════════════════════════════════════ */
+.modal-back{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;animation:fadeUp .15s ease both}
+.modal-box{background:var(--card);border:1px solid var(--bdr2);border-radius:var(--r);padding:18px 18px 14px;width:min(340px,90vw);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal-title{font-size:.95rem;font-weight:700;color:var(--txt);margin-bottom:8px}
+.modal-msg{font-size:.78rem;color:var(--txt2);margin-bottom:12px;line-height:1.5}
+.modal-input{width:100%;font-size:.88rem;padding:8px 10px;margin-bottom:14px}
+.modal-actions{display:flex;justify-content:flex-end;gap:7px}
+.modal-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--bdr2);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .15s}
+.modal-btn:hover{background:rgba(0,0,0,.04)}
+.modal-btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+.modal-btn.primary:hover{filter:brightness(1.1)}
+.modal-btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.modal-btn.danger:hover{filter:brightness(1.1)}
+.modal-err{font-size:.7rem;color:var(--danger);margin-top:-8px;margin-bottom:8px;min-height:14px}
+
+/* ═══ PROFILE BAR ═══════════════════════════════════════════════════════ */
+.pbar{display:flex;align-items:center;gap:6px;padding:8px 10px;margin-bottom:8px;background:var(--card);border:1px solid var(--acc-bdr);border-radius:var(--r);box-shadow:var(--sh)}
+.pbar-ico{font-size:1rem;flex-shrink:0}
+.pbar-lbl{font-size:.68rem;font-weight:700;color:var(--txt2);letter-spacing:.03em;flex-shrink:0;text-transform:uppercase}
+.pbar-sel{flex:1;min-width:60px;padding:4px 8px;font-size:.78rem;font-weight:600;border-radius:6px;background:var(--acc-bg);border:1px solid var(--acc-bdr);color:var(--acc)}
+.pbar-sel:focus{box-shadow:0 0 0 3px var(--acc-bg)}
+.pbar-act{width:26px;height:26px;border-radius:6px;border:1px solid var(--bdr2);background:var(--ibg);cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;color:var(--txt2);transition:all .15s;font-family:inherit;flex-shrink:0}
+.pbar-act:hover{background:var(--acc-bg);border-color:var(--acc);color:var(--acc)}
+.pbar-act.danger:hover{background:var(--dang-bg);border-color:var(--danger);color:var(--danger)}
+
 /* ═══ COLLAPSIBLE CARDS ═════════════════════════════════════════════════ */
 .card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--sh);overflow:hidden;transition:border-color .2s}
 .card:hover{border-color:var(--bdr2)}
@@ -329,6 +354,16 @@ input[type=range]:focus{border:none;box-shadow:none}
 
 <!-- LEFT: Retirement Inputs -->
 <div class="lp">
+
+  <!-- ⓟ FAMILY PROFILE SELECTOR -->
+  <div class="pbar">
+    <span class="pbar-ico">👨‍👩‍👧</span>
+    <span class="pbar-lbl">Profile</span>
+    <select class="pbar-sel" id="profile-sel" onchange="onProfileSelect()"></select>
+    <button class="pbar-act" onclick="newProfile()" title="Create a new profile">+</button>
+    <button class="pbar-act" onclick="renameProfile()" title="Rename current profile">✎</button>
+    <button class="pbar-act danger" onclick="deleteProfile()" title="Delete current profile">🗑</button>
+  </div>
 
   <!-- ① ABOUT YOU -->
   <div class="card">
@@ -717,6 +752,9 @@ input[type=range]:focus{border:none;box-shadow:none}
 </div><!-- /tab-currency -->
 
 
+<!-- ══════════════════════ MODAL HOST (used by profile actions) ══════════════════ -->
+<div id="modal-host"></div>
+
 <!-- ═══════════════════════════════════════════════════════════════════ JS -->
 <script>
 'use strict';
@@ -749,6 +787,12 @@ let cashIds=[],invIds=[],expIds=[],incIds=[],cxIds=[];
 let uid=0, rcT=null, svT=null;
 let activeTab='retirement';
 let wrAutoSync=true;   // when true, WR slider auto-matches budget; user touch flips it off
+
+/* ── PROFILES ────────────────────────────────────────
+   localStorage['rs_profiles'] = { active: '<name>', list: { '<name>': {state...}, ... } }
+   Legacy 'rs_v5' is migrated to a 'Default' profile on first load. */
+let profilesData={active:null,list:{}};
+let currentProfile=null;
 
 /* ── UTILS ──────────────────────────────────────────── */
 const $=id=>document.getElementById(id);
@@ -1456,43 +1500,239 @@ function recalc(){
 function showRes(){$('ph').style.display='none';$('results').style.display=''}
 function showPh(){$('ph').style.display='';$('results').style.display='none'}
 
-/* ── SAVE / LOAD ────────────────────────────────────── */
+/* ── STATE I/O HELPERS ──────────────────────────────── */
+function getCurrentStateAsJSON(){
+  return{
+    dob:$('dob').value,country:$('rcountry').value,rAge:$('rage').value,
+    infl:$('infl').value,wr:$('wr').value,wrAutoSync:wrAutoSync,
+    cx:cxIds.map(id=>({c:$(`cxcur-${id}`)?.value||'',r:$(`cxrate-${id}`)?.value||'',d:$(`cxdep-${id}`)?.value||''})),
+    cash:getCash().map(r=>({l:r.label,a:r.amt,c:r.cur})),
+    inv:getInv().map(r=>({l:r.label,a:r.amt,c:r.cur,ir:r.irate??'',s:r.sip||0})),
+    inc:getInc().map(r=>({l:r.label,a:r.amt,p:r.savePct})),
+    exp:getExp().map(r=>({l:r.label,a:r.amt,c:r.cat})),
+  };
+}
+function loadStateFromObject(d){
+  if(!d)return;
+  if(d.dob)$('dob').value=d.dob;
+  if(d.country){$('rcountry').value=d.country;onCountry()}
+  if(d.rAge){$('rage').value=d.rAge;updQbs(+d.rAge)}
+  if(d.infl!==undefined){$('infl').value=d.infl;$('infl-v').textContent=parseFloat(d.infl).toFixed(1)+'%'}
+  if(d.wr!==undefined){$('wr').value=d.wr;$('wr-v').textContent=parseFloat(d.wr).toFixed(1)+'%'}
+  wrAutoSync=d.wrAutoSync!==undefined?!!d.wrAutoSync:true;
+  (d.cx||[]).forEach(r=>addCX(r.c,r.r,r.d));
+  (d.cash||[]).forEach(r=>addCash(r.l,r.a,r.c));
+  (d.inv||[]).forEach(r=>addInv(r.l,r.a,r.c,r.ir??'',r.s||0));
+  (d.inc||[]).forEach(r=>addInc(r.l,r.a,r.p));
+  (d.exp||[]).forEach(r=>addExp(r.l,r.a,r.c));
+}
+function clearAllInputs(){
+  $('dob').value='';$('rcountry').value='';
+  $('rage').value=65;document.querySelectorAll('.qb:not(.today-qb)').forEach(b=>b.classList.toggle('active',+b.textContent===65));
+  $('infl').value=2.5;$('infl-v').textContent='2.5%';
+  $('wr').value=4;$('wr-v').textContent='4.0%';
+  wrAutoSync=true;
+  $('cash-body').innerHTML='';cashIds=[];
+  $('inv-body').innerHTML='';invIds=[];
+  $('inc-body').innerHTML='';incIds=[];
+  $('exp-body').innerHTML='';expIds=[];
+  $('cx-body').innerHTML='';cxIds=[];
+  $('age-badge').style.display='none';$('cur-badge').style.display='none';
+  RC={c:'CAD',s:'$'};
+  document.querySelectorAll('.rc-lbl').forEach(el=>el.textContent='—');
+}
+
+/* ── IN-PAGE MODAL (replaces browser prompt/confirm) ─── */
+function _closeModal(){const h=$('modal-host');if(h)h.innerHTML='';}
+function modalPrompt({title,message,defaultValue='',okText='OK',validate}){
+  return new Promise(resolve=>{
+    const h=$('modal-host');
+    h.innerHTML=`<div class="modal-back"><div class="modal-box">
+      <div class="modal-title">${title}</div>
+      ${message?`<div class="modal-msg">${message}</div>`:''}
+      <input type="text" class="modal-input" id="_mi" value="${(defaultValue||'').replace(/"/g,'&quot;')}" placeholder="">
+      <div class="modal-err" id="_me"></div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="_mcancel">Cancel</button>
+        <button class="modal-btn primary" id="_mok">${okText}</button>
+      </div>
+    </div></div>`;
+    const input=$('_mi'),err=$('_me');
+    input.focus();input.select();
+    const submit=()=>{
+      const v=input.value.trim();
+      if(validate){const e=validate(v);if(e){err.textContent=e;return;}}
+      _closeModal();resolve(v);
+    };
+    const cancel=()=>{_closeModal();resolve(null);};
+    $('_mok').onclick=submit;
+    $('_mcancel').onclick=cancel;
+    input.addEventListener('keydown',e=>{if(e.key==='Enter')submit();else if(e.key==='Escape')cancel();});
+    // Click outside closes
+    h.querySelector('.modal-back').addEventListener('click',e=>{if(e.target.classList.contains('modal-back'))cancel();});
+  });
+}
+function modalConfirm({title,message,okText='OK',danger=false}){
+  return new Promise(resolve=>{
+    const h=$('modal-host');
+    h.innerHTML=`<div class="modal-back"><div class="modal-box">
+      <div class="modal-title">${title}</div>
+      ${message?`<div class="modal-msg">${message}</div>`:''}
+      <div class="modal-actions">
+        <button class="modal-btn" id="_mcancel">Cancel</button>
+        <button class="modal-btn ${danger?'danger':'primary'}" id="_mok">${okText}</button>
+      </div>
+    </div></div>`;
+    const done=v=>{_closeModal();resolve(v);};
+    $('_mok').onclick=()=>done(true);
+    $('_mcancel').onclick=()=>done(false);
+    h.querySelector('.modal-back').addEventListener('click',e=>{if(e.target.classList.contains('modal-back'))done(false);});
+    document.addEventListener('keydown',function k(e){if(e.key==='Escape'){document.removeEventListener('keydown',k);done(false);}else if(e.key==='Enter'){document.removeEventListener('keydown',k);done(true);}},{once:true});
+  });
+}
+
+/* ── PROFILE MANAGEMENT ─────────────────────────────── */
+function saveProfilesIndex(){
+  try{localStorage.setItem('rs_profiles',JSON.stringify(profilesData));}catch(e){}
+}
+function refreshProfileDropdown(){
+  const sel=$('profile-sel');if(!sel)return;
+  sel.innerHTML='';
+  Object.keys(profilesData.list).forEach(name=>{
+    const opt=document.createElement('option');
+    opt.value=name;opt.textContent=name;
+    if(name===currentProfile)opt.selected=true;
+    sel.appendChild(opt);
+  });
+}
+function flushSave(){
+  if(svT){clearTimeout(svT);svT=null;}
+  if(currentProfile){
+    profilesData.list[currentProfile]=getCurrentStateAsJSON();
+    saveProfilesIndex();
+  }
+}
+function switchProfile(name){
+  if(!name||!profilesData.list[name])return;
+  flushSave();                                   // commit any pending edits to OLD profile
+  currentProfile=name;
+  profilesData.active=name;
+  saveProfilesIndex();
+  clearAllInputs();
+  loadStateFromObject(profilesData.list[name]);
+  recalc();
+  refreshFilledStates();
+  refreshProfileDropdown();
+}
+function onProfileSelect(){
+  const v=$('profile-sel').value;
+  if(v&&v!==currentProfile)switchProfile(v);
+}
+async function newProfile(){
+  const name=await modalPrompt({
+    title:'Create a new profile',
+    message:'Give this profile a name (e.g. Mom, Dad, Sister). It starts blank — fill in their plan after creating.',
+    okText:'Create',
+    validate:v=>{
+      if(!v)return'Name cannot be empty.';
+      if(profilesData.list[v])return'A profile called "'+v+'" already exists.';
+      return null;
+    }
+  });
+  if(name===null)return;
+  flushSave();
+  profilesData.list[name]={};
+  currentProfile=name;profilesData.active=name;
+  saveProfilesIndex();
+  clearAllInputs();
+  recalc();refreshFilledStates();refreshProfileDropdown();
+}
+async function renameProfile(){
+  if(!currentProfile)return;
+  const name=await modalPrompt({
+    title:'Rename profile',
+    message:'Renaming "'+currentProfile+'":',
+    defaultValue:currentProfile,
+    okText:'Rename',
+    validate:v=>{
+      if(!v)return'Name cannot be empty.';
+      if(v===currentProfile)return null;
+      if(profilesData.list[v])return'A profile called "'+v+'" already exists.';
+      return null;
+    }
+  });
+  if(name===null||name===currentProfile)return;
+  profilesData.list[name]=profilesData.list[currentProfile];
+  delete profilesData.list[currentProfile];
+  currentProfile=name;profilesData.active=name;
+  saveProfilesIndex();
+  refreshProfileDropdown();
+}
+async function deleteProfile(){
+  if(!currentProfile)return;
+  const names=Object.keys(profilesData.list);
+  if(names.length===1){
+    await modalConfirm({title:'Cannot delete',message:'You need at least one profile. Create another one before deleting this.',okText:'OK'});
+    return;
+  }
+  const ok=await modalConfirm({
+    title:'Delete profile?',
+    message:'Are you sure you want to delete "'+currentProfile+'"? This cannot be undone.',
+    okText:'Delete',
+    danger:true
+  });
+  if(!ok)return;
+  delete profilesData.list[currentProfile];
+  const next=Object.keys(profilesData.list)[0];
+  currentProfile=next;profilesData.active=next;
+  saveProfilesIndex();
+  clearAllInputs();
+  loadStateFromObject(profilesData.list[next]);
+  recalc();refreshFilledStates();refreshProfileDropdown();
+}
+function initProfiles(){
+  // 1. Read existing profiles
+  try{const raw=localStorage.getItem('rs_profiles');if(raw)profilesData=JSON.parse(raw);}catch(e){}
+  if(!profilesData||typeof profilesData!=='object')profilesData={active:null,list:{}};
+  if(!profilesData.list)profilesData.list={};
+  // 2. Migrate legacy rs_v5 → Default profile (one-time)
+  if(Object.keys(profilesData.list).length===0){
+    try{
+      const oldRaw=localStorage.getItem('rs_v5');
+      if(oldRaw){
+        profilesData.list['Default']=JSON.parse(oldRaw);
+        profilesData.active='Default';
+        localStorage.removeItem('rs_v5');
+      }
+    }catch(e){}
+  }
+  // 3. Ensure at least one profile exists
+  if(Object.keys(profilesData.list).length===0){
+    profilesData.list['Default']={};profilesData.active='Default';
+  }
+  // 4. Ensure active profile is valid
+  if(!profilesData.list[profilesData.active]){
+    profilesData.active=Object.keys(profilesData.list)[0];
+  }
+  currentProfile=profilesData.active;
+  saveProfilesIndex();
+  refreshProfileDropdown();
+  // 5. Load that profile's state
+  loadStateFromObject(profilesData.list[currentProfile]);
+}
+
+/* ── AUTO-SAVE (writes to current profile) ──────────── */
 function scheduleSave(){
   clearTimeout(svT);
   const si=$('sind');si.className='sind saving';si.textContent='Saving…';
   svT=setTimeout(()=>{
     try{
-      localStorage.setItem('rs_v5',JSON.stringify({
-        dob:$('dob').value,country:$('rcountry').value,rAge:$('rage').value,
-        infl:$('infl').value,wr:$('wr').value,wrAutoSync:wrAutoSync,
-        cx:cxIds.map(id=>({c:$(`cxcur-${id}`)?.value||'',r:$(`cxrate-${id}`)?.value||'',d:$(`cxdep-${id}`)?.value||''})),
-        cash:getCash().map(r=>({l:r.label,a:r.amt,c:r.cur})),
-        inv:getInv().map(r=>({l:r.label,a:r.amt,c:r.cur,ir:r.irate??'',s:r.sip||0})),
-        inc:getInc().map(r=>({l:r.label,a:r.amt,p:r.savePct})),
-        exp:getExp().map(r=>({l:r.label,a:r.amt,c:r.cat})),
-      }));
+      if(!currentProfile)return;
+      profilesData.list[currentProfile]=getCurrentStateAsJSON();
+      saveProfilesIndex();
       si.className='sind saved';si.textContent='Auto-saved ✓';
     }catch(e){si.textContent='—'}
   },900);
-}
-function loadState(){
-  try{
-    const raw=localStorage.getItem('rs_v5');if(!raw)return false;
-    const d=JSON.parse(raw);
-    if(d.dob)$('dob').value=d.dob;
-    if(d.country){$('rcountry').value=d.country;onCountry()}
-    if(d.rAge){$('rage').value=d.rAge;updQbs(+d.rAge)}
-    if(d.infl!==undefined){$('infl').value=d.infl;$('infl-v').textContent=parseFloat(d.infl).toFixed(1)+'%'}
-
-    if(d.wr!==undefined){$('wr').value=d.wr;$('wr-v').textContent=parseFloat(d.wr).toFixed(1)+'%'}
-    if(d.wrAutoSync!==undefined)wrAutoSync=!!d.wrAutoSync;
-    (d.cx||[]).forEach(r=>addCX(r.c,r.r,r.d));
-    (d.cash||[]).forEach(r=>addCash(r.l,r.a,r.c));
-    (d.inv||[]).forEach(r=>addInv(r.l,r.a,r.c,r.ir??'',r.s||0));
-    (d.inc||[]).forEach(r=>addInc(r.l,r.a,r.p));
-    (d.exp||[]).forEach(r=>addExp(r.l,r.a,r.c));
-    return true;
-  }catch(e){return false}
 }
 function updQbs(a){document.querySelectorAll('.qb:not(.today-qb)').forEach(b=>b.classList.toggle('active',+b.textContent===a))}
 
@@ -1534,10 +1774,11 @@ document.addEventListener('DOMContentLoaded',()=>{
     }));
   });
 
-  const loaded=loadState();
-  if(!loaded){DEF_EXP.forEach(e=>addExp(e.l,'',e.c));tog('about')}
+  initProfiles();                                  // load / migrate / select active profile
+  const profileIsEmpty=!profilesData.list[currentProfile] || Object.keys(profilesData.list[currentProfile]).length===0;
+  if(profileIsEmpty){DEF_EXP.forEach(e=>addExp(e.l,'',e.c));tog('about');}
   recalc();
-  refreshFilledStates();   // initial pass for pre-filled values loaded from localStorage
+  refreshFilledStates();
 });
 </script>
 </body>
