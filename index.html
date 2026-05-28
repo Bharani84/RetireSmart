@@ -997,10 +997,17 @@ function catOpts(sel='Other'){return CATS.map(c=>`<option${c===sel?' selected':'
 /* ── CALCULATIONS ───────────────────────────────────── */
 function todayV(items){return items.reduce((s,r)=>{const{rate}=getXR(r.cur);return s+(r.cur===RC.c?r.amt:r.amt*(rate||0))},0)}
 function calcWG(){
+  // Value-weighted EFFECTIVE growth rate: each asset's (growth × currency change) weighted by base-currency value.
+  // e.g. ₹90 at 10% growth + ₹10 at 100% → (90×10 + 10×100)/100 = 19%, NOT a simple 55% average.
   const all=[...getCash().map(r=>({...r,irate:0})),...getInv().map(r=>({...r,irate:(r.irate!=null&&!isNaN(r.irate))?r.irate:0}))];
   if(!all.length)return 0;
   let tv=0,ws=0;
-  all.forEach(r=>{const{rate}=getXR(r.cur);const v=r.cur===RC.c?r.amt:r.amt*(rate||0);tv+=v;ws+=v*r.irate});
+  all.forEach(r=>{
+    const{rate,dep}=getXR(r.cur);
+    const v=r.cur===RC.c?r.amt:r.amt*(rate||0);
+    const eff=((1+r.irate/100)*(1+(dep||0)/100)-1)*100;   // effective rate incl. currency
+    tv+=v;ws+=v*eff;
+  });
   return tv>0?ws/tv:0;
 }
 function portAtRetire(ytr,wg=0){
@@ -1118,12 +1125,15 @@ function renderAssetView(){
       return`<tr><td><strong>${r.label||'—'}</strong>${noRateBadge}</td><td><span class="abk-tag ${tagCls(r.type)}">${r.type}</span></td><td>${pct}</td><td>${valCell}</td><td>${curGrCell}</td><td>${grCell}${sipBadge}</td></tr>`;
     }).join('');
     const totAg=lastAssetData.reduce((s,r)=>s+r.ag,0);
+    // Portfolio-wide effective growth rate: weighted by value across non-Income assets, including currency effects.
+    const portAg=lastAssetData.filter(r=>r.type!=='Income').reduce((s,r)=>s+r.ag,0);
+    const totEffRate=tv>0?(portAg/tv*100):0;
     bd.innerHTML=`
       <div style="overflow-x:auto">
       <table class="abk-tbl">
         <thead><tr>${headHtml}</tr></thead>
         <tbody>${bodyHtml||'<tr><td colspan="6" style="text-align:center;color:var(--txt3);padding:10px">No results</td></tr>'}</tbody>
-        <tfoot><tr><td><strong>Total</strong></td><td></td><td>100%</td><td style="color:var(--acc);font-size:.84rem">${fmtF(tv)}</td><td>—</td><td class="cg">+${fmtK(totAg)}/yr</td></tr></tfoot>
+        <tfoot><tr><td><strong>Total</strong></td><td></td><td>100%</td><td style="color:var(--acc);font-size:.84rem">${fmtF(tv)}</td><td title="Value-weighted effective rate across all assets, including currency change"><strong>${totEffRate.toFixed(1)}%</strong></td><td class="cg">+${fmtK(totAg)}/yr</td></tr></tfoot>
       </table></div>`;
   } else {
     // Chart view: horizontal bars
