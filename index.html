@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetireSmart — Your Retirement Planner</title>
+<meta name="description" content="Simple, friendly retirement planner with live projections and multi-currency support.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+/* ═══ TOKENS ═══════════════════════════════════════════════════════════ */
+:root{
+  --hh:56px;
+  --bg:#eef2f7; --lp:#f5f7fc; --card:#fff;
+  --bdr:rgba(0,0,0,.07); --bdr2:rgba(0,0,0,.13);
+  --acc:#0891b2; --acc-bg:rgba(8,145,178,.09); --acc-bdr:rgba(8,145,178,.22);
+  --gold:#d97706; --gold-bg:rgba(217,119,6,.09);
+  --danger:#dc2626; --dang-bg:rgba(220,38,38,.08);
+  --success:#16a34a; --succ-bg:rgba(22,163,74,.1);
+  --warn:#ca8a04; --warn-bg:rgba(202,138,4,.09);
+  --txt:#1e293b; --txt2:#64748b; --txt3:#94a3b8;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --ibg:#f8fafc; --r:12px; --rs:8px;
+}
+[data-theme="dark"]{
+  --bg:#07101f; --lp:rgba(0,0,0,.22); --card:rgba(255,255,255,.04);
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(255,255,255,.13);
+  --acc:#00d4aa; --acc-bg:rgba(0,212,170,.1); --acc-bdr:rgba(0,212,170,.22);
+  --gold:#f4a261; --gold-bg:rgba(244,162,97,.1);
+  --danger:#ff6b6b; --dang-bg:rgba(255,107,107,.1);
+  --success:#51cf66; --succ-bg:rgba(81,207,102,.1);
+  --warn:#ffd43b; --warn-bg:rgba(255,212,59,.1);
+  --txt:#f0f4f8; --txt2:rgba(240,244,248,.55); --txt3:rgba(240,244,248,.28);
+  --sh:none; --ibg:rgba(255,255,255,.06);
+}
+
+/* ═══ RESET ══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;font-size:14px;transition:background .3s,color .3s}
+
+/* ═══ HEADER ════════════════════════════════════════════════════════════ */
+.hdr{height:var(--hh);z-index:100;position:relative;background:var(--card);box-shadow:var(--sh);border-bottom:1px solid var(--bdr)}
+.hdr-in{height:100%;display:flex;align-items:center;padding:0 14px;gap:10px}
+.logo{font-size:.95rem;font-weight:800;white-space:nowrap;flex-shrink:0;background:linear-gradient(135deg,var(--acc),#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .logo{background:linear-gradient(135deg,#00d4aa,#0098cc);-webkit-background-clip:text;background-clip:text}
+.tabs{display:flex;gap:2px;flex:1}
+.tbtn{padding:4px 12px;border-radius:6px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s}
+.tbtn.active{background:var(--acc-bg);color:var(--acc)}
+.tbtn:hover:not(.active):not(:disabled){background:rgba(0,0,0,.04);color:var(--txt)}
+[data-theme="dark"] .tbtn:hover:not(.active):not(:disabled){background:rgba(255,255,255,.06)}
+.tbtn:disabled{opacity:.3;cursor:not-allowed}
+.bdg{font-size:.57rem;background:var(--gold-bg);color:var(--gold);border-radius:4px;padding:1px 4px;margin-left:2px;vertical-align:middle}
+.theme-btn{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s;flex-shrink:0}
+.theme-btn:hover{border-color:var(--acc-bdr);color:var(--acc)}
+.sind{font-size:.68rem;color:var(--txt3);white-space:nowrap;transition:color .4s;flex-shrink:0}
+.sind.saving{color:var(--gold)}.sind.saved{color:var(--success)}
+
+/* ═══ TAB PANELS ════════════════════════════════════════════════════════ */
+.tab-panel{display:none;height:calc(100vh - var(--hh));overflow:hidden}
+.tab-panel.active{display:block}
+
+/* ═══ LAYOUT ════════════════════════════════════════════════════════════ */
+.layout{display:grid;grid-template-columns:440px 1fr;height:100%;overflow:hidden}
+.lp,.rp{overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+.lp::-webkit-scrollbar,.rp::-webkit-scrollbar{width:4px}
+.lp::-webkit-scrollbar-thumb,.rp::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.lp{padding:10px 10px 28px;background:var(--lp);border-right:1px solid var(--bdr)}
+.rp{padding:13px 16px 40px;background:var(--bg)}
+
+/* ═══ COLLAPSIBLE CARDS ═════════════════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:8px;box-shadow:var(--sh);overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--bdr2)}
+.ch{display:flex;align-items:center;gap:8px;padding:12px 13px;cursor:pointer;user-select:none;transition:background .15s}
+.ch:hover{background:rgba(0,0,0,.02)}
+[data-theme="dark"] .ch:hover{background:rgba(255,255,255,.03)}
+.ci{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0}
+.ci-t{background:var(--acc-bg)}.ci-g{background:var(--gold-bg)}.ci-p{background:rgba(139,92,246,.1)}.ci-b{background:rgba(59,130,246,.1)}.ci-pk{background:rgba(236,72,153,.1)}.ci-gr{background:rgba(22,163,74,.1)}
+.ctxt{flex:1;min-width:0}
+.ct{font-size:.85rem;font-weight:700;line-height:1.2}
+.csum{font-size:.68rem;color:var(--txt2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chev{width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--txt3);font-size:.58rem;transition:transform .3s;flex-shrink:0}
+.chev.up{transform:rotate(180deg)}
+.cbody{overflow:hidden;max-height:3000px;opacity:1;transition:max-height .38s cubic-bezier(.4,0,.2,1),opacity .28s ease}
+.cbody.closed{max-height:0;opacity:0;pointer-events:none}
+.cbody-in{padding:0 13px 13px}
+
+/* ═══ FORM ELEMENTS ═════════════════════════════════════════════════════ */
+.f{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
+.f:last-child{margin-bottom:0}
+.f label{font-size:.65rem;font-weight:600;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase}
+.hint{font-size:.66rem;color:var(--txt3);line-height:1.4}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+input,select{background:var(--ibg);border:1px solid var(--bdr2);border-radius:var(--rs);color:var(--txt);font-family:inherit;font-size:.82rem;padding:7px 9px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-bg)}
+/* Visual cue: highlight left-panel inputs the user has filled in */
+.lp input.filled,.lp select.filled{background:var(--acc-bg);border-color:var(--acc-bdr)}
+/* Card-level cue: accent stripe on the left + slight border tint when the card has user data */
+.lp .card.filled{box-shadow:var(--sh),inset 4px 0 0 var(--acc);border-color:var(--acc-bdr)}
+.lp .cx-mini.filled{box-shadow:var(--sh),inset 4px 0 0 var(--acc)}
+input::placeholder{color:var(--txt3)}
+select option{background:var(--card);color:var(--txt)}
+input[type=number]::-webkit-inner-spin-button{opacity:.4}
+input[type=date]{cursor:pointer}
+input[type=date]::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.65;font-size:.95rem;padding:1px;margin-left:2px}
+[data-theme="dark"] input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.75)}
+.cmpd{display:inline-flex;align-items:center;gap:5px;background:var(--acc-bg);border:1px solid var(--acc-bdr);border-radius:6px;padding:3px 8px;font-size:.7rem;font-weight:600;color:var(--acc);margin-top:3px}
+
+/* ═══ QUICK BUTTONS ══════════════════════════════════════════════════════ */
+.qbtns{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.qb{padding:3px 9px;border:1px solid var(--bdr2);border-radius:20px;background:none;color:var(--txt2);font-family:inherit;font-size:.68rem;font-weight:500;cursor:pointer;transition:all .15s}
+.qb:hover,.qb.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc)}
+.today-qb{border-style:dashed;color:var(--gold);border-color:var(--gold-bg)}
+.today-qb:hover{background:var(--gold-bg)!important;border-color:var(--gold)!important;color:var(--gold)!important;border-style:solid!important}
+
+/* ═══ DYNAMIC TABLES ════════════════════════════════════════════════════ */
+.dtbl{width:100%;border-collapse:collapse;margin-bottom:6px}
+.dtbl th{font-size:.6rem;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;padding:0 3px 5px;text-align:left;white-space:nowrap}
+.dtbl td{padding:2px 2px;vertical-align:middle}
+.dtbl td input,.dtbl td select{padding:5px 7px;font-size:.78rem}
+/* Investment table columns */
+.dc{width:26%}.da{width:20%}.dcu{width:auto;min-width:75px}.dgr{width:13%}.dsip{width:14%}.ddl{width:26px}
+/* Expense: desc, amount, full-width category */
+.de{width:34%}.dam{width:20%}.dcat{min-width:130px}.ddl{width:26px}
+/* Income: desc, amount, % saved */
+.din-pct{width:64px}
+.cxc{width:30%}.cxr{width:32%}.cxd{width:28%}.cxdl{width:26px}
+.brm{width:23px;height:23px;border-radius:6px;border:1px solid var(--dang-bg);background:var(--dang-bg);color:var(--danger);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .15s;margin:auto;font-family:inherit}
+.brm:hover{background:rgba(220,38,38,.18);border-color:var(--danger)}
+.badd{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:6px 12px;border:1px dashed var(--acc-bdr);border-radius:var(--rs);background:var(--acc-bg);color:var(--acc);font-family:inherit;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;margin-top:5px;opacity:.85}
+.badd:hover{opacity:1;border-style:solid}
+.badd .pl{width:15px;height:15px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;flex-shrink:0}
+.trow{display:flex;justify-content:space-between;align-items:center;background:var(--acc-bg);border:1px solid var(--acc-bdr);border-radius:var(--rs);padding:6px 10px;margin-top:6px;font-size:.74rem}
+.trow .tl{color:var(--txt2)}.trow .tv{font-weight:700;color:var(--acc);font-size:.8rem}
+.notice{display:flex;gap:7px;align-items:flex-start;background:var(--gold-bg);border:1px solid rgba(217,119,6,.2);border-radius:var(--rs);padding:7px 9px;font-size:.68rem;color:var(--gold);margin-bottom:8px;line-height:1.5}
+
+/* ═══ CURRENCY MINI LINK (retirement tab) ═══════════════════════════════ */
+.cx-mini{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--acc-bdr);border-radius:var(--r);padding:10px 12px;margin-bottom:8px;box-shadow:var(--sh)}
+.cx-mini-ico{font-size:1.3rem;flex-shrink:0}
+.cx-mini-body{flex:1;min-width:0}
+.cx-mini-title{font-size:.82rem;font-weight:700}
+.cx-mini-sub{font-size:.68rem;color:var(--txt2);margin-top:1px}
+.cx-link-btn{padding:5px 11px;border-radius:var(--rs);border:1px solid var(--acc-bdr);background:var(--acc-bg);color:var(--acc);font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.cx-link-btn:hover{background:var(--acc);color:#fff}
+
+/* ═══ CURRENCY TAB: BASE ROW ════════════════════════════════════════════ */
+.cx-base{display:flex;align-items:center;gap:8px;background:var(--acc-bg);border:1px solid var(--acc-bdr);border-radius:var(--rs);padding:8px 11px;margin-bottom:9px;font-size:.75rem}
+.cx-base-k{color:var(--txt2)}.cx-base-v{font-weight:700;color:var(--acc)}
+
+/* ═══ SLIDERS ═══════════════════════════════════════════════════════════ */
+.slw{display:flex;flex-direction:column;gap:4px}
+.slh{display:flex;justify-content:space-between;align-items:center}
+.slv{font-size:.95rem;font-weight:700;color:var(--acc)}
+.slt{display:flex;justify-content:space-between;font-size:.62rem;color:var(--txt3);margin-top:1px}
+input[type=range]{-webkit-appearance:none;appearance:none;padding:0;height:5px;border-radius:3px;background:rgba(0,0,0,.1);cursor:pointer;border:none;box-shadow:none}
+[data-theme="dark"] input[type=range]{background:rgba(255,255,255,.12)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 0 3px var(--acc-bg);transition:box-shadow .15s}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)}
+input[type=range]:focus{border:none;box-shadow:none}
+
+/* ═══ GROWTH AGGREGATES ═════════════════════════════════════════════════ */
+.agg-hd{font-size:.62rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;display:flex;align-items:center;gap:7px}
+.agg-hd::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.agg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:13px}
+.agg-item{background:var(--ibg);border:1px solid var(--bdr);border-radius:var(--rs);padding:8px 9px;text-align:center}
+.agg-lbl{font-size:.59rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.agg-val{font-size:.9rem;font-weight:800;color:var(--acc)}
+.agg-val.gold{color:var(--gold)}
+
+/* ═══ RIGHT PANEL SHARED ════════════════════════════════════════════════ */
+.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--txt3);padding:40px}
+.ph .pi{font-size:3.2rem;margin-bottom:14px}
+.ph .pt{font-size:.9rem;font-weight:600;color:var(--txt2);margin-bottom:7px}
+.ph .pp{font-size:.76rem;max-width:240px;line-height:1.7}
+.status{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:50px;font-weight:700;font-size:.8rem;margin-bottom:11px}
+.sg{background:var(--succ-bg);border:1px solid rgba(22,163,74,.25);color:var(--success)}
+.sw{background:var(--warn-bg);border:1px solid rgba(202,138,4,.25);color:var(--warn)}
+.sb{background:var(--dang-bg);border:1px solid rgba(220,38,38,.25);color:var(--danger)}
+.sumg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sumg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:11px;box-shadow:var(--sh);transition:transform .2s}
+.sc:hover{transform:translateY(-2px)}
+.sc .sl{font-size:.63rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.sc .sv{font-size:1.2rem;font-weight:800;line-height:1}
+.sc .ss{font-size:.65rem;color:var(--txt2);margin-top:3px}
+.sc-a{border-color:var(--acc-bdr)}.sc-a .sv{color:var(--acc)}
+.sc-g{border-color:rgba(217,119,6,.22)}.sc-g .sv{color:var(--gold)}
+.sc-ok .sv{color:var(--success)}.sc-bad .sv{color:var(--danger)}
+.cg{color:var(--success)}.cr{color:var(--danger)}.cgo{color:var(--gold)}
+
+/* ═══ ASSET BREAKDOWN ═══════════════════════════════════════════════════ */
+.abk-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:11px;box-shadow:var(--sh);overflow:hidden}
+.abk-head{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid var(--bdr);flex-wrap:wrap;gap:6px}
+.abk-title{font-size:.78rem;font-weight:700;color:var(--txt2)}
+/* View toggle: Table / Chart */
+.abk-view-btns{display:flex;gap:3px}
+.abk-vbtn{padding:3px 9px;border:1px solid var(--bdr2);border-radius:6px;background:none;color:var(--txt2);font-family:inherit;font-size:.68rem;font-weight:600;cursor:pointer;transition:all .15s}
+.abk-vbtn.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc)}
+/* Table view */
+.abk-search{display:flex;gap:6px;padding:8px 13px;border-bottom:1px solid var(--bdr);align-items:center}
+.abk-search input{flex:1;padding:4px 8px;font-size:.75rem;border-radius:6px}
+.abk-sort-sel{font-size:.72rem;padding:4px 6px;border-radius:6px;width:auto}
+.abk-tbl{width:100%;border-collapse:collapse;font-size:.76rem}
+.abk-tbl thead th{background:rgba(0,0,0,.02);padding:6px 12px;text-align:left;font-size:.64rem;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;cursor:pointer;user-select:none}
+[data-theme="dark"] .abk-tbl thead th{background:rgba(255,255,255,.03)}
+.abk-tbl thead th:hover{color:var(--acc)}
+.abk-tbl thead th .sort-arrow{margin-left:3px;opacity:.5;font-size:.6rem}
+.abk-tbl thead th.sorted .sort-arrow{opacity:1;color:var(--acc)}
+.abk-tbl tbody td{padding:7px 12px;border-top:1px solid var(--bdr)}
+.abk-tbl tbody tr:hover td{background:rgba(0,0,0,.015)}
+[data-theme="dark"] .abk-tbl tbody tr:hover td{background:rgba(255,255,255,.015)}
+.abk-tbl tfoot td{padding:7px 12px;border-top:2px solid var(--bdr2);font-weight:700;background:var(--ibg)}
+/* Bar-chart view */
+.abk-chart-wrap{padding:13px}
+.abk-chart-row{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.abk-chart-lbl{width:130px;font-size:.74rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.abk-chart-bar-bg{flex:1;height:22px;background:rgba(0,0,0,.06);border-radius:5px;overflow:hidden;position:relative}
+[data-theme="dark"] .abk-chart-bar-bg{background:rgba(255,255,255,.07)}
+.abk-chart-bar{height:100%;border-radius:5px;display:flex;align-items:center;padding-left:7px;font-size:.67rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;transition:width .5s ease}
+.abk-chart-amt{width:90px;text-align:right;font-size:.74rem;font-weight:700;flex-shrink:0}
+.abk-tag{display:inline-flex;align-items:center;font-size:.58rem;font-weight:700;border-radius:4px;padding:1px 5px}
+.abk-cash{background:var(--gold-bg);color:var(--gold)}.abk-inv{background:var(--acc-bg);color:var(--acc)}.abk-inc{background:var(--succ-bg);color:var(--success)}
+.abk-total-row{display:flex;align-items:center;gap:9px;padding:8px 13px;border-top:2px solid var(--bdr2);background:var(--ibg);font-size:.78rem;font-weight:700}
+
+/* ═══ CHART CARD ════════════════════════════════════════════════════════ */
+.chcard{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px;margin-bottom:11px;box-shadow:var(--sh)}
+.chtitle{font-size:.78rem;font-weight:700;color:var(--txt2);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.legend{display:flex;gap:11px;flex-wrap:wrap;font-size:.68rem;color:var(--txt2)}
+.li{display:flex;align-items:center;gap:4px}
+.ld{width:15px;height:3px;border-radius:2px}
+.chw{position:relative;height:215px}
+
+/* ═══ YEAR TABLE ════════════════════════════════════════════════════════ */
+.tcard{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:11px;box-shadow:var(--sh);overflow:hidden}
+.tchead{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--bdr)}
+.tct{font-size:.78rem;font-weight:700;color:var(--txt2)}
+.tinr{overflow-x:auto}
+.ytbl{width:100%;border-collapse:collapse;font-size:.74rem;min-width:440px}
+.ytbl thead th{background:rgba(0,0,0,.02);padding:6px 10px;text-align:left;font-size:.62rem;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+[data-theme="dark"] .ytbl thead th{background:rgba(255,255,255,.03)}
+.ytbl tbody td{padding:5px 10px;border-top:1px solid var(--bdr);white-space:nowrap}
+.ytbl tbody tr:hover{background:rgba(0,0,0,.02)}
+[data-theme="dark"] .ytbl tbody tr:hover{background:rgba(255,255,255,.02)}
+.rret{background:var(--acc-bg)!important}
+
+/* ═══ WITHDRAWAL SIM ════════════════════════════════════════════════════ */
+.wrcard{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px;margin-bottom:11px;box-shadow:var(--sh)}
+.wrt{font-size:.78rem;font-weight:700;color:var(--txt2);margin-bottom:10px}
+.wrg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}
+.wri{background:var(--ibg);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px;text-align:center}
+.wrl{font-size:.63rem;color:var(--txt2);margin-bottom:3px}
+.wrv{font-size:1.05rem;font-weight:800;color:var(--acc)}
+.wrs{font-size:.63rem;color:var(--txt3);margin-top:2px}
+
+/* ═══ CURRENCY TAB: CONVERTER ═══════════════════════════════════════════ */
+.conv-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:.82rem}
+.conv-row:last-child{border-bottom:none}
+.conv-left{display:flex;align-items:center;gap:7px}
+.conv-flag{font-size:1rem}
+.conv-cur{font-weight:600;color:var(--txt2);min-width:38px}
+.conv-val{font-weight:800;color:var(--acc);font-size:.9rem}
+.conv-note{font-size:.63rem;color:var(--txt3);margin-left:4px}
+
+/* ═══ CURRENCY TAB: RATES TABLE ══════════════════════════════════════════ */
+.rate-row{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--bdr);gap:8px;font-size:.8rem}
+.rate-row:last-child{border-bottom:none}
+.rate-cur{font-weight:700;min-width:42px}
+.rate-val{flex:1;color:var(--acc);font-weight:600}
+.rate-dep{font-size:.68rem;padding:2px 6px;border-radius:4px;font-weight:600}
+.dep-neg{background:var(--dang-bg);color:var(--danger)}
+.dep-pos{background:var(--succ-bg);color:var(--success)}
+.dep-zero{background:var(--ibg);color:var(--txt3)}
+
+/* ═══ CURRENCY TAB: IMPACT TABLE ════════════════════════════════════════ */
+.imp-tbl{width:100%;border-collapse:collapse;font-size:.76rem}
+.imp-tbl th{font-size:.62rem;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;padding:6px 10px;text-align:left;background:rgba(0,0,0,.02);white-space:nowrap}
+[data-theme="dark"] .imp-tbl th{background:rgba(255,255,255,.03)}
+.imp-tbl td{padding:7px 10px;border-top:1px solid var(--bdr);white-space:nowrap}
+.imp-tbl tr:hover td{background:rgba(0,0,0,.015)}
+[data-theme="dark"] .imp-tbl tr:hover td{background:rgba(255,255,255,.015)}
+.imp-badge{display:inline-flex;align-items:center;gap:3px;font-size:.65rem;font-weight:700;border-radius:4px;padding:2px 6px}
+
+/* ═══ MOBILE ════════════════════════════════════════════════════════════ */
+@media(max-width:820px){
+  html,body{overflow:auto;height:auto}
+  .tab-panel,.tab-panel.active{display:block;height:auto;overflow:visible}
+  .layout{grid-template-columns:1fr;height:auto;overflow:visible}
+  .lp,.rp{height:auto;overflow:visible}
+  .lp{border-right:none;border-bottom:1px solid var(--bdr)}
+  .sumg,.wrg{grid-template-columns:1fr 1fr}
+  .sumg3{grid-template-columns:1fr}
+  .chw{height:190px}
+  .agg-grid{grid-template-columns:1fr}
+}
+
+/* ═══ ANIMATIONS ════════════════════════════════════════════════════════ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeUp .22s ease both}
+.card:nth-child(2){animation-delay:.04s}.card:nth-child(3){animation-delay:.08s}
+.card:nth-child(4){animation-delay:.12s}.card:nth-child(5){animation-delay:.16s}
+.card:nth-child(6){animation-delay:.20s}.card:nth-child(7){animation-delay:.24s}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════ HEADER ══════════════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="logo">💼 RetireSmart</div>
+    <nav class="tabs">
+      <button class="tbtn active" id="tbtn-retirement" onclick="switchTab('retirement')">📊 Retirement</button>
+      <button class="tbtn" id="tbtn-currency" onclick="switchTab('currency')">💱 Currency</button>
+      <button class="tbtn" disabled>📈 Investing <span class="bdg">Soon</span></button>
+      <button class="tbtn" disabled>🔬 Research <span class="bdg">Soon</span></button>
+      <button class="tbtn" disabled>📰 News <span class="bdg">Soon</span></button>
+    </nav>
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
+    <div class="sind" id="sind">Auto-saved ✓</div>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     TAB 1 — RETIREMENT
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-retirement" class="tab-panel active">
+<div class="layout">
+
+<!-- LEFT: Retirement Inputs -->
+<div class="lp">
+
+  <!-- ① ABOUT YOU -->
+  <div class="card">
+    <div class="ch" onclick="tog('about')">
+      <div class="ci ci-t">👤</div>
+      <div class="ctxt"><div class="ct">About You</div><div class="csum" id="sum-about">Enter your details to get started</div></div>
+      <div class="chev" id="chev-about">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-about"><div class="cbody-in">
+      <div class="g2">
+        <div class="f">
+          <label for="dob">📅 Date of Birth</label>
+          <input type="date" id="dob" max="2010-01-01">
+          <div class="cmpd" id="age-badge" style="display:none">🎂 <span id="age-txt"></span></div>
+        </div>
+        <div class="f">
+          <label for="rcountry">🌏 Retirement Country</label>
+          <select id="rcountry">
+            <option value="">— Select country —</option>
+            <option value="CA|CAD|$">🇨🇦 Canada (CAD)</option>
+            <option value="US|USD|$">🇺🇸 USA (USD)</option>
+            <option value="GB|GBP|£">🇬🇧 UK (GBP)</option>
+            <option value="AU|AUD|A$">🇦🇺 Australia (AUD)</option>
+            <option value="IN|INR|₹">🇮🇳 India (INR)</option>
+            <option value="DE|EUR|€">🇩🇪 Europe (EUR)</option>
+            <option value="SG|SGD|S$">🇸🇬 Singapore (SGD)</option>
+            <option value="AE|AED|د.إ">🇦🇪 UAE (AED)</option>
+            <option value="NZ|NZD|NZ$">🇳🇿 New Zealand (NZD)</option>
+            <option value="JP|JPY|¥">🇯🇵 Japan (JPY)</option>
+            <option value="CH|CHF|Fr">🇨🇭 Switzerland (CHF)</option>
+            <option value="MX|MXN|$">🇲🇽 Mexico (MXN)</option>
+            <option value="ZA|ZAR|R">🇿🇦 South Africa (ZAR)</option>
+            <option value="BR|BRL|R$">🇧🇷 Brazil (BRL)</option>
+            <option value="OT|USD|$">🌍 Other (USD)</option>
+          </select>
+          <div class="cmpd" id="cur-badge" style="display:none">💱 <span id="cur-txt"></span></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="f">
+          <label for="rage">🎯 Retirement Age</label>
+          <input type="number" id="rage" min="18" max="90" value="65">
+          <div class="qbtns">
+            <button class="qb" onclick="setAge(50)">50</button>
+            <button class="qb" onclick="setAge(55)">55</button>
+            <button class="qb" onclick="setAge(60)">60</button>
+            <button class="qb active" onclick="setAge(65)">65</button>
+            <button class="qb" onclick="setAge(67)">67</button>
+            <button class="qb" onclick="setAge(70)">70</button>
+            <button class="qb today-qb" onclick="setAgeToday()" title="Set to your current age — retire now!">Today</button>
+          </div>
+        </div>
+        <div class="f">
+          <label>⏳ Time to Retire</label>
+          <div class="cmpd" id="ytr-b">⏳ <span id="ytr-txt">Fill in details above</span></div>
+          <div class="hint" id="ytr-hint" style="margin-top:4px"></div>
+        </div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ② CURRENCY RATES LINK (compact — rates are set in Currency tab) -->
+  <div class="cx-mini">
+    <div class="cx-mini-ico">💱</div>
+    <div class="cx-mini-body">
+      <div class="cx-mini-title">Currency Exchange Rates</div>
+      <div class="cx-mini-sub" id="cx-mini-txt">Set exchange rates in the Currency tab — automatically used here</div>
+    </div>
+    <button class="cx-link-btn" onclick="switchTab('currency')">Open Currency Tab →</button>
+  </div>
+
+  <!-- ③ CASH & SAVINGS -->
+  <div class="card">
+    <div class="ch" onclick="tog('cash')">
+      <div class="ci ci-g">💵</div>
+      <div class="ctxt"><div class="ct">Cash & Savings</div><div class="csum" id="sum-cash">Bank accounts, FDs, savings</div></div>
+      <div class="chev" id="chev-cash">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-cash"><div class="cbody-in">
+      <table class="dtbl">
+        <thead><tr><th class="dc">Description</th><th class="da">Amount</th><th class="dcu">Currency</th><th class="ddl"></th></tr></thead>
+        <tbody id="cash-body"></tbody>
+      </table>
+      <button class="badd" onclick="addCash()"><span class="pl">+</span> Add Cash / Savings Account</button>
+      <div class="trow" id="cash-trow" style="display:none">
+        <span class="tl">💰 Total Cash (<span class="rc-lbl">—</span>)</span>
+        <span class="tv" id="cash-tv">—</span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ④ INVESTMENTS (with per-item growth rate) -->
+  <div class="card">
+    <div class="ch" onclick="tog('inv')">
+      <div class="ci ci-p">📈</div>
+      <div class="ctxt"><div class="ct">Investments</div><div class="csum" id="sum-inv">GICs, bonds, PPF, fixed deposits</div></div>
+      <div class="chev" id="chev-inv">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-inv"><div class="cbody-in">
+      <div class="notice">ℹ️ <span>Enter each investment's growth rate. Leave blank for <strong>0%</strong>. Use <strong>Monthly SIP</strong> to add recurring monthly contributions (like SIP/RD).</span></div>
+      <table class="dtbl">
+        <thead><tr><th class="dc">Description</th><th class="da">Amount</th><th class="dcu">Currency</th><th class="dgr">Growth %/yr</th><th class="dsip">Monthly SIP</th><th class="ddl"></th></tr></thead>
+        <tbody id="inv-body"></tbody>
+      </table>
+      <button class="badd" onclick="addInv()"><span class="pl">+</span> Add an Investment</button>
+      <div class="trow" id="inv-trow" style="display:none">
+        <span class="tl">📈 Total Investments (<span class="rc-lbl">—</span>)</span>
+        <span class="tv" id="inv-tv">—</span>
+      </div>
+      <div class="trow" id="sip-trow" style="display:none">
+        <span class="tl">📅 Monthly SIP (<span class="rc-lbl">—</span>)</span>
+        <span class="tv" id="sip-tv">—</span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ⑤ MONTHLY INCOME UNTIL RETIREMENT -->
+  <div class="card">
+    <div class="ch" onclick="tog('inc')">
+      <div class="ci ci-gr">💰</div>
+      <div class="ctxt"><div class="ct">Monthly Income Until Retirement</div><div class="csum" id="sum-inc">Salary, freelance, rental, etc.</div></div>
+      <div class="chev" id="chev-inc">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-inc"><div class="cbody-in">
+      <div class="notice">💡 <span>Only the % you save gets added to your retirement portfolio — the rest is assumed spent. For example, earning $5,000/mo and saving 20% adds $1,000/mo to your projections.</span></div>
+      <table class="dtbl" style="table-layout:fixed">
+        <colgroup><col style="width:42%"><col style="width:34%"><col style="width:18%"><col style="width:26px"></colgroup>
+        <thead><tr>
+          <th>Description</th>
+          <th>Monthly Amount (<span class="rc-lbl">—</span>)</th>
+          <th style="text-align:center">% Saved</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="inc-body"></tbody>
+      </table>
+      <button class="badd" onclick="addInc()"><span class="pl">+</span> Add an Income Source</button>
+      <div class="trow" id="inc-trow" style="display:none">
+        <span class="tl">💰 Monthly Savings from Income</span>
+        <span class="tv" id="inc-tv">—</span>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- ⑥ MONTHLY BUDGET -->
+  <div class="card">
+    <div class="ch" onclick="tog('exp')">
+      <div class="ci ci-b">🏠</div>
+      <div class="ctxt"><div class="ct">Monthly Budget After Retirement</div><div class="csum" id="sum-exp">What you expect to spend each month</div></div>
+      <div class="chev" id="chev-exp">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-exp"><div class="cbody-in">
+      <table class="dtbl" style="table-layout:fixed">
+        <colgroup><col style="width:35%"><col style="width:22%"><col><col style="width:26px"></colgroup>
+        <thead><tr>
+          <th>Expense</th>
+          <th>Per Month (<span class="rc-lbl">—</span>)</th>
+          <th>Category</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="exp-body"></tbody>
+      </table>
+      <button class="badd" onclick="addExp()"><span class="pl">+</span> Add an Expense</button>
+      <div class="trow">
+        <span class="tl">🏠 Total Monthly Budget</span>
+        <span class="tv" id="exp-tv">—</span>
+      </div>
+      <div class="hint" style="margin-top:7px">💡 Include: rent, food, phone, medicine, travel, entertainment, clothing, insurance, gifts…</div>
+    </div></div>
+  </div>
+
+  <!-- ⑦ GROWTH & ASSUMPTIONS -->
+  <div class="card">
+    <div class="ch" onclick="tog('growth')">
+      <div class="ci ci-pk">⚙️</div>
+      <div class="ctxt"><div class="ct">Inflation & Withdrawal Rate</div><div class="csum" id="sum-growth">Inflation and annual withdrawal settings</div></div>
+      <div class="chev" id="chev-growth">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-growth"><div class="cbody-in">
+      <!-- Calculated stats FIRST -->
+      <div class="agg-hd">📊 Calculated from your assets</div>
+      <div class="agg-grid">
+        <div class="agg-item"><div class="agg-lbl">Portfolio Avg Growth</div><div class="agg-val" id="agg-wg">—</div></div>
+        <div class="agg-item"><div class="agg-lbl">Effective CAGR to Retire</div><div class="agg-val gold" id="agg-cagr">—</div></div>
+        <div class="agg-item"><div class="agg-lbl">Annual $ Growth Today</div><div class="agg-val" id="agg-pg">—</div></div>
+      </div>
+      <div class="hint" style="margin-bottom:10px">Portfolio Avg Growth is your weighted average across all investments. CAGR includes income contributions, so it may look higher than the individual rates.</div>
+      <!-- Then sliders -->
+      <div class="f slw">
+        <div class="slh"><label for="infl">💸 Inflation Rate / year</label><span class="slv" id="infl-v">2.5%</span></div>
+        <input type="range" id="infl" min="0" max="10" step="0.5" value="2.5" oninput="updSl('infl');recalc()">
+        <div class="slt"><span>0%</span><span>Typical: 2–3%</span><span>10%</span></div>
+      </div>
+      <div class="f slw" style="margin-top:10px">
+        <div class="slh"><label for="wr">💰 Annual Withdrawal Rate (at retirement)</label><span class="slv" id="wr-v">4.0%</span><span id="wr-auto-hint" style="font-size:.6rem;font-weight:600;margin-left:5px;display:none;cursor:pointer" onclick="toggleWrAutoSync()" title="Click to toggle between auto-sync (from budget) and manual"></span></div>
+        <input type="range" id="wr" min="0" max="100" step="0.5" value="4" oninput="wrAutoSync=false;updSl('wr');recalc()">
+        <div class="slt"><span>0%</span><span>4% (popular rule)</span><span>100%</span></div>
+        <div class="hint">💡 % of your retirement portfolio withdrawn each year. The "4% Rule" historically lasts 30+ years.</div>
+      </div>
+
+    </div></div>
+  </div>
+
+</div><!-- /lp -->
+
+<!-- RIGHT: Retirement Results -->
+<div class="rp">
+  <div class="ph" id="ph"><div class="pi">📊</div><div class="pt">Your results appear here</div><div class="pp">Fill in your details on the left — everything updates live!</div></div>
+  <div id="results" style="display:none">
+    <div id="status-wrap"></div>
+    <div class="sumg">
+      <div class="sc sc-a"><div class="sl">Total Savings Today</div><div class="sv" id="s-today">—</div><div class="ss" id="s-today-sub">—</div></div>
+      <div class="sc sc-g"><div class="sl">Savings at Retirement</div><div class="sv" id="s-retire">—</div><div class="ss" id="s-retire-sub">—</div></div>
+      <div class="sc"><div class="sl">Monthly Income from Portfolio</div><div class="sv" id="s-budget">—</div><div class="ss" id="s-budget-sub">At retirement</div></div>
+      <div class="sc" id="s-last-card"><div class="sl">Funds Last Until</div><div class="sv" id="s-last">—</div><div class="ss" id="s-last-sub">—</div></div>
+    </div>
+    <div class="abk-card">
+      <div class="abk-head">
+        <div class="abk-title">📋 Your Assets at a Glance <span class="hint">Today · <span class="rc-lbl">—</span></span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="text" id="abk-filter" placeholder="🔍 Filter assets…" oninput="renderAssetView()" style="padding:3px 8px;font-size:.72rem;border-radius:6px;width:120px">
+          <div class="abk-view-btns">
+            <button class="abk-vbtn active" id="abk-vbtn-table" onclick="setAbkView('table')">⊞ Table</button>
+            <button class="abk-vbtn" id="abk-vbtn-chart" onclick="setAbkView('chart')">📊 Chart</button>
+          </div>
+        </div>
+      </div>
+      <div id="abk-body"><div style="text-align:center;padding:14px;color:var(--txt3);font-size:.74rem">Add assets on the left to see breakdown</div></div>
+    </div>
+    <div class="chcard">
+      <div class="chtitle">
+        <span>📊 Portfolio Over Time</span>
+      </div>
+      <div class="chw"><canvas id="ret-chart"></canvas></div>
+    </div>
+    <div class="tcard">
+      <div class="tchead"><div class="tct">📅 Year-by-Year Breakdown</div><div class="hint">Base case · starts at retirement age</div></div>
+      <div class="tinr"><table class="ytbl"><thead><tr><th>Year</th><th>Age</th><th>Portfolio</th><th>Annual Withdrawal</th><th>Monthly Income</th><th>Status</th></tr></thead><tbody id="yr-body"></tbody></table></div>
+    </div>
+  </div>
+</div><!-- /rp -->
+</div><!-- /layout -->
+</div><!-- /tab-retirement -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     TAB 2 — CURRENCY
+     Exchange rates are defined here; Retirement tab reads them automatically
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-currency" class="tab-panel">
+<div class="layout">
+
+<!-- LEFT: Currency Management -->
+<div class="lp">
+
+  <!-- Base Currency (read-only — set by retirement country) -->
+  <div class="card">
+    <div class="ch" onclick="tog('cxbase')">
+      <div class="ci ci-t">🏦</div>
+      <div class="ctxt"><div class="ct">Base (Retirement) Currency</div><div class="csum" id="sum-cxbase">Set your retirement country in the Retirement tab</div></div>
+      <div class="chev" id="chev-cxbase">▾</div>
+    </div>
+    <div class="cbody" id="cbody-cxbase"><div class="cbody-in">
+      <div class="cx-base">
+        <span class="cx-base-k">All values convert to:</span>
+        <span class="cx-base-v" id="cx-base-val">Select a country in the Retirement tab ↑</span>
+      </div>
+      <div class="hint">Your base currency is determined by your retirement country. All exchange rates below convert TO this currency. Any changes here automatically update the Retirement tab calculations.</div>
+    </div></div>
+  </div>
+
+  <!-- Exchange Rates Table (shared state with Retirement tab) -->
+  <div class="card">
+    <div class="ch" onclick="tog('cx')">
+      <div class="ci ci-g">💱</div>
+      <div class="ctxt"><div class="ct">Exchange Rates</div><div class="csum" id="sum-cx">No currencies added yet</div></div>
+      <div class="chev" id="chev-cx">▾</div>
+    </div>
+    <div class="cbody" id="cbody-cx"><div class="cbody-in">
+      <table class="dtbl">
+        <thead><tr>
+          <th class="cxc">Currency</th>
+          <th class="cxr">1 [currency] = ? <span class="rc-lbl">—</span></th>
+          <th class="cxd">Annual change % <em style="font-weight:400">(–ve = depreciates)</em></th>
+          <th class="cxdl"></th>
+        </tr></thead>
+        <tbody id="cx-body"></tbody>
+      </table>
+      <button class="badd" onclick="addCX()"><span class="pl">+</span> Add a Currency</button>
+      <div class="hint" style="margin-top:7px">💡 Google: "INR to CAD rate". Negative annual change = currency loses value over time vs your retirement currency (common for emerging markets).</div>
+    </div></div>
+  </div>
+
+  <!-- How to use hint -->
+  <div class="card">
+    <div class="ch" onclick="tog('cxtips')">
+      <div class="ci ci-b">💡</div>
+      <div class="ctxt"><div class="ct">How Currency Rates Work</div><div class="csum">Click to learn about exchange rates</div></div>
+      <div class="chev" id="chev-cxtips">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-cxtips"><div class="cbody-in">
+      <div style="font-size:.8rem;line-height:1.8;color:var(--txt2)">
+        <p style="margin-bottom:8px"><strong>Exchange Rate</strong> — How much 1 unit of a foreign currency equals in your retirement currency today. Example: 1 INR = 0.016 CAD.</p>
+        <p style="margin-bottom:8px"><strong>Annual Change %</strong> — How much the foreign currency is expected to gain (+) or lose (−) value each year against your retirement currency. This compounds annually.</p>
+        <p style="margin-bottom:8px"><strong>Example:</strong> If you hold 1,000,000 INR and the annual change is −2%, after 20 years those INR will be worth 32% less in CAD than today.</p>
+        <p><strong>Tip:</strong> For emerging-market currencies (INR, MXN, BRL), −1% to −3%/yr is a reasonable conservative estimate. Developed-market currencies (USD, GBP, EUR) are closer to 0%.</p>
+      </div>
+    </div></div>
+  </div>
+
+</div><!-- /lp currency -->
+
+<!-- RIGHT: Currency Dashboard -->
+<div class="rp" id="cx-rp">
+
+  <!-- Empty state -->
+  <div class="ph" id="cx-ph">
+    <div class="pi">💱</div>
+    <div class="pt">Add currencies on the left</div>
+    <div class="pp">Set exchange rates for each currency you hold. Retirement projections update automatically.</div>
+  </div>
+
+  <!-- Dashboard (shown when rates are set) -->
+  <div id="cx-dash" style="display:none">
+
+    <!-- Summary Stats -->
+    <div class="sumg3">
+      <div class="sc sc-a"><div class="sl">Currencies Tracked</div><div class="sv" id="cx-count">—</div><div class="ss">Exchange rates set</div></div>
+      <div class="sc"><div class="sl">Foreign Holdings (today)</div><div class="sv" id="cx-holdings">—</div><div class="ss" id="cx-holdings-sub">In retirement currency</div></div>
+      <div class="sc"><div class="sl">Avg Annual Currency Change</div><div class="sv" id="cx-avg-dep">—</div><div class="ss">Weighted by holdings value</div></div>
+    </div>
+
+    <!-- Converter + Current Rates (side by side) -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px">
+
+      <!-- Converter -->
+      <div class="chcard" style="margin-bottom:0">
+        <div class="chtitle">🔄 Currency Converter</div>
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <input type="number" id="conv-amt" placeholder="Enter amount" oninput="updConv()" style="flex:1">
+          <select id="conv-from" onchange="updConv()" style="width:auto;flex-shrink:0;min-width:80px"></select>
+        </div>
+        <div id="conv-body"><div style="color:var(--txt3);font-size:.74rem;text-align:center;padding:12px">Enter an amount above</div></div>
+      </div>
+
+      <!-- Current Rates -->
+      <div class="chcard" style="margin-bottom:0">
+        <div class="chtitle">📋 Today's Rates</div>
+        <div id="rates-body"><div style="color:var(--txt3);font-size:.74rem;text-align:center;padding:12px">No rates set</div></div>
+      </div>
+
+    </div>
+
+    <!-- Depreciation Timeline Chart -->
+    <div class="chcard">
+      <div class="chtitle">
+        <span>📉 Currency Value Over 30 Years</span>
+        <div class="hint">Value of 1 unit of each currency in <strong class="rc-lbl" style="font-weight:700">—</strong></div>
+      </div>
+      <div class="chw" style="height:210px"><canvas id="dep-chart"></canvas></div>
+    </div>
+
+    <!-- Portfolio Impact -->
+    <div class="tcard">
+      <div class="tchead"><div class="tct">🎯 Impact on Your Portfolio</div><div class="hint">Based on holdings entered in Retirement tab</div></div>
+      <div class="tinr">
+        <table class="imp-tbl">
+          <thead><tr>
+            <th>Currency</th>
+            <th>Your Holdings</th>
+            <th>Today's Value</th>
+            <th>Value at Retirement</th>
+            <th>Currency Effect</th>
+            <th>Annual Rate</th>
+          </tr></thead>
+          <tbody id="impact-body"></tbody>
+        </table>
+      </div>
+      <div id="impact-empty" style="text-align:center;padding:14px;color:var(--txt3);font-size:.76rem;display:none">
+        Add cash or investments in foreign currencies in the Retirement tab to see portfolio impact.
+      </div>
+    </div>
+
+  </div><!-- /cx-dash -->
+</div><!-- /rp currency -->
+</div><!-- /layout currency -->
+</div><!-- /tab-currency -->
+
+
+<!-- ═══════════════════════════════════════════════════════════════════ JS -->
+<script>
+'use strict';
+
+/* ── CONSTANTS ──────────────────────────────────────── */
+const CURS=[
+  {c:'CAD',s:'$',n:'Canadian Dollar'},{c:'USD',s:'$',n:'US Dollar'},
+  {c:'INR',s:'₹',n:'Indian Rupee'},{c:'GBP',s:'£',n:'British Pound'},
+  {c:'EUR',s:'€',n:'Euro'},{c:'AUD',s:'A$',n:'Australian Dollar'},
+  {c:'SGD',s:'S$',n:'Singapore Dollar'},{c:'AED',s:'د.إ',n:'UAE Dirham'},
+  {c:'NZD',s:'NZ$',n:'NZ Dollar'},{c:'JPY',s:'¥',n:'Japanese Yen'},
+  {c:'CHF',s:'Fr',n:'Swiss Franc'},{c:'MXN',s:'$',n:'Mexican Peso'},
+  {c:'ZAR',s:'R',n:'South African Rand'},{c:'BRL',s:'R$',n:'Brazilian Real'},
+  {c:'HKD',s:'HK$',n:'Hong Kong Dollar'},{c:'SEK',s:'kr',n:'Swedish Krona'},
+];
+const CATS=['Housing','Food & Groceries','Utilities','Phone & Internet',
+  'Transportation','Medical & Health','Insurance','Entertainment',
+  'Travel','Clothing','Loan / EMI','Family & Gifts','Personal Care','Other'];
+const DEF_EXP=[
+  {l:'Rent / Mortgage',c:'Housing'},{l:'Groceries & Food',c:'Food & Groceries'},
+  {l:'Phone & Internet',c:'Phone & Internet'},{l:'Medical / Prescriptions',c:'Medical & Health'},
+  {l:'Transportation',c:'Transportation'},
+];
+const CX_COLORS=['#0891b2','#d97706','#16a34a','#dc2626','#7c3aed','#db2777','#0369a1','#b45309'];
+
+/* ── STATE ──────────────────────────────────────────── */
+let RC={c:'CAD',s:'$'};
+let retChart=null, depChart=null;
+let cashIds=[],invIds=[],expIds=[],incIds=[],cxIds=[];
+let uid=0, rcT=null, svT=null;
+let activeTab='retirement';
+let wrAutoSync=true;   // when true, WR slider auto-matches budget; user touch flips it off
+
+/* ── UTILS ──────────────────────────────────────────── */
+const $=id=>document.getElementById(id);
+const nid=()=>++uid;
+function fmtK(n){
+  if(!isFinite(n))return'—';
+  const s=RC.s,a=Math.abs(n);
+  if(a>=1e9)return s+(n/1e9).toFixed(1)+'B';
+  if(a>=1e6)return s+(n/1e6).toFixed(2)+'M';
+  if(a>=1e3)return s+(n/1e3).toFixed(0)+'K';
+  return s+n.toFixed(0);
+}
+function fmtF(n){
+  if(!isFinite(n))return'—';
+  const a=Math.abs(n);
+  if(a>=1e6)return RC.s+(n/1e6).toFixed(2)+'M';
+  return RC.s+n.toLocaleString('en',{maximumFractionDigits:0});
+}
+function dR(){clearTimeout(rcT);rcT=setTimeout(recalc,320)}
+// Safe slider value — 0 is valid, only fall back to def when field is empty/NaN
+function slv(id,def){const v=parseFloat($(id)?.value);return isNaN(v)?def:v;}
+function updSl(id){
+  const v=parseFloat($(id).value);
+  if(id==='infl')$('infl-v').textContent=v.toFixed(1)+'%';
+  else if(id==='wr')$('wr-v').textContent=v.toFixed(1)+'%';
+}
+function toggleWrAutoSync(){wrAutoSync=!wrAutoSync;recalc();}
+function calcAge(dobV){
+  const d=new Date(dobV),n=new Date();
+  let a=n.getFullYear()-d.getFullYear();
+  if(n.getMonth()-d.getMonth()<0||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))a--;
+  return a;
+}
+function getYTR(){
+  const dv=$('dob').value, rAge=parseInt($('rage').value)||65;
+  if(!dv)return 20;
+  return Math.max(0,rAge-calcAge(dv));
+}
+function isDark(){return document.documentElement.dataset.theme==='dark'}
+
+/* ── TAB SWITCHING ──────────────────────────────────── */
+function switchTab(name){
+  activeTab=name;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  $(`tab-${name}`).classList.add('active');
+  document.querySelectorAll('.tbtn[id^="tbtn-"]').forEach(b=>b.classList.remove('active'));
+  $(`tbtn-${name}`).classList.add('active');
+  if(name==='currency')renderCurrencyDash();
+}
+
+/* ── THEME ──────────────────────────────────────────── */
+function toggleTheme(){
+  const dk=isDark();
+  document.documentElement.dataset.theme=dk?'light':'dark';
+  $('theme-btn').textContent=dk?'🌙 Dark':'☀️ Light';
+  localStorage.setItem('rs_theme',dk?'light':'dark');
+  if(retChart)recalc();
+  if(activeTab==='currency')renderCurrencyDash();
+}
+
+/* ── COLLAPSIBLE ────────────────────────────────────── */
+function tog(id){
+  const b=$(`cbody-${id}`),c=$(`chev-${id}`);
+  if(!b)return;
+  const closed=b.classList.contains('closed');
+  b.classList.toggle('closed',!closed);
+  if(c)c.classList.toggle('up',closed);
+}
+
+/* ── COUNTRY CHANGE ─────────────────────────────────── */
+function onCountry(){
+  const v=$('rcountry').value;if(!v)return;
+  const[,code,sym]=v.split('|');
+  const oldCode=RC.c;
+  RC={c:code,s:sym};
+
+  // Migrate existing assets: if their currency was the old base, switch to new base
+  if(oldCode&&oldCode!==code){
+    cashIds.forEach(id=>{const s=$(`ca-${id}`)?.querySelector('select');if(s&&s.value===oldCode)s.value=code});
+    invIds.forEach(id=>{const s=$(`iv-${id}`)?.querySelector('select');if(s&&s.value===oldCode)s.value=code});
+  }
+  // Rebuild currency option lists so the new base appears in all dropdowns
+  cashIds.forEach(id=>{const s=$(`ca-${id}`)?.querySelector('select');if(s){const cv=s.value;s.innerHTML=curOpts(cv)}});
+  invIds.forEach(id=>{const s=$(`iv-${id}`)?.querySelector('select');if(s){const cv=s.value;s.innerHTML=curOpts(cv)}});
+
+  $('cur-badge').style.display='flex';
+  $('cur-txt').textContent=`All values in ${code}`;
+  $('cx-base-val').textContent=`${code} (${CURS.find(x=>x.c===code)?.n||code})`;
+  $('sum-cxbase').textContent=`Base: ${code} — all rates convert to this`;
+  document.querySelectorAll('.rc-lbl').forEach(el=>el.textContent=code);
+  recalc();
+  if(activeTab==='currency')renderCurrencyDash();
+}
+
+/* ── QUICK AGE ──────────────────────────────────────── */
+function setAge(a){
+  $('rage').value=a;
+  document.querySelectorAll('.qb:not(.today-qb)').forEach(b=>b.classList.toggle('active',+b.textContent===a));
+  document.querySelectorAll('.today-qb').forEach(b=>b.classList.remove('active'));
+  recalc();
+}
+function setAgeToday(){
+  const dv=$('dob').value;
+  if(!dv){const d=$('dob');d.style.outline='2px solid var(--danger)';setTimeout(()=>d.style.outline='',1600);return}
+  const a=calcAge(dv);$('rage').value=a;
+  document.querySelectorAll('.qb:not(.today-qb)').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.today-qb').forEach(b=>b.classList.add('active'));
+  recalc();
+}
+
+/* ── CURRENCY EXCHANGE ──────────────────────────────── */
+function fCurOpts(sel=''){
+  return CURS.filter(c=>c.c!==RC.c)
+    .map(c=>`<option value="${c.c}"${c.c===sel?' selected':''}>${c.c} — ${c.n}</option>`)
+    .join('');
+}
+function addCX(cur='',rate='',dep=''){
+  const id=nid();
+  const tr=document.createElement('tr');tr.id=`cx-${id}`;
+  const defCur=cur||(CURS.filter(c=>c.c!==RC.c)[cxIds.length%Math.max(1,CURS.length-1)]?.c||'INR');
+  tr.innerHTML=`
+    <td class="cxc"><select id="cxcur-${id}" onchange="recalc();if(activeTab==='currency')renderCurrencyDash()">${fCurOpts(defCur)}</select></td>
+    <td class="cxr"><input type="number" id="cxrate-${id}" min="0" step="0.0001" placeholder="e.g. 0.016" value="${rate}" oninput="recalc();if(activeTab==='currency')renderCurrencyDash()"></td>
+    <td class="cxd"><input type="number" id="cxdep-${id}" placeholder="0" step="0.1" value="${dep}" oninput="recalc();if(activeTab==='currency')renderCurrencyDash()"></td>
+    <td class="cxdl"><button class="brm" onclick="remCX(${id})">✕</button></td>`;
+  $('cx-body').appendChild(tr);cxIds.push(id);
+  recalc();
+  if(activeTab==='currency')renderCurrencyDash();
+}
+function remCX(id){$(`cx-${id}`)?.remove();cxIds=cxIds.filter(x=>x!==id);recalc();if(activeTab==='currency')renderCurrencyDash()}
+function getXR(code){
+  if(code===RC.c)return{rate:1,dep:0};
+  for(const id of cxIds){
+    const el=$(`cxcur-${id}`);
+    if(el&&el.value===code)return{rate:parseFloat($(`cxrate-${id}`)?.value)||0,dep:parseFloat($(`cxdep-${id}`)?.value)||0};
+  }
+  return{rate:0,dep:0};
+}
+
+/* ── CASH ───────────────────────────────────────────── */
+function addCash(l='',a='',c=''){
+  const id=nid(),cur=c||RC.c;
+  const tr=document.createElement('tr');tr.id=`ca-${id}`;
+  tr.innerHTML=`
+    <td class="dc"><input type="text" placeholder="e.g. RBC Savings" value="${l}" oninput="dR()"></td>
+    <td class="da"><input type="number" min="0" placeholder="0" value="${a}" oninput="dR()"></td>
+    <td class="dcu"><select onchange="recalc()">${curOpts(cur)}</select></td>
+    <td class="ddl"><button class="brm" onclick="remCash(${id})">✕</button></td>`;
+  $('cash-body').appendChild(tr);cashIds.push(id);dR();
+}
+function remCash(id){$(`ca-${id}`)?.remove();cashIds=cashIds.filter(x=>x!==id);recalc()}
+function getCash(){return cashIds.map(id=>{const el=$(`ca-${id}`);if(!el)return null;const[a,b]=el.querySelectorAll('input');return{label:a.value,amt:parseFloat(b.value)||0,cur:el.querySelector('select').value}}).filter(Boolean)}
+
+/* ── INVESTMENTS ────────────────────────────────────── */
+function addInv(l='',a='',c='',ir='',sip=''){
+  const id=nid(),cur=c||RC.c;
+  const tr=document.createElement('tr');tr.id=`iv-${id}`;
+  tr.innerHTML=`
+    <td class="dc"><input type="text" placeholder="e.g. Mutual Fund" value="${l}" oninput="dR()"></td>
+    <td class="da"><input type="number" min="0" placeholder="0" value="${a}" oninput="dR()"></td>
+    <td class="dcu"><select onchange="recalc()">${curOpts(cur)}</select></td>
+    <td class="dgr"><input type="number" min="0" max="30" step="0.1" placeholder="0" value="${ir}" oninput="dR()" title="Annual growth rate %. Leave blank for 0% (no growth)."></td>
+    <td class="dsip"><input type="number" min="0" placeholder="0" value="${sip}" oninput="dR()" title="Monthly SIP — how much you add to this investment each month before retirement."></td>
+    <td class="ddl"><button class="brm" onclick="remInv(${id})">✕</button></td>`;
+  $('inv-body').appendChild(tr);invIds.push(id);dR();
+}
+function remInv(id){$(`iv-${id}`)?.remove();invIds=invIds.filter(x=>x!==id);recalc()}
+function getInv(){return invIds.map(id=>{const el=$(`iv-${id}`);if(!el)return null;const ins=el.querySelectorAll('input');const v=parseFloat(ins[2].value);return{label:ins[0].value,amt:parseFloat(ins[1].value)||0,cur:el.querySelector('select').value,irate:ins[2].value===''?null:(isNaN(v)?null:v),sip:parseFloat(ins[3].value)||0}}).filter(Boolean)}
+
+/* ── INCOME ─────────────────────────────────────────── */
+function addInc(l='',a='',p=30){
+  const id=nid();
+  const tr=document.createElement('tr');tr.id=`in-${id}`;
+  tr.innerHTML=`
+    <td><input type="text" placeholder="e.g. Salary" value="${l}" oninput="dR()"></td>
+    <td><input type="number" min="0" placeholder="0" value="${a}" oninput="dR()" style="width:100%"></td>
+    <td style="text-align:center"><div style="display:flex;align-items:center;justify-content:center;gap:3px"><input type="number" min="0" max="100" placeholder="30" value="${p}" oninput="dR()" style="width:44px;text-align:center"><span style="font-size:.68rem;color:var(--txt3);flex-shrink:0">%</span></div></td>
+    <td><button class="brm" onclick="remInc(${id})">✕</button></td>`;
+  $('inc-body').appendChild(tr);incIds.push(id);dR();
+}
+function remInc(id){$(`in-${id}`)?.remove();incIds=incIds.filter(x=>x!==id);recalc()}
+function getInc(){return incIds.map(id=>{const el=$(`in-${id}`);if(!el)return null;const ins=el.querySelectorAll('input');return{label:ins[0].value,amt:parseFloat(ins[1].value)||0,savePct:parseFloat(ins[2].value)||30}}).filter(Boolean)}
+
+/* ── EXPENSES ───────────────────────────────────────── */
+function addExp(l='',a='',cat='Other'){
+  const id=nid();
+  const tr=document.createElement('tr');tr.id=`ex-${id}`;
+  tr.innerHTML=`
+    <td><input type="text" placeholder="e.g. Rent" value="${l}" oninput="dR()"></td>
+    <td><input type="number" min="0" placeholder="0" value="${a}" oninput="dR()" style="width:100%"></td>
+    <td><select onchange="recalc()" style="width:100%;font-size:.78rem">${catOpts(cat)}</select></td>
+    <td><button class="brm" onclick="remExp(${id})">✕</button></td>`;
+  $('exp-body').appendChild(tr);expIds.push(id);dR();
+}
+function remExp(id){$(`ex-${id}`)?.remove();expIds=expIds.filter(x=>x!==id);recalc()}
+function getExp(){return expIds.map(id=>{const el=$(`ex-${id}`);if(!el)return null;const[a,b]=el.querySelectorAll('input');return{label:a.value,amt:parseFloat(b.value)||0,cat:el.querySelector('select').value}}).filter(Boolean)}
+
+/* ── OPTION HELPERS ─────────────────────────────────── */
+function curOpts(sel=''){return CURS.map(x=>`<option value="${x.c}"${x.c===sel?' selected':''}>${x.c} ${x.s}</option>`).join('')}
+function catOpts(sel='Other'){return CATS.map(c=>`<option${c===sel?' selected':''}>${c}</option>`).join('')}
+
+/* ── CALCULATIONS ───────────────────────────────────── */
+function todayV(items){return items.reduce((s,r)=>{const{rate}=getXR(r.cur);return s+(r.cur===RC.c?r.amt:r.amt*(rate||0))},0)}
+function calcWG(){
+  const all=[...getCash().map(r=>({...r,irate:0})),...getInv().map(r=>({...r,irate:(r.irate!=null&&!isNaN(r.irate))?r.irate:0}))];
+  if(!all.length)return 0;
+  let tv=0,ws=0;
+  all.forEach(r=>{const{rate}=getXR(r.cur);const v=r.cur===RC.c?r.amt:r.amt*(rate||0);tv+=v;ws+=v*r.irate});
+  return tv>0?ws/tv:0;
+}
+function portAtRetire(ytr,wg=0){
+  let tot=0;
+  getCash().forEach(r=>{const{rate,dep}=getXR(r.cur);const v=r.cur===RC.c?r.amt:r.amt*(rate||0);tot+=v*Math.pow((1+0/100)*(1+dep/100),ytr)});
+  getInv().forEach(r=>{
+    const{rate,dep}=getXR(r.cur);
+    const v=r.cur===RC.c?r.amt:r.amt*(rate||0);
+    const ir=(r.irate!=null&&!isNaN(r.irate))?r.irate:0;
+    tot+=v*Math.pow((1+ir/100)*(1+dep/100),ytr);
+    // Monthly SIP: FV of recurring contributions at this investment's own growth rate
+    if(ytr>0&&r.sip>0){
+      const sipV=r.cur===RC.c?r.sip:r.sip*(rate||0);
+      const mr=ir/100/12;
+      const mo=ytr*12;
+      tot+=mr>0?sipV*(Math.pow(1+mr,mo)-1)/mr:sipV*mo;
+    }
+  });
+  if(ytr>0){const mr=wg/100/12,mo=ytr*12,pmt=getInc().reduce((s,r)=>s+r.amt*(r.savePct/100),0);if(pmt>0)tot+=mr>0?pmt*(Math.pow(1+mr,mo)-1)/mr:pmt*mo}
+  return tot;
+}
+function project(startB,gR,annSpend,rAge,ryrs,infl){
+  const lb=[],bs=[];let b=startB;
+  for(let y=0;y<=ryrs;y++){const sp=annSpend*Math.pow(1+infl/100,y);lb.push(rAge+y);bs.push(Math.max(0,b));if(b<=0){for(let r=y+1;r<=ryrs;r++){lb.push(rAge+r);bs.push(0)}break}b=b*(1+gR/100)-sp}
+  return{lb,bs};
+}
+
+/* ── ASSET BREAKDOWN — TABLE / CHART VIEW ────────────── */
+let abkView='table', abkSort={col:'val',dir:-1};
+let lastAssetData=[];
+
+function setAbkView(v){
+  abkView=v;
+  $('abk-vbtn-table').classList.toggle('active',v==='table');
+  $('abk-vbtn-chart').classList.toggle('active',v==='chart');
+  renderAssetView();
+}
+
+function renderAssets(){
+  const cd=getCash(),id=getInv(),nd=getInc();
+  const all=[...cd.map(r=>({...r,type:'Cash',irate:0})),...id.map(r=>({...r,type:'Investment',irate:(r.irate!=null&&!isNaN(r.irate))?r.irate:0}))];
+  const totInc=nd.reduce((s,r)=>s+r.amt,0),totSav=nd.reduce((s,r)=>s+r.amt*(r.savePct/100),0);
+  const bd=$('abk-body');
+  if(!all.length&&!nd.length){
+    bd.innerHTML='<div style="text-align:center;padding:14px;color:var(--txt3);font-size:.74rem">Add assets on the left to see breakdown</div>';
+    lastAssetData=[];
+    return;
+  }
+  // ytr=0 means no accumulation phase: income savings & SIPs don't contribute
+  const _ytr=getYTR();
+  const accumulates=_ytr>0;
+  lastAssetData=all.map(r=>{
+    const{rate,dep}=getXR(r.cur);
+    const isForeign=r.cur!==RC.c;
+    const noRate=isForeign&&!(rate>0);
+    const val=isForeign?r.amt*(rate||0):r.amt;
+    const sipV=(accumulates&&r.sip)?(r.cur===RC.c?r.sip:r.sip*(rate||0)):0;
+    return{...r,val,ag:val*((1+r.irate/100)*(1+dep/100)-1),noRate,_sipMo:sipV};
+  });
+  if(totInc>0)lastAssetData.push({label:nd.length===1?nd[0].label:'Income Sources',type:'Income',val:0,ag:accumulates?totSav*12:0,irate:0,amt:totInc,cur:RC.c,_saveMo:totSav,_inactive:!accumulates});
+  renderAssetView();
+}
+
+function renderAssetView(){
+  const bd=$('abk-body');
+  if(!lastAssetData.length){bd.innerHTML='<div style="text-align:center;padding:14px;color:var(--txt3);font-size:.74rem">Add assets on the left to see breakdown</div>';return}
+  const filt=($('abk-filter')?.value||'').toLowerCase();
+  let rows=lastAssetData.filter(r=>!filt||(r.label||'').toLowerCase().includes(filt)||r.type.toLowerCase().includes(filt));
+  const tv=lastAssetData.filter(r=>r.type!=='Income').reduce((s,r)=>s+r.val,0);
+  // Sort
+  rows=[...rows].sort((a,b)=>{
+    const col=abkSort.col==='alloc'?'val':abkSort.col==='def'?'type':abkSort.col;
+    let va=a[col],vb=b[col];
+    if(typeof va==='string')va=va.toLowerCase(),vb=vb.toLowerCase();
+    return abkSort.dir*(va>vb?1:va<vb?-1:0);
+  });
+
+  if(abkView==='table'){
+    const cols=[
+      {key:'label',label:'Asset Name'},
+      {key:'type',label:'Type'},
+      {key:'alloc',label:'% Alloc'},
+      {key:'val',label:`Value (${RC.c})`},
+      {key:'irate',label:'Gr. Rate'},
+      {key:'ag',label:'Annual $ Growth'},
+    ];
+    const tagCls=t=>t==='Cash'?'abk-cash':t==='Investment'?'abk-inv':'abk-inc';
+    const headHtml=cols.map(c=>{
+      const sorted=abkSort.col===c.key;
+      const arrow=sorted?(abkSort.dir===-1?'▼':'▲'):'⇅';
+      return`<th class="${sorted?'sorted':''}" onclick="abkSortBy('${c.key}')">${c.label}<span class="sort-arrow">${arrow}</span></th>`;
+    }).join('');
+    const bodyHtml=rows.map(r=>{
+      const pct=tv>0&&r.type!=='Income'?(r.val/tv*100).toFixed(1)+'%':'—';
+      const noRateBadge=r.noRate?` <span style="font-size:.58rem;background:var(--warn-bg);color:var(--warn);border-radius:4px;padding:1px 5px;font-weight:700">⚠️ No rate set</span>`:'';
+      const inactiveTag=r._inactive?` <span style="font-size:.58rem;background:var(--warn-bg);color:var(--warn);border-radius:4px;padding:1px 5px;font-weight:700">⚠️ not added (0yr to retire)</span>`:'';
+      const valCell=r.type==='Income'?`<span style="color:var(--success);font-weight:700">${fmtF(r._saveMo||0)}/mo saved</span>${inactiveTag}`:(r.noRate?`<span style="color:var(--warn)">${r.cur} — set rate in Currency tab</span>`:fmtF(r.val));
+      const grCell=r.ag>0?`<span class="cg">+${fmtK(r.ag)}/yr</span>`:r.ag<0?`<span class="cr">${fmtK(r.ag)}/yr</span>`:`<span style="color:var(--txt3)">—</span>`;
+      const sipBadge=r._sipMo>0?` <span style="color:var(--success);font-size:.65rem;font-weight:600">+${fmtF(r._sipMo)}/mo SIP</span>`:'';
+      const curGrCell=r.type==='Income'?'—':`${(r.irate||0).toFixed(1)}%`;
+      return`<tr><td><strong>${r.label||'—'}</strong>${noRateBadge}</td><td><span class="abk-tag ${tagCls(r.type)}">${r.type}</span></td><td>${pct}</td><td>${valCell}</td><td>${curGrCell}</td><td>${grCell}${sipBadge}</td></tr>`;
+    }).join('');
+    const totAg=lastAssetData.reduce((s,r)=>s+r.ag,0);
+    bd.innerHTML=`
+      <div style="overflow-x:auto">
+      <table class="abk-tbl">
+        <thead><tr>${headHtml}</tr></thead>
+        <tbody>${bodyHtml||'<tr><td colspan="6" style="text-align:center;color:var(--txt3);padding:10px">No results</td></tr>'}</tbody>
+        <tfoot><tr><td><strong>Total</strong></td><td></td><td>100%</td><td style="color:var(--acc);font-size:.84rem">${fmtF(tv)}</td><td>—</td><td class="cg">+${fmtK(totAg)}/yr</td></tr></tfoot>
+      </table></div>`;
+  } else {
+    // Chart view: horizontal bars
+    const maxVal=Math.max(...rows.filter(r=>r.type!=='Income').map(r=>r.val),1);
+    const barColors={Cash:'#d97706',Investment:'#0891b2',Income:'#16a34a'};
+    const html=rows.map(r=>{
+      const pct=r.type!=='Income'?(r.val/maxVal*100).toFixed(1):0;
+      const c=barColors[r.type]||'#888';
+      const label=r.type==='Income'?`${fmtF(r._saveMo||0)}/mo saved`:fmtF(r.val);
+      return`<div class="abk-chart-row">
+        <div class="abk-chart-lbl" title="${r.label||''}">${r.label||'—'}<br><span style="font-size:.6rem;font-weight:400;opacity:.6">${r.type}</span></div>
+        <div class="abk-chart-bar-bg"><div class="abk-chart-bar" style="width:${pct}%;background:${c}">${pct>18?label:''}</div></div>
+        <div class="abk-chart-amt" style="color:${c}">${label}</div>
+      </div>`;
+    }).join('');
+    const totAg=lastAssetData.reduce((s,r)=>s+r.ag,0);
+    bd.innerHTML=`<div class="abk-chart-wrap">${html}</div><div class="abk-total-row"><span style="flex:1">Total Portfolio</span><span style="color:var(--acc)">${fmtF(tv)}</span><span class="cg" style="margin-left:12px">+${fmtK(totAg)}/yr growing</span></div>`;
+  }
+}
+
+function abkSortBy(col){
+  if(abkSort.col===col)abkSort.dir*=-1;
+  else{abkSort.col=col;abkSort.dir=-1;}
+  renderAssetView();
+}
+
+/* ── CURRENCY DASHBOARD ─────────────────────────────── */
+function renderCurrencyDash(){
+  const hasCX=cxIds.length>0;
+  $('cx-ph').style.display=hasCX?'none':'';
+  $('cx-dash').style.display=hasCX?'':'none';
+  if(!hasCX)return;
+
+  // Summary stats
+  const n=cxIds.length;$('cx-count').textContent=n;
+  const foreignHoldings=cxIds.reduce((s,id)=>{
+    const cur=$(`cxcur-${id}`)?.value||'';
+    const rate=parseFloat($(`cxrate-${id}`)?.value)||0;
+    const inCash=getCash().filter(r=>r.cur===cur).reduce((a,r)=>a+r.amt,0);
+    const inInv=getInv().filter(r=>r.cur===cur).reduce((a,r)=>a+r.amt,0);
+    return s+(inCash+inInv)*rate;
+  },0);
+  $('cx-holdings').textContent=fmtF(foreignHoldings)||'—';
+  // Weighted avg depreciation by holdings
+  let wDep=0,wTot=0;
+  cxIds.forEach(id=>{
+    const cur=$(`cxcur-${id}`)?.value||'';
+    const rate=parseFloat($(`cxrate-${id}`)?.value)||0;
+    const dep=parseFloat($(`cxdep-${id}`)?.value)||0;
+    const inCash=getCash().filter(r=>r.cur===cur).reduce((a,r)=>a+r.amt,0);
+    const inInv=getInv().filter(r=>r.cur===cur).reduce((a,r)=>a+r.amt,0);
+    const val=(inCash+inInv)*rate;
+    wDep+=val*dep; wTot+=val;
+  });
+  const avgDep=wTot>0?wDep/wTot:0;
+  const avgDepEl=$('cx-avg-dep');avgDepEl.textContent=(avgDep>=0?'+':'')+avgDep.toFixed(2)+'%/yr';
+  avgDepEl.className='sv '+(avgDep<0?'cr':avgDep>0?'cg':'');
+
+  // Converter options
+  updConvOpts();
+  updConv();
+
+  // Current rates table
+  renderRatesTable();
+
+  // Depreciation chart
+  renderDepChart();
+
+  // Portfolio impact
+  renderImpact();
+}
+
+function renderRatesTable(){
+  const body=$('rates-body');
+  if(!cxIds.length){body.innerHTML='<div style="color:var(--txt3);font-size:.74rem;text-align:center;padding:12px">No rates set</div>';return}
+  body.innerHTML='';
+  cxIds.forEach(id=>{
+    const cur=$(`cxcur-${id}`)?.value||'—';
+    const rate=parseFloat($(`cxrate-${id}`)?.value)||0;
+    const dep=parseFloat($(`cxdep-${id}`)?.value)||0;
+    const d=document.createElement('div');d.className='rate-row';
+    const depClass=dep<0?'dep-neg':dep>0?'dep-pos':'dep-zero';
+    const depLabel=(dep>0?'+':'')+dep.toFixed(1)+'%/yr';
+    d.innerHTML=`
+      <span class="rate-cur">${cur}</span>
+      <span class="rate-val">1 ${cur} = ${rate>0?RC.s+rate.toFixed(4)+' '+RC.c:'not set'}</span>
+      <span class="rate-dep ${depClass}">${dep!==0?depLabel:'Stable'}</span>`;
+    body.appendChild(d);
+  });
+}
+
+function updConvOpts(){
+  const sel=$('conv-from'), prev=sel.value;
+  sel.innerHTML=`<option value="${RC.c}">${RC.c} (base)</option>`+
+    cxIds.map(id=>{const c=$(`cxcur-${id}`)?.value||'';return`<option value="${c}">${c}</option>`}).join('');
+  if(prev)sel.value=prev;
+}
+
+function updConv(){
+  const amt=parseFloat($('conv-amt').value)||0;
+  const from=$('conv-from').value;
+  const body=$('conv-body');
+  if(!from){body.innerHTML='';return}
+  // Convert to RC first
+  let amtRC=from===RC.c?amt:amt*(parseFloat($(`cxrate-${cxIds.find(id=>$(`cxcur-${id}`)?.value===from)}`)?.value)||0);
+  const rows=[];
+  if(from!==RC.c)rows.push({c:RC.c,s:RC.s,val:amtRC,note:'Retirement currency'});
+  cxIds.forEach(id=>{
+    const c=$(`cxcur-${id}`)?.value||'';
+    const r=parseFloat($(`cxrate-${id}`)?.value)||0;
+    if(c&&c!==from&&r>0)rows.push({c,s:CURS.find(x=>x.c===c)?.s||'',val:amtRC/r});
+  });
+  if(!rows.length){body.innerHTML='<div style="color:var(--txt3);font-size:.74rem;padding:8px">No other currencies to convert to</div>';return}
+  body.innerHTML=rows.map(r=>`
+    <div class="conv-row">
+      <div class="conv-left"><span class="conv-cur">${r.c}</span>${r.note?`<span class="conv-note">${r.note}</span>`:''}</div>
+      <span class="conv-val">${isFinite(r.val)?(r.s||'')+r.val.toLocaleString('en',{maximumFractionDigits:4}):'—'}</span>
+    </div>`).join('');
+}
+
+function renderDepChart(){
+  const yrs=30;
+  const labels=Array.from({length:yrs+1},(_,i)=>i);
+  const datasets=cxIds.map((id,idx)=>{
+    const cur=$(`cxcur-${id}`)?.value||'';
+    const rate=parseFloat($(`cxrate-${id}`)?.value)||0;
+    const dep=parseFloat($(`cxdep-${id}`)?.value)||0;
+    const color=CX_COLORS[idx%CX_COLORS.length];
+    return{
+      label:`1 ${cur}`,
+      data:labels.map(y=>+(rate*Math.pow(1+dep/100,y)).toFixed(5)),
+      borderColor:color,backgroundColor:color+'22',borderWidth:2,pointRadius:0,tension:.4,fill:false
+    };
+  });
+  const dk=isDark();
+  const ctx=$('dep-chart').getContext('2d');
+  if(depChart)depChart.destroy();
+  depChart=new Chart(ctx,{
+    type:'line',data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:true,position:'bottom',labels:{color:dk?'#f0f4f8':'#1e293b',font:{size:11},boxWidth:24,boxHeight:3,padding:12}},
+        tooltip:{
+          backgroundColor:dk?'rgba(10,20,40,.96)':'rgba(255,255,255,.97)',
+          borderColor:dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)',borderWidth:1,
+          titleColor:dk?'#f0f4f8':'#1e293b',bodyColor:dk?'rgba(240,244,248,.7)':'#64748b',padding:9,
+          callbacks:{title:c=>`Year ${c[0].label}`,label:c=>` ${c.dataset.label} = ${RC.s}${c.raw} ${RC.c}`}
+        }
+      },
+      scales:{
+        x:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}},title:{display:true,text:'Years from now',color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}},
+        y:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10},callback:v=>`${RC.s}${v}`},title:{display:true,text:`Value in ${RC.c}`,color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}}
+      }
+    }
+  });
+}
+
+function renderImpact(){
+  const ytr=getYTR();
+  const tb=$('impact-body'),emp=$('impact-empty');
+  const cd=getCash(),id=getInv();
+  const rows=cxIds.map(cxid=>{
+    const cur=$(`cxcur-${cxid}`)?.value||'';
+    const rate=parseFloat($(`cxrate-${cxid}`)?.value)||0;
+    const dep=parseFloat($(`cxdep-${cxid}`)?.value)||0;
+    const cashAmt=cd.filter(r=>r.cur===cur).reduce((s,r)=>s+r.amt,0);
+    const invAmt=id.filter(r=>r.cur===cur).reduce((s,r)=>s+r.amt,0);
+    const total=cashAmt+invAmt;
+    if(total===0)return null;
+    const todayRC=total*rate;
+    const futRate=rate*Math.pow(1+dep/100,ytr);
+    const futureRC=total*futRate;
+    const chg=todayRC>0?(futureRC-todayRC)/todayRC*100:0;
+    return{cur,total,todayRC,futureRC,chg,dep,ytr};
+  }).filter(Boolean);
+
+  if(!rows.length){tb.innerHTML='';emp.style.display='';return}
+  emp.style.display='none';
+
+  const sy=CURS.find(x=>x.c)?.s||'';
+  tb.innerHTML=rows.map(r=>{
+    const chgCls=r.chg>=0?'cg':'cr';
+    const chgBadge=r.chg>=0?'succ-bg':'dang-bg';
+    const depLabel=r.dep!==0?(r.dep>0?'+':'')+r.dep.toFixed(1)+'%/yr':'Stable';
+    const depCls=r.dep<0?'dep-neg':r.dep>0?'dep-pos':'dep-zero';
+    const curSym=CURS.find(x=>x.c===r.cur)?.s||'';
+    return`<tr>
+      <td><strong>${r.cur}</strong></td>
+      <td>${curSym}${r.total.toLocaleString('en',{maximumFractionDigits:0})} ${r.cur}</td>
+      <td>${fmtF(r.todayRC)}</td>
+      <td>${fmtF(r.futureRC)}</td>
+      <td class="${chgCls}" style="font-weight:700">${r.chg>=0?'+':''}${r.chg.toFixed(1)}%<br><span style="font-size:.65rem;font-weight:400;color:var(--txt3)">over ${r.ytr}yr</span></td>
+      <td><span class="rate-dep ${depCls}">${depLabel}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+/* ── CARD SUMMARIES ─────────────────────────────────── */
+function updSums(curAge,rAge,infl){
+  const cd=getCash(),id=getInv(),ed=getExp(),nd=getInc();
+  if(curAge&&rAge)$('sum-about').textContent=`Age ${curAge} · Retiring at ${rAge}`;
+  const cxTxt=cxIds.length?`${cxIds.length} currency rate${cxIds.length>1?'s':''} set — auto-applied`:'No rates set — open Currency tab to add';
+  $('sum-cx').textContent=cxTxt;
+  $('cx-mini-txt').textContent=cxIds.length?`${cxIds.length} rate${cxIds.length>1?'s':''} set · rates auto-used in projections`:'No rates set — click to open Currency tab';
+  const ct=todayV(cd);$('sum-cash').textContent=cd.length?`${cd.length} account${cd.length>1?'s':''} · ${fmtF(ct)} ${RC.c}`:'No accounts — click to add';
+  const it=todayV(id),wg=calcWG(),ts2=id.reduce((s,r)=>s+(r.sip||0),0);$('sum-inv').textContent=id.length?`${id.length} item${id.length>1?'s':''} · ${fmtF(it)} · Avg ${wg.toFixed(1)}% growth${ts2>0?' · SIP '+fmtF(ts2)+'/mo':''}`:'No investments — click to add';
+  const ts=nd.reduce((s,r)=>s+r.amt*(r.savePct/100),0);$('sum-inc').textContent=nd.length?`${nd.length} source${nd.length>1?'s':''} · Saving ${fmtF(ts)}/mo`:'No income — click to add';
+  const et=ed.reduce((s,r)=>s+r.amt,0);$('sum-exp').textContent=ed.length?`${ed.length} expenses · ${fmtF(et)}/month`:'No expenses — click to add';
+  const _wr=slv('wr',4);$('sum-growth').textContent=`Inflation ${infl}% · Withdrawal ${_wr}%`;
+}
+
+/* ── MAIN RECALC ────────────────────────────────────── */
+function recalc(){
+  // Keep RC in sync with the country dropdown (guards against load-order issues)
+  const _cv=$('rcountry').value;
+  if(_cv){const[,_code,_sym]=_cv.split('|');if(_code&&_code!==RC.c){RC={c:_code,s:_sym};document.querySelectorAll('.rc-lbl').forEach(el=>el.textContent=_code);}}
+
+  const dv=$('dob').value;
+  const rAge=parseInt($('rage').value)||65;
+  const infl=slv('infl',2.5);
+  let wrRate=slv('wr',4);
+  const ryrs=Math.max(10, 100-rAge); // project until age 100 (minimum 10 years)
+
+  let curAge=null,ytr=null;
+  if(dv){
+    curAge=calcAge(dv);ytr=Math.max(0,rAge-curAge);
+    $('age-badge').style.display='flex';$('age-txt').textContent=`You are ${curAge} years old`;
+    $('ytr-b').style.display='flex';
+    if(ytr<=0){$('ytr-txt').textContent='You\'ve reached retirement age! 🎉';$('ytr-hint').textContent=''}
+    else{const ry=new Date().getFullYear()+ytr;$('ytr-txt').textContent=`${ytr} year${ytr===1?'':'s'} to go`;$('ytr-hint').textContent=`Estimated retirement: ${ry}`}
+  } else {
+    $('age-badge').style.display='none';
+    $('ytr-b').style.display='flex';$('ytr-txt').textContent='Enter your date of birth';$('ytr-hint').textContent='';
+  }
+
+  const cd=getCash(),id=getInv(),ed=getExp(),nd=getInc();
+  const cashT=todayV(cd),invT=todayV(id),expMo=ed.reduce((s,r)=>s+r.amt,0);
+  const totToday=cashT+invT,totSav=nd.reduce((s,r)=>s+r.amt*(r.savePct/100),0);
+
+  const totSip=id.reduce((s,r)=>s+(r.sip||0),0);
+  const ctr=$('cash-trow');if(cd.length){ctr.style.display='flex';$('cash-tv').textContent=fmtF(cashT)}else ctr.style.display='none';
+  const itr=$('inv-trow');if(id.length){itr.style.display='flex';$('inv-tv').textContent=fmtF(invT)}else itr.style.display='none';
+  const siptr=$('sip-trow');if(totSip>0){siptr.style.display='flex';$('sip-tv').textContent=fmtF(totSip)+'/month'}else siptr.style.display='none';
+  $('exp-tv').textContent=expMo>0?`${fmtF(expMo)}/month`:'—';
+  const ntr=$('inc-trow');if(nd.length){ntr.style.display='flex';$('inc-tv').textContent=fmtF(totSav)+'/month'}else ntr.style.display='none';
+
+  const wg=calcWG(),annGr=totToday*wg/100;
+  $('agg-wg').textContent=totToday>0?wg.toFixed(2)+'%':'—';
+  $('agg-pg').textContent=totToday>0?fmtK(annGr)+'/yr':'—';
+
+  updSums(curAge,rAge,infl);
+  refreshCardFilledStates();
+
+  if(!dv||ytr===null){renderAssets();scheduleSave();return showPh()}
+
+  const prCurr=portAtRetire(ytr,wg);
+  const pr=prCurr;
+
+  if(totToday>0&&ytr>0){const cagr=(Math.pow(pr/totToday,1/ytr)-1)*100;$('agg-cagr').textContent=cagr.toFixed(2)+'%'}
+  else $('agg-cagr').textContent='—';
+
+  const mBudRet=expMo*Math.pow(1+infl/100,ytr),aBudRet=mBudRet*12;
+
+  // ↺ Auto-sync WR slider to the budget-implied rate (until the user touches WR manually)
+  if(wrAutoSync && expMo>0 && pr>0){
+    const implied=Math.min(100,Math.max(0,aBudRet/pr*100));
+    const snapped=Math.round(implied*2)/2;   // snap to slider step 0.5
+    if(Math.abs(snapped-wrRate)>=0.5){
+      wrRate=snapped;
+      $('wr').value=snapped;
+      $('wr-v').textContent=snapped.toFixed(1)+'%';
+    }
+  }
+  // Hint is visible whenever a budget exists & there's a portfolio. Click to toggle modes.
+  const wrHint=$('wr-auto-hint');
+  if(expMo>0 && pr>0){
+    wrHint.style.display='inline';
+    if(wrAutoSync){wrHint.textContent='↺ auto from budget';wrHint.style.color='var(--success)';}
+    else{wrHint.textContent='↻ click to sync to budget';wrHint.style.color='var(--txt3)';}
+  } else {
+    wrHint.style.display='none';
+  }
+
+  const aWRet_planned=pr*wrRate/100;
+  // Actual annual withdrawal = max of planned and budget (you can't spend less than you need)
+  const aWRet=expMo>0?Math.max(aWRet_planned,aBudRet):aWRet_planned;
+  const budgetOverrides=expMo>0&&aBudRet>aWRet_planned;
+  const baseCurr=project(prCurr,wg,aWRet,rAge,ryrs,infl);
+  const base=baseCurr;
+
+  let depAge=null;
+  for(let i=1;i<base.bs.length;i++){if(base.bs[i]===0){depAge=base.lb[i];break}}
+  const endAge=rAge+ryrs;
+
+  let stH='';
+  if(!depAge||depAge>=endAge)stH=`<div class="status sg">✅ Great news — your savings look like they'll last through retirement!</div>`;
+  else if(depAge>=rAge+ryrs*.6)stH=`<div class="status sw">⚠️ Your savings may start running low around age ${depAge}. A little more saving now could make a big difference.</div>`;
+  else stH=`<div class="status sb">🚨 At this rate, savings could run out around age ${depAge}. Try increasing your monthly savings or trimming your retirement budget.</div>`;
+  $('status-wrap').innerHTML=stH;
+
+  $('s-today').textContent=fmtK(totToday);$('s-today-sub').textContent='Cash + investments today';
+  $('s-retire').textContent=fmtK(pr);
+  // Income savings & SIP only contribute when there's time before retirement (ytr > 0)
+  const hasSip=ytr>0&&totSip>0;
+  const hasIncomeSav=ytr>0&&nd.length>0;
+  $('s-retire-sub').textContent=`After ${ytr}yr${hasSip&&hasIncomeSav?' incl. SIP & income savings':hasSip?' incl. monthly SIP':hasIncomeSav?' incl. income savings':''}`;
+  const wrMon=aWRet_planned/12;    // sustainable monthly income at the set withdrawal rate
+  const sBud=$('s-budget');
+  if(expMo>0&&budgetOverrides){
+    // Budget exceeds sustainable withdrawal — show sustainable income, warn about shortfall
+    sBud.innerHTML=`<span style="color:var(--danger,#dc2626)">${fmtF(wrMon)}/mo</span>`;
+    $('s-budget-sub').innerHTML=`At ${wrRate}% · <span style="color:var(--danger,#dc2626)">⚠️ Budget ${fmtF(mBudRet)}/mo exceeds income — ${fmtF(mBudRet-wrMon)}/mo drawn from principal</span>`;
+  } else if(expMo>0){
+    sBud.textContent=fmtF(wrMon)+'/mo';
+    $('s-budget-sub').textContent=`At ${wrRate}% · ✅ covers budget (${fmtF(mBudRet)}/mo)`;
+  } else {
+    sBud.textContent=fmtF(wrMon)+'/mo';
+    $('s-budget-sub').textContent=`At ${wrRate}% withdrawal rate`;
+  }
+  const slc=$('s-last-card');
+  if(!depAge||depAge>=endAge){$('s-last').textContent=`Age ${endAge}+`;$('s-last-sub').textContent='🎉 Lasts the full period!';slc.className='sc sc-ok'}
+  else{$('s-last').textContent=`Age ${depAge}`;$('s-last-sub').textContent='⚠️ Runs out early';slc.className='sc sc-bad'}
+
+  renderAssets();
+
+  const dk=isDark(),aC=dk?'#00d4aa':'#0891b2';
+  const chw=$('ret-chart').parentElement;
+  if(Math.abs(pr)<1&&Math.abs(totToday)<1){
+    if(retChart){retChart.destroy();retChart=null}
+    $('ret-chart').style.display='none';
+    if(!chw.querySelector('.ch-empty')){const em=document.createElement('div');em.className='ch-empty ph';em.style.cssText='height:180px';em.innerHTML='<div class="pi" style="font-size:2rem;margin-bottom:8px">📊</div><div class="pp">Add cash or investments on the left to see your portfolio projection</div>';chw.appendChild(em)}
+  } else {
+    $('ret-chart').style.display='';
+    const emp=chw.querySelector('.ch-empty');if(emp)emp.remove();
+  const ctx=$('ret-chart').getContext('2d');
+  if(retChart)retChart.destroy();
+  retChart=new Chart(ctx,{
+    type:'line',data:{labels:base.lb,datasets:[
+      {label:`Your Portfolio (${wg.toFixed(1)}% growth · ${budgetOverrides?'budget-driven':wrRate+'% withdrawal'})`,data:baseCurr.bs,borderColor:aC,borderWidth:2.5,pointRadius:0,tension:.4,fill:true,backgroundColor:dk?'rgba(0,212,170,.07)':'rgba(8,145,178,.07)'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:320},interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,position:'top',align:'start',labels:{color:dk?'#f0f4f8':'#1e293b',font:{size:11},boxWidth:24,boxHeight:3,padding:14}},tooltip:{backgroundColor:dk?'rgba(10,20,40,.96)':'rgba(255,255,255,.97)',borderColor:dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)',borderWidth:1,titleColor:dk?'#f0f4f8':'#1e293b',bodyColor:dk?'rgba(240,244,248,.7)':'#64748b',padding:9,callbacks:{title:c=>`Age ${c[0].label}`,label:c=>` ${c.dataset.label}: ${fmtK(c.raw)}`}}},
+      scales:{
+        x:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}},title:{display:true,text:'Your Age',color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}},
+        y:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10},callback:v=>fmtK(v)},title:{display:true,text:`Portfolio (${RC.c})`,color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}}
+      }}
+  });
+  } // end else (has assets)
+
+  const ytb=$('yr-body');
+  const sy2=new Date().getFullYear();
+  const rowsHtml=[];
+  for(let i=0;i<base.lb.length;i++){
+    const age=base.lb[i],bal=base.bs[i],sp=aWRet*Math.pow(1+infl/100,i),ann=Math.min(bal,sp);
+    // Monthly Income column = WR-based sustainable income (matches L4 card). Annual Withdrawal still shows actual draw incl. principal.
+    const spPlanned=aWRet_planned*Math.pow(1+infl/100,i);
+    const mon=bal>0?spPlanned/12:0;
+    // Year-i monthly budget (inflation-adjusted). When sustainable income falls short, highlight red.
+    const budMo=mBudRet*Math.pow(1+infl/100,i);
+    const monShort=mon>0 && expMo>0 && mon<budMo;
+    const isFirst=i===0, isZero=bal===0;
+    rowsHtml.push({
+      html:`<td>${sy2+ytr+i}</td><td class="${isFirst?'cgo':''}">${age}${isFirst?' 🎉':''}</td><td class="${bal>0?'cg':'cr'}">${bal>0?fmtF(bal):'Depleted ⚠️'}</td><td>${ann>0?fmtF(ann):'—'}</td><td class="${monShort?'cr':''}" title="${monShort?'Below your monthly budget of '+fmtF(budMo):''}">${mon>0?fmtF(mon):'—'}</td><td>${bal>0?'<span class="cg">✅</span>':'<span class="cr">⚠️ Out</span>'}</td>`,
+      cls: isFirst?'rret':'',
+      st: isZero?'opacity:.6':''
+    });
+    if(isZero)break;
+  }
+  if(rowsHtml.length<=5){
+    ytb.innerHTML=rowsHtml.map(r=>`<tr class="${r.cls}" style="${r.st}">${r.html}</tr>`).join('');
+  } else {
+    const top2 = rowsHtml.slice(0, 2);
+    const bot2 = rowsHtml.slice(-2);
+    const mid = rowsHtml.slice(2, -2);
+    const btnHtml = `<tr id="yr-exp-row" style="cursor:pointer" onclick="document.querySelectorAll('.yr-hidden').forEach(el=>el.style.display='table-row');this.style.display='none'"><td colspan="6" style="text-align:center;padding:9px;color:var(--acc);font-weight:700;background:var(--acc-bg);border:1px dashed var(--acc-bdr)">⤓ Show ${mid.length} hidden years...</td></tr>`;
+    const midHtml = mid.map(r=>`<tr class="${r.cls} yr-hidden" style="display:none;${r.st}">${r.html}</tr>`).join('');
+    ytb.innerHTML = top2.map(r=>`<tr class="${r.cls}" style="${r.st}">${r.html}</tr>`).join('') + btnHtml + midHtml + bot2.map(r=>`<tr class="${r.cls}" style="${r.st}">${r.html}</tr>`).join('');
+  }
+
+  showRes();
+  scheduleSave();
+}
+
+
+/* ── UI HELPERS ─────────────────────────────────────── */
+function showRes(){$('ph').style.display='none';$('results').style.display=''}
+function showPh(){$('ph').style.display='';$('results').style.display='none'}
+
+/* ── SAVE / LOAD ────────────────────────────────────── */
+function scheduleSave(){
+  clearTimeout(svT);
+  const si=$('sind');si.className='sind saving';si.textContent='Saving…';
+  svT=setTimeout(()=>{
+    try{
+      localStorage.setItem('rs_v5',JSON.stringify({
+        dob:$('dob').value,country:$('rcountry').value,rAge:$('rage').value,
+        infl:$('infl').value,wr:$('wr').value,wrAutoSync:wrAutoSync,
+        cx:cxIds.map(id=>({c:$(`cxcur-${id}`)?.value||'',r:$(`cxrate-${id}`)?.value||'',d:$(`cxdep-${id}`)?.value||''})),
+        cash:getCash().map(r=>({l:r.label,a:r.amt,c:r.cur})),
+        inv:getInv().map(r=>({l:r.label,a:r.amt,c:r.cur,ir:r.irate??'',s:r.sip||0})),
+        inc:getInc().map(r=>({l:r.label,a:r.amt,p:r.savePct})),
+        exp:getExp().map(r=>({l:r.label,a:r.amt,c:r.cat})),
+      }));
+      si.className='sind saved';si.textContent='Auto-saved ✓';
+    }catch(e){si.textContent='—'}
+  },900);
+}
+function loadState(){
+  try{
+    const raw=localStorage.getItem('rs_v5');if(!raw)return false;
+    const d=JSON.parse(raw);
+    if(d.dob)$('dob').value=d.dob;
+    if(d.country){$('rcountry').value=d.country;onCountry()}
+    if(d.rAge){$('rage').value=d.rAge;updQbs(+d.rAge)}
+    if(d.infl!==undefined){$('infl').value=d.infl;$('infl-v').textContent=parseFloat(d.infl).toFixed(1)+'%'}
+
+    if(d.wr!==undefined){$('wr').value=d.wr;$('wr-v').textContent=parseFloat(d.wr).toFixed(1)+'%'}
+    if(d.wrAutoSync!==undefined)wrAutoSync=!!d.wrAutoSync;
+    (d.cx||[]).forEach(r=>addCX(r.c,r.r,r.d));
+    (d.cash||[]).forEach(r=>addCash(r.l,r.a,r.c));
+    (d.inv||[]).forEach(r=>addInv(r.l,r.a,r.c,r.ir??'',r.s||0));
+    (d.inc||[]).forEach(r=>addInc(r.l,r.a,r.p));
+    (d.exp||[]).forEach(r=>addExp(r.l,r.a,r.c));
+    return true;
+  }catch(e){return false}
+}
+function updQbs(a){document.querySelectorAll('.qb:not(.today-qb)').forEach(b=>b.classList.toggle('active',+b.textContent===a))}
+
+/* ── FILLED-INPUT HIGHLIGHT ─────────────────────────── */
+function markFilled(el){
+  if(!el||el.type==='range')return;          // sliders always have a value — skip
+  const v=el.value;
+  el.classList.toggle('filled',v!==''&&v!=null);
+}
+function refreshFilledStates(){document.querySelectorAll('.lp input, .lp select').forEach(markFilled);refreshCardFilledStates();}
+function refreshCardFilledStates(){
+  const set=(bodyId,on)=>{const c=$(bodyId)?.closest('.card');if(c)c.classList.toggle('filled',!!on);};
+  set('cbody-about', !!$('dob').value || !!$('rcountry').value);
+  set('cbody-cash',  getCash().some(r=>r.amt>0));
+  set('cbody-inv',   getInv().some(r=>r.amt>0 || r.sip>0));
+  set('cbody-inc',   getInc().some(r=>r.amt>0));
+  set('cbody-exp',   getExp().some(r=>r.amt>0));
+  // Growth: only when at least one slider is non-zero
+  set('cbody-growth', (parseFloat($('infl').value)||0)>0 || (parseFloat($('wr').value)||0)>0);
+  // Currency mini-card: highlight when at least one exchange rate has been added
+  const cxMini=document.querySelector('.lp .cx-mini');
+  if(cxMini)cxMini.classList.toggle('filled', cxIds.length>0);
+}
+
+/* ── INIT ───────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded',()=>{
+  const t=localStorage.getItem('rs_theme')||'light';
+  document.documentElement.dataset.theme=t;
+  $('theme-btn').textContent=t==='dark'?'☀️ Light':'🌙 Dark';
+
+  $('dob').addEventListener('change',recalc);
+  $('rage').addEventListener('input',()=>{updQbs(+$('rage').value);recalc()});
+  $('rcountry').addEventListener('change',onCountry);
+
+  // Live-toggle .filled on any left-panel input/select via event delegation (covers dynamically-added rows)
+  document.querySelectorAll('.lp').forEach(lp=>{
+    ['input','change'].forEach(ev=>lp.addEventListener(ev,e=>{
+      if(e.target.matches('input, select'))markFilled(e.target);
+    }));
+  });
+
+  const loaded=loadState();
+  if(!loaded){DEF_EXP.forEach(e=>addExp(e.l,'',e.c));tog('about')}
+  recalc();
+  refreshFilledStates();   // initial pass for pre-filled values loaded from localStorage
+});
+</script>
+</body>
+</html>
