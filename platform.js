@@ -16,8 +16,8 @@
   // ── App registry — single source of truth for the switcher ───────────────
   const APPS = [
     { id: 'retiresmart',     name: 'RetireSmart',    icon: '💼', href: 'index.html' },
-    { id: 'happyhome',       name: 'Happy Home',     icon: '🏡', href: 'mortgage.html' },
-    { id: 'canadamortgage',  name: 'MapleMortgage',  icon: '🍁', href: 'canadamortgage.html' },
+    { id: 'happyhome',       name: 'India Home',     icon: '🏡', href: 'mortgage.html' },
+    { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
     { id: 'carsmart',        name: 'CarSmart',       icon: '🚗', href: '#', soon: true },
   ];
 
