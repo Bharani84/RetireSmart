@@ -282,6 +282,7 @@ input[type=range]:focus{border:none;box-shadow:none}
 /* ═══ CHART CARD ════════════════════════════════════════════════════════ */
 .chcard{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px;margin-bottom:11px;box-shadow:var(--sh)}
 .chtitle{font-size:.78rem;font-weight:700;color:var(--txt2);margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+.gr-badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--acc-soft,rgba(8,145,178,.12));color:var(--acc,#0891b2);border:1px solid var(--acc,#0891b2);white-space:nowrap}
 .legend{display:flex;gap:11px;flex-wrap:wrap;font-size:.68rem;color:var(--txt2)}
 .li{display:flex;align-items:center;gap:4px}
 .ld{width:15px;height:3px;border-radius:2px}
@@ -630,6 +631,7 @@ input[type=range]:focus{border:none;box-shadow:none}
     <div class="chcard">
       <div class="chtitle">
         <span>📊 Portfolio Over Time</span>
+        <span id="ret-growth-badge" class="gr-badge" style="display:none"></span>
       </div>
       <div class="chw"><canvas id="ret-chart"></canvas></div>
     </div>
@@ -1500,25 +1502,36 @@ function recalc(){
   renderAssets();
 
   const dk=isDark(),aC=dk?'#00d4aa':'#0891b2';
+  const grBadge=$('ret-growth-badge');
   const chw=$('ret-chart').parentElement;
   if(Math.abs(pr)<1&&Math.abs(totToday)<1){
+    if(grBadge)grBadge.style.display='none';
     if(retChart){retChart.destroy();retChart=null}
     $('ret-chart').style.display='none';
     if(!chw.querySelector('.ch-empty')){const em=document.createElement('div');em.className='ch-empty ph';em.style.cssText='height:180px';em.innerHTML='<div class="pi" style="font-size:2rem;margin-bottom:8px">📊</div><div class="pp">Add cash or investments on the left to see your portfolio projection</div>';chw.appendChild(em)}
   } else {
     $('ret-chart').style.display='';
     const emp=chw.querySelector('.ch-empty');if(emp)emp.remove();
+    if(grBadge){grBadge.style.display='';grBadge.style.color=aC;grBadge.style.borderColor=aC;grBadge.style.background=dk?'rgba(0,212,170,.12)':'rgba(8,145,178,.12)';grBadge.textContent=`📈 ${wg.toFixed(1)}% / yr growth`;}
   const ctx=$('ret-chart').getContext('2d');
   if(retChart)retChart.destroy();
+  // Right (secondary) Y-axis = portfolio expressed as % of its starting value (today / at retirement).
+  // Lock both axes to matching bounds + step count so the % axis aligns exactly with the value axis.
+  const niceTop=v=>{if(v<=0)return 1;const e=Math.pow(10,Math.floor(Math.log10(v)));const f=v/e;const nf=f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10;return nf*e;};
+  const yTop=niceTop(Math.max(...baseCurr.bs,1));
+  const baseVal=baseCurr.bs[0]>0?baseCurr.bs[0]:(totToday>0?totToday:1);
+  const STEPS=5,y1Top=yTop/baseVal*100;
+  const axTick=dk?'rgba(240,244,248,.35)':'#94a3b8';
   retChart=new Chart(ctx,{
     type:'line',data:{labels:base.lb,datasets:[
-      {label:`Your Portfolio (${wg.toFixed(1)}% growth · ${budgetOverrides?'budget-driven':wrRate+'% withdrawal'})`,data:baseCurr.bs,borderColor:aC,borderWidth:2.5,pointRadius:0,tension:.4,fill:true,backgroundColor:dk?'rgba(0,212,170,.07)':'rgba(8,145,178,.07)'},
+      {label:`Your Portfolio (${wg.toFixed(1)}% growth · ${budgetOverrides?'budget-driven':wrRate+'% withdrawal'})`,data:baseCurr.bs,borderColor:aC,borderWidth:2.5,pointRadius:0,tension:.4,fill:true,backgroundColor:dk?'rgba(0,212,170,.07)':'rgba(8,145,178,.07)',yAxisID:'y'},
     ]},
     options:{responsive:true,maintainAspectRatio:false,animation:{duration:320},interaction:{mode:'index',intersect:false},
-      plugins:{legend:{display:true,position:'top',align:'start',labels:{color:dk?'#f0f4f8':'#1e293b',font:{size:11},boxWidth:24,boxHeight:3,padding:14}},tooltip:{backgroundColor:dk?'rgba(10,20,40,.96)':'rgba(255,255,255,.97)',borderColor:dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)',borderWidth:1,titleColor:dk?'#f0f4f8':'#1e293b',bodyColor:dk?'rgba(240,244,248,.7)':'#64748b',padding:9,callbacks:{title:c=>`Age ${c[0].label}`,label:c=>` ${c.dataset.label}: ${fmtK(c.raw)}`}}},
+      plugins:{legend:{display:true,position:'top',align:'start',labels:{color:dk?'#f0f4f8':'#1e293b',font:{size:11},boxWidth:24,boxHeight:3,padding:14}},tooltip:{backgroundColor:dk?'rgba(10,20,40,.96)':'rgba(255,255,255,.97)',borderColor:dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)',borderWidth:1,titleColor:dk?'#f0f4f8':'#1e293b',bodyColor:dk?'rgba(240,244,248,.7)':'#64748b',padding:9,callbacks:{title:c=>`Age ${c[0].label}`,label:c=>` ${c.dataset.label}: ${fmtK(c.raw)}`,afterLabel:c=>` ${Math.round(c.raw/baseVal*100).toLocaleString()}% of today`}}},
       scales:{
-        x:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}},title:{display:true,text:'Your Age',color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}},
-        y:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10},callback:v=>fmtK(v)},title:{display:true,text:`Portfolio (${RC.c})`,color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}}
+        x:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:axTick,font:{size:10}},title:{display:true,text:'Your Age',color:axTick,font:{size:10}}},
+        y:{position:'left',min:0,max:yTop,grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:axTick,font:{size:10},stepSize:yTop/STEPS,callback:v=>fmtK(v)},title:{display:true,text:`Portfolio (${RC.c})`,color:axTick,font:{size:10}}},
+        y1:{position:'right',min:0,max:y1Top,grid:{drawOnChartArea:false},ticks:{color:aC,font:{size:10},stepSize:y1Top/STEPS,callback:v=>Math.round(v).toLocaleString()+'%'},title:{display:true,text:'% of today',color:aC,font:{size:10}}}
       }}
   });
   } // end else (has assets)
