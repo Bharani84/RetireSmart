@@ -15,9 +15,10 @@
 (function () {
   // ── App registry — single source of truth for the switcher ───────────────
   const APPS = [
-    { id: 'retiresmart', name: 'RetireSmart', icon: '💼', href: 'index.html' },
-    { id: 'happyhome',   name: 'Happy Home',  icon: '🏡', href: 'mortgage.html' },
-    { id: 'carsmart',    name: 'CarSmart',    icon: '🚗', href: '#', soon: true },
+    { id: 'retiresmart',     name: 'RetireSmart',    icon: '💼', href: 'index.html' },
+    { id: 'happyhome',       name: 'Happy Home',     icon: '🏡', href: 'mortgage.html' },
+    { id: 'canadamortgage',  name: 'MapleMortgage',  icon: '🍁', href: 'canadamortgage.html' },
+    { id: 'carsmart',        name: 'CarSmart',       icon: '🚗', href: '#', soon: true },
   ];
 
   const THEME_KEY = 'pw_theme';

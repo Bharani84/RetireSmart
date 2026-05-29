@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MapleMortgage — Smart Mortgage & Leverage Strategist (Canada)</title>
+<meta name="description" content="Canada-focused mortgage strategist: payments with semi-annual compounding, CMHC, stress test, prepayment & accelerated-payment savings, rate & renewal hacks, the Smith Manoeuvre, HELOC leverage, tax strategy and buy-vs-rent.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- PlanWise shared platform shell (master nav + theme) -->
+<link rel="stylesheet" href="platform.css">
+<script src="platform.js"></script>
+<style>
+/* ═══ TOKENS ════════════════════════════════════════════════════════════ */
+:root{
+  --hh:56px;
+  --bg:#eef2f7; --lp:#f5f7fc; --card:#fff;
+  --bdr:rgba(0,0,0,.07); --bdr2:rgba(0,0,0,.13);
+  --acc:#d11e2a; --acc-bg:rgba(209,30,42,.09); --acc-bdr:rgba(209,30,42,.24);
+  --gold:#d97706; --gold-bg:rgba(217,119,6,.09);
+  --danger:#dc2626; --dang-bg:rgba(220,38,38,.08);
+  --success:#16a34a; --succ-bg:rgba(22,163,74,.1);
+  --warn:#ca8a04; --warn-bg:rgba(202,138,4,.09);
+  --info:#2563eb; --info-bg:rgba(37,99,235,.1);
+  --purple:#7c3aed; --purple-bg:rgba(124,58,237,.1);
+  --teal:#0d9488; --teal-bg:rgba(13,148,136,.1);
+  --txt:#1e293b; --txt2:#64748b; --txt3:#94a3b8;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-lg:0 4px 14px rgba(0,0,0,.08);
+  --ibg:#f8fafc; --r:12px; --rs:8px;
+}
+[data-theme="dark"]{
+  --bg:#0a0f17; --lp:rgba(0,0,0,.22); --card:rgba(255,255,255,.04);
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(255,255,255,.13);
+  --acc:#ff6b6b; --acc-bg:rgba(255,107,107,.12); --acc-bdr:rgba(255,107,107,.28);
+  --gold:#f4a261; --gold-bg:rgba(244,162,97,.1);
+  --danger:#ff6b6b; --dang-bg:rgba(255,107,107,.1);
+  --success:#51cf66; --succ-bg:rgba(81,207,102,.1);
+  --warn:#ffd43b; --warn-bg:rgba(255,212,59,.1);
+  --info:#60a5fa; --info-bg:rgba(96,165,250,.12);
+  --purple:#a78bfa; --purple-bg:rgba(167,139,250,.12);
+  --teal:#2dd4bf; --teal-bg:rgba(45,212,191,.12);
+  --txt:#f0f4f8; --txt2:rgba(240,244,248,.55); --txt3:rgba(240,244,248,.28);
+  --sh:none; --sh-lg:none; --ibg:rgba(255,255,255,.06);
+}
+
+/* ═══ RESET ══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;font-size:14px;transition:background .3s,color .3s}
+
+/* ═══ HEADER ════════════════════════════════════════════════════════════ */
+.hdr{background:var(--card);box-shadow:var(--sh);border-bottom:1px solid var(--bdr);position:sticky;top:52px;z-index:100}
+.hdr-in{display:flex;align-items:center;padding:8px 18px;gap:14px;max-width:1600px;margin:0 auto;flex-wrap:wrap}
+.logo{font-size:1.1rem;font-weight:800;white-space:nowrap;flex-shrink:0;background:linear-gradient(135deg,var(--acc),#b91c1c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .logo{background:linear-gradient(135deg,#ff6b6b,#f4a261);-webkit-background-clip:text;background-clip:text}
+.logo-sub{font-size:.7rem;font-weight:500;color:var(--txt2);margin-left:2px}
+.subnav-lbl{font-size:.82rem;font-weight:800;color:var(--txt);white-space:nowrap;flex-shrink:0}
+.subnav-sub{font-size:.68rem;font-weight:500;color:var(--txt3);margin-left:6px}
+.tabs{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+.tbtn{padding:6px 11px;border-radius:7px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tbtn:hover{background:var(--ibg);color:var(--txt)}
+.tbtn.active{background:var(--acc-bg);color:var(--acc)}
+.theme-tog{background:var(--ibg);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;font-size:.8rem;cursor:pointer;color:var(--txt);transition:all .15s;white-space:nowrap}
+.theme-tog:hover{background:var(--acc-bg);border-color:var(--acc-bdr);color:var(--acc)}
+
+/* ═══ LAYOUT ════════════════════════════════════════════════════════════ */
+.app{max-width:1600px;margin:0 auto;padding:14px 18px 40px}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.side{position:sticky;top:64px}
+@media(max-width:980px){.side{position:static}}
+
+.panel{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:14px}
+.panel-t{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.panel-t .dot{width:6px;height:6px;border-radius:50%;background:var(--acc)}
+
+/* ═══ INPUTS ════════════════════════════════════════════════════════════ */
+.fld{margin-bottom:11px}
+.fld-l{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.fld-l label{font-size:.72rem;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em}
+.fld-l .v{font-size:.82rem;font-weight:700;color:var(--acc)}
+.fld input[type=number],.fld input[type=text],.fld select{width:100%;padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);background:var(--ibg);color:var(--txt);font-family:inherit;font-size:.85rem;outline:none;transition:all .15s}
+.fld input:focus,.fld select:focus{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-bg)}
+.fld input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--bdr2);border-radius:4px;outline:none;margin-top:6px;padding:0}
+.fld input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--acc);border-radius:50%;cursor:pointer;border:2px solid var(--card);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fld-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.fld .hint{font-size:.68rem;color:var(--txt3);margin-top:3px}
+.seg{display:flex;gap:0;background:var(--ibg);border:1px solid var(--bdr);border-radius:var(--rs);padding:2px}
+.seg button{flex:1;padding:6px 4px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.74rem;font-weight:600;cursor:pointer;border-radius:6px;transition:all .15s}
+.seg button.on{background:var(--card);color:var(--acc);box-shadow:var(--sh)}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.chip{padding:3px 8px;border-radius:5px;background:var(--ibg);border:1px solid var(--bdr);font-size:.72rem;cursor:pointer;color:var(--txt2);transition:all .15s}
+.chip:hover,.chip.on{background:var(--acc-bg);color:var(--acc);border-color:var(--acc-bdr)}
+
+/* ═══ KPI / STAT CARDS ═════════════════════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--acc)}
+.kpi.gold::before{background:var(--gold)}
+.kpi.warn::before{background:var(--warn)}
+.kpi.success::before{background:var(--success)}
+.kpi.danger::before{background:var(--danger)}
+.kpi.info::before{background:var(--info)}
+.kpi.purple::before{background:var(--purple)}
+.kpi.teal::before{background:var(--teal)}
+.kpi-l{font-size:.66rem;text-transform:uppercase;font-weight:600;color:var(--txt2);letter-spacing:.05em;margin-bottom:3px}
+.kpi-v{font-size:1.25rem;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi-s{font-size:.7rem;color:var(--txt2);margin-top:2px}
+.kpi-s.up{color:var(--success)}
+.kpi-s.dn{color:var(--danger)}
+
+/* ═══ TABS CONTENT ══════════════════════════════════════════════════════ */
+.tab-pane{display:none}
+.tab-pane.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:16px;box-shadow:var(--sh);margin-bottom:14px}
+.card-t{font-size:.92rem;font-weight:700;color:var(--txt);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card-t .ic{width:24px;height:24px;background:var(--acc-bg);color:var(--acc);display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.9rem;font-weight:800;flex-shrink:0}
+.card-d{font-size:.8rem;color:var(--txt2);margin-bottom:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.two-col{grid-template-columns:1fr}}
+
+/* ═══ TABLE ════════════════════════════════════════════════════════════ */
+.tbl-wrap{overflow-x:auto;border-radius:var(--rs);border:1px solid var(--bdr)}
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem;font-variant-numeric:tabular-nums}
+.tbl th{text-align:right;font-weight:600;color:var(--txt2);padding:7px 10px;background:var(--ibg);font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--bdr);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--bdr);color:var(--txt);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr.hl td{background:var(--succ-bg);font-weight:700}
+.tbl .pos{color:var(--success);font-weight:600}
+.tbl .neg{color:var(--danger);font-weight:600}
+
+/* ═══ CHART ═════════════════════════════════════════════════════════════ */
+.chart-box{position:relative;height:300px;width:100%}
+.chart-box.sm{height:230px}
+
+/* ═══ CALLOUTS ══════════════════════════════════════════════════════════ */
+.note{border-radius:var(--rs);padding:11px 13px;font-size:.8rem;line-height:1.55;margin:10px 0;border:1px solid}
+.note.tip{background:var(--succ-bg);border-color:rgba(22,163,74,.25);color:var(--txt)}
+.note.warn{background:var(--warn-bg);border-color:rgba(202,138,4,.3);color:var(--txt)}
+.note.info{background:var(--info-bg);border-color:rgba(37,99,235,.25);color:var(--txt)}
+.note.danger{background:var(--dang-bg);border-color:rgba(220,38,38,.25);color:var(--txt)}
+.note b{font-weight:700}
+.note .h{font-weight:700;display:block;margin-bottom:3px}
+
+.pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:.7rem;font-weight:700;letter-spacing:.02em}
+.pill.g{background:var(--succ-bg);color:var(--success)}
+.pill.r{background:var(--dang-bg);color:var(--danger)}
+.pill.y{background:var(--warn-bg);color:var(--warn)}
+.pill.b{background:var(--info-bg);color:var(--info)}
+
+.step{display:flex;gap:12px;margin-bottom:14px}
+.step-n{width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0}
+.step-b{flex:1}
+.step-b h4{font-size:.86rem;font-weight:700;margin-bottom:2px}
+.step-b p{font-size:.8rem;color:var(--txt2);line-height:1.5}
+
+.sub-seg{display:flex;gap:4px;flex-wrap:wrap;background:var(--ibg);border:1px solid var(--bdr);border-radius:var(--rs);padding:3px;margin-bottom:14px}
+.sub-seg button{flex:1;min-width:90px;padding:7px 8px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;border-radius:6px;transition:all .15s}
+.sub-seg button.on{background:var(--card);color:var(--acc);box-shadow:var(--sh)}
+
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:.78rem}
+.bar-row .lbl{width:130px;flex-shrink:0;color:var(--txt2);font-weight:600}
+.bar-track{flex:1;height:22px;background:var(--ibg);border-radius:6px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:6px;transition:width .4s}
+.bar-row .amt{width:90px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+
+.faq summary{cursor:pointer;font-weight:600;font-size:.84rem;padding:9px 0;border-bottom:1px solid var(--bdr);list-style:none;display:flex;justify-content:space-between}
+.faq summary::after{content:'+';color:var(--acc);font-weight:800}
+.faq details[open] summary::after{content:'−'}
+.faq p{font-size:.8rem;color:var(--txt2);padding:8px 0 14px;line-height:1.6}
+
+.disclaimer{font-size:.7rem;color:var(--txt3);text-align:center;margin-top:24px;line-height:1.5;max-width:780px;margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body data-app="canadamortgage">
+<!-- ══════════════════════ PLATFORM BAR (shared, rendered by platform.js) ══ -->
+<div id="pw-bar"></div>
+<!-- ══════════════════════ MAPLEMORTGAGE SUB-NAV ══════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="subnav-lbl">🍁 MapleMortgage <span class="subnav-sub">· Canada · Realtor's Money Playbook</span></div>
+    <nav class="tabs" id="tabs">
+      <button class="tbtn active" data-tab="dash">📊 Dashboard</button>
+      <button class="tbtn" data-tab="prepay">⚡ Pay It Off Faster</button>
+      <button class="tbtn" data-tab="rate">📉 Rate &amp; Renewal</button>
+      <button class="tbtn" data-tab="tax">💰 Tax Strategy</button>
+      <button class="tbtn" data-tab="leverage">🎯 Leverage Lab</button>
+      <button class="tbtn" data-tab="smith">🔁 Smith Manoeuvre</button>
+      <button class="tbtn" data-tab="tricks">🧠 Smart Moves</button>
+      <button class="tbtn" data-tab="rent">⚖️ Buy vs Rent</button>
+    </nav>
+  </div>
+</header>
+
+<div class="app">
+  <div class="grid">
+    <!-- ░░ LEFT: INPUT PANEL ░░ -->
+    <aside class="side">
+      <div class="panel" id="inputPanel">
+        <div class="panel-t"><span class="dot"></span> Your Mortgage Inputs</div>
+        <div id="inputs"><!-- rendered by JS --></div>
+      </div>
+      <div class="panel" id="snapPanel">
+        <div class="panel-t"><span class="dot"></span> Quick Snapshot</div>
+        <div id="snapshot"><!-- rendered by JS --></div>
+      </div>
+    </aside>
+
+    <!-- ░░ RIGHT: TAB PANES ░░ -->
+    <main>
+      <div class="tab-pane active" id="pane-dash"></div>
+      <div class="tab-pane" id="pane-prepay"></div>
+      <div class="tab-pane" id="pane-rate"></div>
+      <div class="tab-pane" id="pane-tax"></div>
+      <div class="tab-pane" id="pane-leverage"></div>
+      <div class="tab-pane" id="pane-smith"></div>
+      <div class="tab-pane" id="pane-tricks"></div>
+      <div class="tab-pane" id="pane-rent"></div>
+      <p class="disclaimer">MapleMortgage is an educational planning tool using simplified models and Canadian conventions (fixed rates compounded semi-annually, 2024–25 CMHC &amp; stress-test rules). Figures are estimates, not financial, tax, or legal advice. Mortgage penalties, tax outcomes, and the Smith Manoeuvre are complex — confirm with a licensed mortgage broker, accountant, and your lender before acting.</p>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   MapleMortgage — engine + UI. Single file, no build step, no dependencies
+   beyond Chart.js (CDN). All math uses Canadian conventions.
+   ════════════════════════════════════════════════════════════════════════ */
+"use strict";
+
+/* ─── State (persisted to localStorage) ─────────────────────────────────── */
+const DEFAULTS = {
+  price: 750000,
+  dpMode: 'pct',     // 'pct' | 'amt'
+  dpPct: 20,
+  dpAmt: 150000,
+  province: 'ON',
+  city: 'toronto',   // for Ontario municipal LTT
+  firstTime: true,
+  amort: 25,         // years
+  term: 5,           // years
+  rate: 4.79,        // % nominal annual, compounded semi-annually (fixed)
+  rateType: 'fixed', // 'fixed' | 'variable'
+  freq: 'monthly',   // monthly | biweekly | accel-biweekly | weekly | accel-weekly
+  income: 140000,    // household, for stress test + brackets
+  marginal: 43.41,   // marginal tax %, default ON ~$120k
+};
+let S = load();
+function load(){
+  try { const v = JSON.parse(localStorage.getItem('mm_state')); return Object.assign({}, DEFAULTS, v||{}); }
+  catch(e){ return Object.assign({}, DEFAULTS); }
+}
+function save(){ localStorage.setItem('mm_state', JSON.stringify(S)); }
+
+/* ─── Formatting ────────────────────────────────────────────────────────── */
+const CAD = n => '$' + Math.round(n).toLocaleString('en-CA');
+const CAD2 = n => '$' + (Math.round(n*100)/100).toLocaleString('en-CA',{minimumFractionDigits:2,maximumFractionDigits:2});
+const PCT = (n,d=2) => (n).toFixed(d) + '%';
+const yrsMonths = m => { m=Math.round(m); const y=Math.floor(m/12), r=m%12; return (y?y+'y ':'')+(r||!y?r+'m':'').trim() || '0m'; };
+
+/* ─── Canadian rate conventions ─────────────────────────────────────────── */
+// Fixed rates in Canada are nominal, compounded SEMI-ANNUALLY (not in advance).
+// Effective annual rate from a quoted nominal rate:
+const effAnnual = nom => Math.pow(1 + nom/2, 2) - 1;
+// Per-period rate for `p` payments/year, preserving the semi-annual effective rate:
+const periodicRate = (nom, p) => Math.pow(1 + nom/2, 2/p) - 1;
+
+const FREQ = {
+  'monthly':        { p:12, label:'Monthly',            short:'/mo'  },
+  'biweekly':       { p:26, label:'Bi-weekly',          short:'/2wk' },
+  'accel-biweekly': { p:26, label:'Accelerated bi-weekly', short:'/2wk', accel:'biweekly' },
+  'weekly':         { p:52, label:'Weekly',             short:'/wk'  },
+  'accel-weekly':   { p:52, label:'Accelerated weekly', short:'/wk', accel:'weekly' },
+};
+
+/* Standard level payment for a given principal, nominal rate, payments/yr, n periods */
+function levelPayment(principal, nom, p, n){
+  const i = periodicRate(nom, p);
+  if(i === 0) return principal / n;
+  return principal * i / (1 - Math.pow(1+i, -n));
+}
+
+/* Resolve the actual payment & payments-per-year for the chosen frequency.
+   Accelerated = take the MONTHLY payment and split it (÷2 paid 26×, ÷4 paid 52×),
+   which injects ~one extra monthly payment per year. */
+function paymentFor(principal, nom, amortYears, freqKey){
+  const monthly = levelPayment(principal, nom, 12, amortYears*12);
+  const f = FREQ[freqKey];
+  if(f.accel === 'biweekly') return { pay: monthly/2,  p:26 };
+  if(f.accel === 'weekly')   return { pay: monthly/4,  p:52 };
+  if(f.p === 26) return { pay: monthly*12/26, p:26 };
+  if(f.p === 52) return { pay: monthly*12/52, p:52 };
+  return { pay: monthly, p:12 };
+}
+
+/* Amortization simulator. Supports recurring extra-per-payment and annual lump sums.
+   Returns periods to payoff, total interest, and a yearly balance series. */
+function amortize(principal, nom, p, pay, opts={}){
+  const i = periodicRate(nom, p);
+  const extraPer = opts.extraPer || 0;           // extra principal each payment
+  const annualLump = opts.annualLump || 0;       // lump sum once per year
+  const lumpAtPeriod = Math.round(p);            // apply lump at year-end period
+  const maxPeriods = opts.maxPeriods || 100*p;
+  let bal = principal, totalInt = 0, n = 0;
+  const yearly = [{year:0, balance:bal, interest:0, principal:0}];
+  let yrInt=0, yrPrin=0;
+  while(bal > 0.01 && n < maxPeriods){
+    n++;
+    const int = bal * i;
+    let prin = (pay + extraPer) - int;
+    if(prin <= 0){ // payment can't cover interest — abort as non-amortizing
+      return { periods: Infinity, totalInterest: Infinity, yearly, payment: pay, nonAmortizing:true };
+    }
+    if(prin > bal) prin = bal;
+    bal -= prin; totalInt += int; yrInt += int; yrPrin += prin;
+    // annual lump sum at each completed year boundary
+    if(annualLump > 0 && n % lumpAtPeriod === 0 && bal > 0){
+      const l = Math.min(annualLump, bal); bal -= l; yrPrin += l;
+    }
+    if(n % Math.round(p) === 0 || bal <= 0.01){
+      yearly.push({ year: Math.round(n/p*10)/10, balance: Math.max(0,bal), interest: yrInt, principal: yrPrin });
+      yrInt=0; yrPrin=0;
+    }
+  }
+  return { periods:n, totalInterest:totalInt, yearly, payment:pay, years:n/p, nonAmortizing:false };
+}
+
+/* ─── CMHC default insurance (down payment < 20%) ───────────────────────── */
+// 2024–25 rules. Insurable price cap raised to $1.5M (Dec 15 2024).
+function cmhc(price, downPct){
+  const ltv = (100 - downPct)/100;
+  let rate = 0, eligible = true, reason='';
+  if(downPct >= 20) { rate = 0; }
+  else if(price > 1500000){ eligible=false; reason='Homes over $1.5M require ≥20% down (not insurable).'; }
+  else if(downPct >= 15) rate = 0.0280;
+  else if(downPct >= 10) rate = 0.0310;
+  else if(downPct >= 5)  rate = 0.0400;
+  else { eligible=false; reason='Minimum down payment in Canada is 5%.'; }
+  // Minimum down rule: 5% on first $500k, 10% on the portion $500k–$1.5M
+  const minDown = price <= 500000 ? price*0.05
+    : price <= 1500000 ? 25000 + (price-500000)*0.10
+    : price*0.20;
+  const loanBeforePremium = price * ltv;
+  const premium = rate>0 ? loanBeforePremium * rate : 0;
+  return { rate, premium, ltv, eligible, reason, minDown, insured: rate>0 };
+}
+
+/* ─── Stress test (B-20) ────────────────────────────────────────────────── */
+// Must qualify at MAX(contract rate + 2%, 5.25%).
+function stressTest(loan, nom, amortYears, income, otherDebtsMonthly=0, propTaxMonthly=0, heatMonthly=150){
+  const qRate = Math.max(nom + 0.02, 0.0525);
+  const qPay = levelPayment(loan, qRate, 12, amortYears*12);
+  const housing = qPay + propTaxMonthly + heatMonthly;
+  const gds = housing / (income/12) * 100;
+  const tds = (housing + otherDebtsMonthly) / (income/12) * 100;
+  return { qRate, qPay, gds, tds, gdsPass: gds<=39, tdsPass: tds<=44, pass: gds<=39 && tds<=44 };
+}
+
+/* ─── Provincial Land Transfer Tax ──────────────────────────────────────── */
+function ltt(price, prov, city, firstTime){
+  const marg = (brk) => { let t=0,prev=0; for(const[cap,r] of brk){ const amt=Math.min(price,cap)-prev; if(amt>0)t+=amt*r; prev=cap; if(price<=cap)break;} return t; };
+  let prov_tax=0, muni_tax=0, rebate=0, note='';
+  if(prov==='ON'){
+    prov_tax = marg([[55000,.005],[250000,.01],[400000,.015],[2000000,.02],[Infinity,.025]]);
+    if(city==='toronto') muni_tax = marg([[55000,.005],[250000,.01],[400000,.015],[2000000,.02],[Infinity,.025]]);
+    if(firstTime){ rebate = Math.min(prov_tax,4000) + (city==='toronto'?Math.min(muni_tax,4475):0); }
+    note = city==='toronto' ? 'Ontario + Toronto municipal LTT.' : 'Ontario provincial LTT.';
+  } else if(prov==='BC'){
+    prov_tax = marg([[200000,.01],[2000000,.02],[3000000,.03],[Infinity,.05]]);
+    if(firstTime && price<=835000) rebate = Math.min(prov_tax, marg([[200000,.01],[835000,.02]]) ); // full exemption ≤$835k (newly built/used rules simplified)
+    note='BC Property Transfer Tax. First-time exemption simplified.';
+  } else if(prov==='AB' || prov==='SK'){
+    prov_tax = 0; muni_tax = 0; note = (prov==='AB'?'Alberta':'Saskatchewan')+' has no LTT — only small title/registration fees (~$300 est).'; prov_tax = 300;
+  } else if(prov==='MB'){
+    prov_tax = marg([[30000,0],[90000,.005],[150000,.01],[200000,.015],[Infinity,.02]]); note='Manitoba LTT.';
+  } else if(prov==='QC'){
+    prov_tax = marg([[58900,.005],[294600,.01],[Infinity,.015]]); note='Quebec "welcome tax" (rates vary by municipality; Montréal adds upper brackets).';
+  } else if(prov==='NS'){
+    prov_tax = price*0.015; note='Nova Scotia deed transfer tax varies by municipality (~1.5% Halifax est).';
+  } else {
+    prov_tax = price*0.01; note='Estimated ~1% (varies by province/municipality).';
+  }
+  const gross = prov_tax + muni_tax;
+  return { prov_tax, muni_tax, rebate: Math.min(rebate,gross), net: Math.max(0, gross - Math.min(rebate,gross)), note };
+}
+
+/* ─── Derived model from current state ──────────────────────────────────── */
+function model(){
+  const price = +S.price || 0;
+  let dpAmt, dpPct;
+  if(S.dpMode==='pct'){ dpPct = +S.dpPct||0; dpAmt = price*dpPct/100; }
+  else { dpAmt = +S.dpAmt||0; dpPct = price? dpAmt/price*100 : 0; }
+  const nom = (+S.rate||0)/100;
+  const ci = cmhc(price, dpPct);
+  const baseLoan = price - dpAmt;
+  const loan = baseLoan + (ci.insured ? ci.premium : 0); // premium added to mortgage
+  const f = paymentFor(loan, nom, +S.amort, S.freq);
+  const sched = amortize(loan, nom, f.p, f.pay);
+  const monthlyPay = levelPayment(loan, nom, 12, S.amort*12);
+  const propTaxMo = price*0.01/12; // ~1%/yr estimate
+  const st = stressTest(loan, nom, +S.amort, +S.income||1, 0, propTaxMo);
+  const transfer = ltt(price, S.province, S.city, S.firstTime);
+  return { price, dpAmt, dpPct, nom, cmhc:ci, baseLoan, loan, freq:f, sched, monthlyPay, propTaxMo, st, transfer };
+}
+
+/* ─── Tab routing ───────────────────────────────────────────────────────── */
+let activeTab = 'dash';
+const RENDERERS = {}; // filled by each tab module below
+function render(){
+  renderInputs();
+  renderSnapshot();
+  (RENDERERS[activeTab] || (()=>{}))();
+}
+/* Lightweight update path for CONTINUOUS inputs (sliders / typed numbers).
+   Never rebuilds the input panel — so the slider you're dragging survives.
+   Updates only the snapshot + active tab, coalesced to one rebuild per frame. */
+let _pending = false;
+function commit(){
+  if(_pending) return; _pending = true;
+  const run = () => { _pending = false; renderSnapshot(); (RENDERERS[activeTab] || (()=>{}))(); };
+  (typeof requestAnimationFrame === 'function') ? requestAnimationFrame(run) : run();
+}
+/* Update the left-panel value labels in place (no DOM teardown). */
+function syncInputs(){
+  const m = model();
+  const set = (id,t)=>{ const e=document.getElementById(id); if(e) e.textContent=t; };
+  const setH = (id,h)=>{ const e=document.getElementById(id); if(e) e.innerHTML=h; };
+  set('v-price', CAD(S.price));
+  const dpDisplay = S.dpMode==='pct' ? PCT(S.dpPct,1) : CAD(m.dpAmt);
+  const dpSecondary = S.dpMode==='pct' ? CAD(m.dpAmt) : PCT(m.dpPct,1);
+  setH('v-dp', `${dpDisplay} · <span style="color:var(--txt3)">${dpSecondary}</span>`);
+  set('v-amort', S.amort+' yr');
+  set('v-rate', PCT(S.rate));
+  setH('h-rate', `Effective annual: ${PCT(effAnnual(S.rate/100)*100)} (semi-annual compounding)`);
+  setH('v-cmhc', m.cmhc.insured
+    ? `<span class="pill y">CMHC insured · +${PCT(m.cmhc.rate*100,2)} premium = ${CAD(m.cmhc.premium)}</span>`
+    : m.cmhc.eligible ? `<span class="pill g">20%+ down · no CMHC premium</span>` : `<span class="pill r">${m.cmhc.reason}</span>`);
+  setH('h-dp', S.dpMode==='pct'
+    ? `Min for this price: ${CAD(m.cmhc.minDown)} (${PCT(S.price?m.cmhc.minDown/S.price*100:0,1)})`
+    : `Min for this price: ${CAD(m.cmhc.minDown)}`);
+}
+/* Generic binders for IN-TAB controls. A range updates its own `.v` label live
+   while dragging (cheap, no rebuild) and only re-renders the tab on release
+   (`change`) — so the slider element is never destroyed mid-drag. */
+function liveRange(id, fmt, onCommit){
+  const e = document.getElementById(id); if(!e) return;
+  if(fmt) e.addEventListener('input', ()=>{ const l=e.closest('.fld') && e.closest('.fld').querySelector('.v'); if(l) l.textContent = fmt(parseFloat(e.value)); });
+  e.addEventListener('change', ()=> onCommit(parseFloat(e.value)));
+}
+function liveCheck(id, onCommit){
+  const e = document.getElementById(id); if(!e) return;
+  e.addEventListener('change', ()=> onCommit(e.checked));
+}
+
+/* ─── Chart helper (re-creates chart on each render; theme-aware) ────────── */
+const _charts = {};
+function chart(id, cfg){
+  if(typeof Chart === 'undefined') return;
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(_charts[id]){ _charts[id].destroy(); }
+  const dark = document.documentElement.getAttribute('data-theme')==='dark';
+  const grid = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+  const tick = dark ? 'rgba(240,244,248,.55)' : '#64748b';
+  cfg.options = cfg.options || {};
+  cfg.options.responsive = true;
+  cfg.options.maintainAspectRatio = false;
+  cfg.options.plugins = cfg.options.plugins || {};
+  cfg.options.plugins.legend = Object.assign({labels:{color:tick,font:{size:11},usePointStyle:true,boxWidth:8}}, cfg.options.plugins.legend||{});
+  const styleScale = ax => { ax.grid = Object.assign({color:grid},ax.grid||{}); ax.ticks = Object.assign({color:tick,font:{size:10}},ax.ticks||{}); };
+  cfg.options.scales = cfg.options.scales || {};
+  Object.values(cfg.options.scales).forEach(styleScale);
+  _charts[id] = new Chart(el.getContext('2d'), cfg);
+}
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ─── Input panel ───────────────────────────────────────────────────────── */
+const PROVINCES = {ON:'Ontario',BC:'British Columbia',AB:'Alberta',QC:'Quebec',MB:'Manitoba',SK:'Saskatchewan',NS:'Nova Scotia',NB:'New Brunswick',NL:'Newfoundland',PE:'PEI'};
+function renderInputs(){
+  const m = model();
+  const dpDisplay = S.dpMode==='pct' ? PCT(S.dpPct,1) : CAD(m.dpAmt);
+  const dpSecondary = S.dpMode==='pct' ? CAD(m.dpAmt) : PCT(m.dpPct,1);
+  document.getElementById('inputs').innerHTML = `
+    <div class="fld">
+      <div class="fld-l"><label>Home Price</label><span class="v" id="v-price">${CAD(S.price)}</span></div>
+      <input type="number" id="i-price" value="${S.price}" step="5000" min="0">
+      <div class="chip-row">${[500000,750000,1000000,1500000].map(v=>`<span class="chip" data-price="${v}">${CAD(v)}</span>`).join('')}</div>
+    </div>
+    <div class="fld">
+      <div class="fld-l"><label>Down Payment</label><span class="v" id="v-dp">${dpDisplay} · <span style="color:var(--txt3)">${dpSecondary}</span></span></div>
+      <div class="seg" style="margin-bottom:7px">
+        <button data-dpmode="pct" class="${S.dpMode==='pct'?'on':''}">% of price</button>
+        <button data-dpmode="amt" class="${S.dpMode==='amt'?'on':''}">$ amount</button>
+      </div>
+      ${S.dpMode==='pct'
+        ? `<input type="range" id="i-dppct" min="5" max="50" step="0.5" value="${S.dpPct}"><div class="hint" id="h-dp">Min for this price: ${CAD(m.cmhc.minDown)} (${PCT(m.cmhc.minDown/S.price*100,1)})</div>`
+        : `<input type="number" id="i-dpamt" value="${Math.round(m.dpAmt)}" step="5000"><div class="hint" id="h-dp">Min for this price: ${CAD(m.cmhc.minDown)}</div>`}
+      <div style="margin-top:6px" id="v-cmhc">${m.cmhc.insured
+        ? `<span class="pill y">CMHC insured · +${PCT(m.cmhc.rate*100,2)} premium = ${CAD(m.cmhc.premium)}</span>`
+        : m.cmhc.eligible ? `<span class="pill g">20%+ down · no CMHC premium</span>` : `<span class="pill r">${m.cmhc.reason}</span>`}</div>
+    </div>
+    <div class="fld-row">
+      <div class="fld">
+        <div class="fld-l"><label>Amortization</label><span class="v" id="v-amort">${S.amort} yr</span></div>
+        <input type="number" id="i-amort" value="${S.amort}" step="1" min="5" max="30">
+      </div>
+      <div class="fld">
+        <div class="fld-l"><label>Term</label><span class="v">${S.term} yr</span></div>
+        <select id="i-term">${[1,2,3,4,5,7,10].map(t=>`<option value="${t}" ${t==S.term?'selected':''}>${t} yr</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="fld">
+      <div class="fld-l"><label>Interest Rate (nominal)</label><span class="v" id="v-rate">${PCT(S.rate)}</span></div>
+      <input type="range" id="i-rate" min="1" max="10" step="0.01" value="${S.rate}">
+      <input type="number" id="i-rate-n" value="${S.rate}" step="0.01" style="margin-top:6px">
+      <div class="hint" id="h-rate">Effective annual: ${PCT(effAnnual(S.rate/100)*100)} (semi-annual compounding)</div>
+    </div>
+    <div class="fld">
+      <div class="fld-l"><label>Rate Type</label></div>
+      <div class="seg">
+        <button data-ratetype="fixed" class="${S.rateType==='fixed'?'on':''}">Fixed</button>
+        <button data-ratetype="variable" class="${S.rateType==='variable'?'on':''}">Variable</button>
+      </div>
+    </div>
+    <div class="fld">
+      <div class="fld-l"><label>Payment Frequency</label></div>
+      <select id="i-freq">${Object.entries(FREQ).map(([k,v])=>`<option value="${k}" ${k===S.freq?'selected':''}>${v.label}</option>`).join('')}</select>
+      ${S.freq.startsWith('accel')?`<div class="hint" style="color:var(--success)">★ Accelerated = sneaks in ~1 extra monthly payment/yr → big interest savings.</div>`:''}
+    </div>
+    <hr style="border:none;border-top:1px solid var(--bdr);margin:12px 0">
+    <div class="fld">
+      <div class="fld-l"><label>Province</label></div>
+      <select id="i-prov">${Object.entries(PROVINCES).map(([k,v])=>`<option value="${k}" ${k===S.province?'selected':''}>${v}</option>`).join('')}</select>
+    </div>
+    ${S.province==='ON' ? `<div class="fld"><div class="fld-l"><label>City</label></div>
+      <div class="seg"><button data-city="toronto" class="${S.city==='toronto'?'on':''}">Toronto</button><button data-city="other" class="${S.city!=='toronto'?'on':''}">Rest of ON</button></div></div>`:''}
+    <div class="fld">
+      <label style="display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--txt);cursor:pointer">
+        <input type="checkbox" id="i-ftb" ${S.firstTime?'checked':''} style="width:auto"> First-time home buyer (LTT rebate)
+      </label>
+    </div>
+    <div class="fld-row">
+      <div class="fld">
+        <div class="fld-l"><label>Hsld Income</label></div>
+        <input type="number" id="i-income" value="${S.income}" step="5000">
+      </div>
+      <div class="fld">
+        <div class="fld-l"><label>Marginal Tax %</label></div>
+        <input type="number" id="i-marg" value="${S.marginal}" step="0.5">
+      </div>
+    </div>
+  `;
+  wireInputs();
+}
+
+function wireInputs(){
+  const on = (id,ev,fn)=>{ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); };
+  // Continuous inputs: update state + labels in place, then commit outputs (no panel rebuild).
+  const cont = (id,key)=>on(id,'input',e=>{ S[key]=parseFloat(e.target.value)||0; save(); syncInputs(); commit(); });
+  cont('i-price','price'); cont('i-dppct','dpPct'); cont('i-dpamt','dpAmt');
+  cont('i-amort','amort'); cont('i-income','income'); cont('i-marg','marginal');
+  // Rate slider & number field mirror each other without tearing down the panel.
+  on('i-rate','input',e=>{ S.rate=parseFloat(e.target.value)||0; const n=document.getElementById('i-rate-n'); if(n) n.value=S.rate; save(); syncInputs(); commit(); });
+  on('i-rate-n','input',e=>{ S.rate=parseFloat(e.target.value)||0; const r=document.getElementById('i-rate'); if(r) r.value=S.rate; save(); syncInputs(); commit(); });
+  // Structural changes (clicks / selects, not drags): full rebuild is fine.
+  document.querySelectorAll('[data-price]').forEach(c=>c.addEventListener('click',()=>{ S.price=+c.dataset.price; save(); render(); }));
+  document.querySelectorAll('[data-dpmode]').forEach(b=>b.addEventListener('click',()=>{ const mm=model(); if(b.dataset.dpmode==='amt'){S.dpAmt=Math.round(mm.dpAmt);} else {S.dpPct=Math.round(mm.dpPct*10)/10;} S.dpMode=b.dataset.dpmode; save(); render(); }));
+  on('i-term','change',e=>{ S.term=+e.target.value; save(); render(); });
+  on('i-freq','change',e=>{ S.freq=e.target.value; save(); render(); });
+  on('i-prov','change',e=>{ S.province=e.target.value; save(); render(); });
+  on('i-ftb','change',e=>{ S.firstTime=e.target.checked; save(); render(); });
+  document.querySelectorAll('[data-ratetype]').forEach(b=>b.addEventListener('click',()=>{ S.rateType=b.dataset.ratetype; save(); render(); }));
+  document.querySelectorAll('[data-city]').forEach(b=>b.addEventListener('click',()=>{ S.city=b.dataset.city; save(); render(); }));
+}
+
+/* ─── Snapshot panel (always visible) ───────────────────────────────────── */
+function renderSnapshot(){
+  const m = model();
+  const f = m.freq, sched = m.sched;
+  const closing = m.transfer.net + 1800; // + ~$1.8k legal/title est
+  const rows = [
+    ['Mortgage amount', CAD(m.loan)],
+    [f.p===12?'Monthly payment':FREQ[S.freq].label+' payment', CAD2(f.pay)],
+    ['Equivalent monthly', CAD(m.monthlyPay)],
+    ['Payoff time', sched.nonAmortizing?'—':yrsMonths(sched.years*12)],
+    ['Total interest', sched.nonAmortizing?'—':CAD(sched.totalInterest)],
+    ['Land transfer tax', CAD(m.transfer.net)],
+    ['Cash to close (est)', CAD(m.dpAmt + closing)],
+  ];
+  const stColor = m.st.pass ? 'g' : 'r';
+  document.getElementById('snapshot').innerHTML =
+    rows.map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bdr);font-size:.8rem"><span style="color:var(--txt2)">${k}</span><b style="font-variant-numeric:tabular-nums">${v}</b></div>`).join('')
+    + `<div style="margin-top:10px"><span class="pill ${stColor}">${m.st.pass?'✓ Passes stress test':'✗ Fails stress test'}</span>
+       <div class="hint" style="margin-top:5px">Qualifying rate ${PCT(m.st.qRate*100)} · GDS ${PCT(m.st.gds,0)} (≤39) · TDS ${PCT(m.st.tds,0)} (≤44)</div></div>`;
+}
+
+/* ─── Theme + tabs wiring ───────────────────────────────────────────────── */
+(function bootChrome(){
+  // Theme is owned by the shared platform shell (platform.js). Re-render on change.
+  window.addEventListener('pw-theme-change', render);
+  document.getElementById('tabs').addEventListener('click', e=>{
+    const b = e.target.closest('.tbtn'); if(!b) return;
+    activeTab = b.dataset.tab;
+    document.querySelectorAll('.tbtn').forEach(x=>x.classList.toggle('active', x===b));
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active', p.id==='pane-'+activeTab));
+    render();
+  });
+})();
+
+const kpi = (label, val, sub='', cls='') =>
+  `<div class="kpi ${cls}"><div class="kpi-l">${label}</div><div class="kpi-v">${val}</div>${sub?`<div class="kpi-s">${sub}</div>`:''}</div>`;
+
+/* ════════════════ TAB 1 · DASHBOARD ════════════════════════════════════ */
+RENDERERS.dash = function(){
+  const m = model();
+  const sched = m.sched;
+  const f = m.freq;
+  // Compare standard monthly vs the chosen (possibly accelerated) frequency
+  const monthlySched = amortize(m.loan, m.nom, 12, m.monthlyPay);
+  const intSaved = monthlySched.totalInterest - sched.totalInterest;
+  const timeSaved = (monthlySched.years - sched.years)*12;
+  const balanceAtTerm = (()=>{ const yr = sched.yearly.find(y=>y.year>=S.term); return yr?yr.balance:0; })();
+  const equityAtTerm = m.price - balanceAtTerm; // ignores appreciation
+
+  const html = `
+    <div class="kpi-grid">
+      ${kpi(FREQ[S.freq].label+' payment', CAD2(f.pay), 'Equivalent '+CAD(m.monthlyPay)+'/mo', 'teal')}
+      ${kpi('Total interest', sched.nonAmortizing?'—':CAD(sched.totalInterest), 'over '+yrsMonths(sched.years*12), 'gold')}
+      ${kpi('Payoff time', sched.nonAmortizing?'—':yrsMonths(sched.years*12), S.amort+'-yr amortization', 'info')}
+      ${kpi('Mortgage amount', CAD(m.loan), m.cmhc.insured?'incl. '+CAD(m.cmhc.premium)+' CMHC':PCT(m.dpPct,1)+' down', 'purple')}
+      ${S.freq!=='monthly' ? kpi('Interest saved', CAD(Math.max(0,intSaved)), 'vs monthly · saves '+yrsMonths(Math.max(0,timeSaved)), 'success') : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">📉</span> Mortgage Balance Over Time</div>
+      <div class="card-d">How your balance falls and how interest vs principal split changes. Switch to an accelerated frequency in the left panel to watch the curve drop faster.</div>
+      <div class="chart-box"><canvas id="balChart"></canvas></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-t"><span class="ic">🛡️</span> Stress Test &amp; Affordability</div>
+        <div class="card-d">Canadian lenders qualify you at <b>${PCT(m.st.qRate*100)}</b> — the higher of your rate +2% or 5.25%.</div>
+        ${bar('Payment at qualifying rate', m.st.qPay, m.monthlyPay*1.6, 'info', CAD(m.st.qPay)+'/mo')}
+        ${bar('GDS ratio (housing ÷ income)', m.st.gds, 50, m.st.gdsPass?'success':'danger', PCT(m.st.gds,0)+' / 39%')}
+        ${bar('TDS ratio (all debt ÷ income)', m.st.tds, 50, m.st.tdsPass?'success':'danger', PCT(m.st.tds,0)+' / 44%')}
+        <div class="note ${m.st.pass?'tip':'warn'}">${m.st.pass
+          ? '<b>You qualify.</b> Housing costs sit inside the 39% GDS / 44% TDS limits even at the stress-test rate.'
+          : '<b>Tight.</b> At the qualifying rate you exceed a CMHC ratio. Options: larger down payment, longer amortization, lower price, or add a co-borrower.'}</div>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">💵</span> Cash Needed to Close</div>
+        <div class="card-d">In ${PROVINCES[S.province]}. ${m.transfer.note}</div>
+        ${[['Down payment', m.dpAmt],['Land transfer tax (net of rebate)', m.transfer.net],['Legal + title + adjustments (est)', 1800]].map(([k,v])=>bar(k, v, m.dpAmt*1.15, 'teal', CAD(v))).join('')}
+        <div style="display:flex;justify-content:space-between;padding:10px 0 2px;border-top:2px solid var(--bdr);margin-top:8px;font-weight:800"><span>Total cash to close</span><span>${CAD(m.dpAmt + m.transfer.net + 1800)}</span></div>
+        ${m.transfer.rebate>0?`<div class="note tip">First-time buyer LTT rebate applied: <b>${CAD(m.transfer.rebate)}</b> saved.</div>`:''}
+        ${!m.cmhc.eligible?`<div class="note danger">${m.cmhc.reason}</div>`:''}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">🗓️</span> Year-by-Year Schedule</div>
+      <div class="card-d">Where your money goes each year. By term-end (${S.term} yr) you'll owe about <b>${CAD(balanceAtTerm)}</b> and hold ~<b>${CAD(equityAtTerm)}</b> of equity (before appreciation).</div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Year</th><th>Interest paid</th><th>Principal paid</th><th>Balance remaining</th></tr></thead>
+        <tbody>${sched.yearly.filter(y=>y.year>=1 && Number.isInteger(y.year)).map(y=>`<tr ${y.year==S.term?'class="hl"':''}><td>Year ${y.year}${y.year==S.term?' · term ends':''}</td><td>${CAD(y.interest)}</td><td>${CAD(y.principal)}</td><td>${CAD(y.balance)}</td></tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+  document.getElementById('pane-dash').innerHTML = html;
+
+  // Balance + interest/principal chart
+  const yrs = sched.yearly.filter(y=>Number.isInteger(y.year));
+  chart('balChart', {
+    type:'line',
+    data:{ labels: yrs.map(y=>'Yr '+y.year),
+      datasets:[
+        { label:'Balance', data:yrs.map(y=>Math.round(y.balance)), borderColor:cssVar('--acc'), backgroundColor:cssVar('--acc-bg'), fill:true, tension:.3, pointRadius:0, borderWidth:2, yAxisID:'y' },
+        { label:'Interest paid (year)', data:yrs.map(y=>Math.round(y.interest)), borderColor:cssVar('--gold'), tension:.3, pointRadius:0, borderWidth:1.5, borderDash:[4,3], yAxisID:'y2' },
+        { label:'Principal paid (year)', data:yrs.map(y=>Math.round(y.principal)), borderColor:cssVar('--success'), tension:.3, pointRadius:0, borderWidth:1.5, borderDash:[4,3], yAxisID:'y2' },
+      ]},
+    options:{ interaction:{mode:'index',intersect:false},
+      plugins:{ tooltip:{ callbacks:{ label:c=>c.dataset.label+': '+CAD(c.parsed.y) } } },
+      scales:{ y:{ position:'left', ticks:{callback:v=>'$'+(v/1000)+'k'}, title:{display:true,text:'Balance',color:cssVar('--txt2')} },
+        y2:{ position:'right', grid:{drawOnChartArea:false}, ticks:{callback:v=>'$'+(v/1000)+'k'} } } }
+  });
+};
+
+/* Inline horizontal bar helper */
+function bar(label, val, max, cls, amt){
+  const pct = Math.max(2, Math.min(100, val/max*100));
+  const color = {success:'--success',danger:'--danger',info:'--info',teal:'--teal',gold:'--gold',warn:'--warn',purple:'--purple'}[cls]||'--acc';
+  return `<div class="bar-row"><span class="lbl">${label}</span><span class="bar-track"><span class="bar-fill" style="width:${pct}%;background:var(${color})"></span></span><span class="amt">${amt}</span></div>`;
+}
+
+/* ════════════════ TAB 2 · PAY IT OFF FASTER ════════════════════════════ */
+const PREPAY = { lumpPct: 10, incPct: 10 }; // % of original payment increase; lump as % of original principal
+RENDERERS.prepay = function(){
+  const m = model();
+  const baseMonthly = m.monthlyPay;
+  // Privilege limits (typical big-bank): up to 15% annual lump + 15% payment increase, penalty-free
+  const lumpRoom = m.loan * 0.15;
+  const lumpAmt = m.loan * (PREPAY.lumpPct/100);
+  const incAmt = baseMonthly * (PREPAY.incPct/100);
+
+  // Baseline: standard MONTHLY (so comparisons are apples-to-apples)
+  const base = amortize(m.loan, m.nom, 12, baseMonthly);
+
+  const strategies = [
+    { key:'accel', name:'Accelerated bi-weekly', desc:'Pay half the monthly amount every 2 weeks (26×/yr = 13 monthly payments).',
+      run:()=>{ const f=paymentFor(m.loan,m.nom,S.amort,'accel-biweekly'); return amortize(m.loan,m.nom,26,f.pay); } },
+    { key:'lump', name:`Annual lump sum (${PCT(PREPAY.lumpPct,0)} = ${CAD(lumpAmt)})`, desc:'Drop a once-a-year prepayment straight onto principal.',
+      run:()=>amortize(m.loan,m.nom,12,baseMonthly,{annualLump:lumpAmt}) },
+    { key:'inc', name:`Increase payment ${PCT(PREPAY.incPct,0)} (+${CAD(incAmt)}/mo)`, desc:'Raise your regular payment; every extra dollar is pure principal.',
+      run:()=>amortize(m.loan,m.nom,12,baseMonthly+incAmt) },
+    { key:'round', name:'Round up to next $100', desc:'Round each monthly payment up — painless and automatic.',
+      run:()=>{ const rp=Math.ceil(baseMonthly/100)*100; return amortize(m.loan,m.nom,12,rp); } },
+    { key:'combo', name:'★ Combo: accelerated + 10% lump', desc:'Stack accelerated bi-weekly with a yearly lump sum — the realtor\'s favourite.',
+      run:()=>{ const f=paymentFor(m.loan,m.nom,S.amort,'accel-biweekly'); return amortize(m.loan,m.nom,26,f.pay,{annualLump:lumpAmt}); } },
+  ];
+  const results = strategies.map(s=>{ const r=s.run(); return { ...s, r, intSaved: base.totalInterest-r.totalInterest, timeSaved:(base.years-r.years)*12 }; });
+  const best = results.reduce((a,b)=>b.intSaved>a.intSaved?b:a, results[0]);
+
+  document.getElementById('pane-prepay').innerHTML = `
+    <div class="kpi-grid">
+      ${kpi('Baseline (monthly)', yrsMonths(base.years*12), CAD(base.totalInterest)+' interest','info')}
+      ${kpi('Best strategy', best.name.replace('★ ',''), 'saves '+CAD(best.intSaved),'success')}
+      ${kpi('Interest saved', CAD(best.intSaved), yrsMonths(best.timeSaved)+' sooner','gold')}
+      ${kpi('Annual prepay room', CAD(lumpRoom), '15% lump + 15% payment (typical)','teal')}
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">⚡</span> Strategy Comparison</div>
+      <div class="card-d">All compared against a standard monthly payment of <b>${CAD2(baseMonthly)}</b>. Tune the lump and increase below.</div>
+      <div class="fld-row" style="max-width:480px;margin-bottom:14px">
+        <div class="fld"><div class="fld-l"><label>Annual lump sum</label><span class="v">${PCT(PREPAY.lumpPct,0)}</span></div><input type="range" id="pp-lump" min="0" max="20" step="1" value="${PREPAY.lumpPct}"><div class="hint">${CAD(lumpAmt)} / yr ${lumpAmt>lumpRoom?'<span style="color:var(--danger)">⚠ exceeds 15% privilege</span>':''}</div></div>
+        <div class="fld"><div class="fld-l"><label>Payment increase</label><span class="v">${PCT(PREPAY.incPct,0)}</span></div><input type="range" id="pp-inc" min="0" max="25" step="1" value="${PREPAY.incPct}"><div class="hint">+${CAD(incAmt)} / mo</div></div>
+      </div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Strategy</th><th>Payoff time</th><th>Total interest</th><th>Interest saved</th><th>Years saved</th></tr></thead>
+        <tbody>
+          <tr><td>Standard monthly</td><td>${yrsMonths(base.years*12)}</td><td>${CAD(base.totalInterest)}</td><td>—</td><td>—</td></tr>
+          ${results.map(s=>`<tr ${s===best?'class="hl"':''}><td>${s.name}</td><td>${yrsMonths(s.r.years*12)}</td><td>${CAD(s.r.totalInterest)}</td><td class="pos">${CAD(s.intSaved)}</td><td class="pos">${yrsMonths(s.timeSaved)}</td></tr>`).join('')}
+        </tbody>
+      </table></div>
+      <div class="chart-box sm" style="margin-top:14px"><canvas id="ppChart"></canvas></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-t"><span class="ic">🎯</span> Why Accelerated Wins</div>
+        <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">A regular bi-weekly payment is your monthly amount × 12 ÷ 26 — same total per year as monthly. <b>Accelerated</b> bi-weekly is your monthly amount ÷ 2, paid 26 times. That's <b>26 half-payments = 13 monthly payments</b> a year instead of 12. That one "extra" payment lands entirely on principal and compounds for the life of the loan.</p>
+        <div class="note tip">On this mortgage, accelerated bi-weekly alone saves <b>${CAD(results[0].intSaved)}</b> and clears the loan <b>${yrsMonths(results[0].timeSaved)}</b> early — at zero extra monthly budget pressure.</div>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">📋</span> Prepayment Privilege Rules</div>
+        <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">Most Canadian closed mortgages let you prepay penalty-free each year:</p>
+        <ul style="font-size:.82rem;color:var(--txt2);line-height:1.7;padding-left:18px;margin:8px 0">
+          <li><b>Lump sum:</b> 10–20% of the original principal (15% common).</li>
+          <li><b>Payment bump:</b> raise the regular payment 10–20% once a year.</li>
+          <li><b>Double-up:</b> some lenders let you double any payment.</li>
+        </ul>
+        <div class="note warn"><b>Realtor tip:</b> Privileges reset every calendar year and don't roll over — use them or lose them. Time a lump sum just before renewal to shrink the balance you re-finance.</div>
+      </div>
+    </div>`;
+
+  liveRange('pp-lump', v=>PCT(v,0), v=>{ PREPAY.lumpPct=v; RENDERERS.prepay(); });
+  liveRange('pp-inc',  v=>PCT(v,0), v=>{ PREPAY.incPct=v;  RENDERERS.prepay(); });
+
+  const ppShort = n => n.replace('★ Combo: accelerated + 10% lump','Combo').replace('Accelerated bi-weekly','Accel bi-wk').replace(/\s*\(.*\)/,'').replace('Increase payment','Pay +%').replace('Round up to next $100','Round up');
+  chart('ppChart', {
+    type:'bar',
+    data:{ labels:['Standard', ...results.map(s=>ppShort(s.name))],
+      datasets:[{ label:'Total interest',
+        data:[base.totalInterest, ...results.map(s=>s.r.totalInterest)].map(Math.round),
+        backgroundColor:[cssVar('--txt3'), ...results.map(s=>s===best?cssVar('--success'):cssVar('--gold'))],
+        borderRadius:6 }]},
+    options:{ plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>'Interest: '+CAD(c.parsed.y)}}}, scales:{ y:{ticks:{callback:v=>'$'+(v/1000)+'k'}} } }
+  });
+};
+
+/* ════════════════ TAB 3 · RATE & RENEWAL ═══════════════════════════════ */
+const RATE = { variableRate: null, postedRate: null, yearsLeftInTerm: 3 };
+RENDERERS.rate = function(){
+  const m = model();
+  const fixed = S.rate;
+  const variable = RATE.variableRate ?? Math.max(0.5, fixed - 0.30); // variable often quoted a touch below fixed
+  const posted = RATE.postedRate ?? (fixed + 1.80); // banks' inflated "posted" rate used for IRD penalty
+
+  // Penalty estimator at current balance (~ balance after `term-yearsLeft`)
+  const yearsElapsed = Math.max(0, S.term - RATE.yearsLeftInTerm);
+  const balNow = (()=>{ const f=paymentFor(m.loan,m.nom,S.amort,'monthly'); const s=amortize(m.loan,m.nom,12,m.monthlyPay,{maxPeriods:Math.round(yearsElapsed*12)}); return s.yearly[s.yearly.length-1].balance; })();
+  const threeMo = balNow * (fixed/100) / 4; // 3 months' interest
+  const irdSimple = balNow * ( (posted/100) - (variable/100) ) * RATE.yearsLeftInTerm; // rough comparison-rate IRD
+  const penalty = Math.max(threeMo, irdSimple>0?irdSimple:0);
+  const penaltyType = penalty===threeMo ? '3 months’ interest' : 'Interest Rate Differential (IRD)';
+
+  // Rate impact: each 0.25% on this mortgage
+  const payAt = r => levelPayment(m.loan, r/100, 12, S.amort*12);
+  const per25 = payAt(fixed) - payAt(fixed-0.25);
+  const lifetimePer25 = amortize(m.loan,(fixed)/100,12,payAt(fixed)).totalInterest - amortize(m.loan,(fixed-0.25)/100,12,payAt(fixed-0.25)).totalInterest;
+
+  // Fixed vs variable scenario over the term
+  const fixCost = (()=>{ const s=amortize(m.loan,fixed/100,12,m.monthlyPay,{maxPeriods:S.term*12}); return s.totalInterest; })();
+  const varPayNow = levelPayment(m.loan, variable/100, 12, S.amort*12);
+  const varCostFlat = (()=>{ const s=amortize(m.loan,variable/100,12,varPayNow,{maxPeriods:S.term*12}); return s.totalInterest; })();
+
+  document.getElementById('pane-rate').innerHTML = `
+    <div class="kpi-grid">
+      ${kpi('Each 0.25% lower rate', CAD(per25)+'/mo', 'saves '+CAD(lifetimePer25)+' lifetime','success')}
+      ${kpi('Fixed payment', CAD2(payAt(fixed)), PCT(fixed)+' nominal','info')}
+      ${kpi('Variable payment', CAD2(varPayNow), PCT(variable)+' (editable)','gold')}
+      ${kpi('Est. break penalty', CAD(penalty), penaltyType,'danger')}
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-t"><span class="ic">⚖️</span> Fixed vs Variable (over ${S.term}-yr term)</div>
+        <div class="card-d">Edit the variable rate to test scenarios. Fixed gives certainty; variable historically costs less but moves with the Bank of Canada.</div>
+        <div class="fld" style="max-width:220px"><div class="fld-l"><label>Variable rate</label><span class="v">${PCT(variable)}</span></div><input type="range" id="rt-var" min="1" max="9" step="0.05" value="${variable}"></div>
+        ${bar('Fixed — interest over term', fixCost, Math.max(fixCost,varCostFlat)*1.1, 'info', CAD(fixCost))}
+        ${bar('Variable — interest over term', varCostFlat, Math.max(fixCost,varCostFlat)*1.1, 'gold', CAD(varCostFlat))}
+        <div class="note ${varCostFlat<fixCost?'tip':'warn'}">${varCostFlat<fixCost
+          ? `If variable holds near ${PCT(variable)}, you'd pay <b>${CAD(fixCost-varCostFlat)}</b> less interest this term. But every +0.25% hike adds ~${CAD(per25)}/mo.`
+          : `At ${PCT(variable)}, variable currently costs <b>${CAD(varCostFlat-fixCost)}</b> more this term — fixed looks safer.`}</div>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">✂️</span> Break-Penalty Estimator</div>
+        <div class="card-d">Thinking of refinancing mid-term to grab a lower rate? Estimate the penalty first.</div>
+        <div class="fld-row" style="margin-bottom:6px">
+          <div class="fld"><div class="fld-l"><label>Years left in term</label><span class="v">${RATE.yearsLeftInTerm}</span></div><input type="range" id="rt-yl" min="0.5" max="${S.term}" step="0.5" value="${Math.min(RATE.yearsLeftInTerm,S.term)}"></div>
+          <div class="fld"><div class="fld-l"><label>Posted rate (IRD)</label><span class="v">${PCT(posted)}</span></div><input type="range" id="rt-posted" min="3" max="12" step="0.05" value="${posted}"></div>
+        </div>
+        ${bar('3 months’ interest', threeMo, Math.max(threeMo,irdSimple)*1.1, 'warn', CAD(threeMo))}
+        ${bar('IRD (approx)', Math.max(0,irdSimple), Math.max(threeMo,irdSimple)*1.1, 'danger', CAD(Math.max(0,irdSimple)))}
+        <div class="note info">Your lender charges the <b>greater</b> of the two on a fixed mortgage (variable is usually just 3 months' interest). Estimated penalty: <b>${CAD(penalty)}</b>. Refinancing only pays off if your rate savings beat this plus legal/discharge fees (~$1,000).</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">📉</span> The Rate-Reduction Playbook</div>
+      <div class="card-d">Concrete moves a sharp realtor/broker uses to get you a lower rate — biggest leverage first.</div>
+      ${[
+        ['1','Use a mortgage broker, then make the bank match','Brokers shop dozens of lenders at once and get volume discounts. Bring their best quote to your bank — branches keep a "discretionary" buffer they only release when they fear losing you.'],
+        ['2','Never accept the renewal letter rate','The mailed renewal rate is almost always padded. ~60% of Canadians just sign it. Shop 4 months before renewal (you can lock a rate hold) and negotiate or switch — switching lenders at renewal is penalty-free.'],
+        ['3','Cross the 20%-down line to kill CMHC','At 20%+ down you skip the insurance premium, but ironically insured mortgages sometimes get lower rates because the lender bears no risk. Compare both — sometimes putting slightly less down nets a better rate.'],
+        ['4','Shorten the amortization','A 25-yr vs 30-yr amortization can come with a lower rate tier and dramatically less interest. Choose the shortest payment you can comfortably carry.'],
+        ['5','Boost your credit score before applying','Above ~720 unlocks the best tiers. Pay balances below 30% utilization, don\'t open new credit 90 days before applying, and fix report errors.'],
+        ['6','Consider a shorter or variable term when rates are falling','If the BoC is cutting, a shorter fixed term or a variable lets you re-price sooner instead of locking a high rate for 5 years.'],
+      ].map(([n,h,p])=>`<div class="step"><div class="step-n">${n}</div><div class="step-b"><h4>${h}</h4><p>${p}</p></div></div>`).join('')}
+    </div>`;
+
+  liveRange('rt-var', v=>PCT(v), v=>{ RATE.variableRate=v; RENDERERS.rate(); });
+  liveRange('rt-yl',  v=>String(v), v=>{ RATE.yearsLeftInTerm=v; RENDERERS.rate(); });
+  liveRange('rt-posted', v=>PCT(v), v=>{ RATE.postedRate=v; RENDERERS.rate(); });
+};
+
+/* ════════════════ TAB 4 · TAX STRATEGY ═════════════════════════════════ */
+const TAX = { fhsaYears: 4, fhsaPerYear: 8000, rentMonthly: 3000, opex: 25 };
+RENDERERS.tax = function(){
+  const m = model();
+  const mr = S.marginal/100;
+  // FHSA: deductible, $8k/yr, $40k lifetime. Refund = contribution × marginal rate.
+  const fhsaContrib = Math.min(TAX.fhsaPerYear*TAX.fhsaYears, 40000);
+  const fhsaRefund = fhsaContrib * mr;
+  // HBP: withdraw up to $60k tax-free from RRSP (per person) for down payment, repay over 15 yrs.
+  const hbp = 60000;
+  // Rental property scenario: interest is deductible
+  const rentalAnnualRent = TAX.rentMonthly*12;
+  const rentalOpex = rentalAnnualRent*(TAX.opex/100);
+  const firstYearInterest = m.sched.yearly[1] ? m.sched.yearly[1].interest : m.loan*m.nom;
+  const rentalNOI = rentalAnnualRent - rentalOpex;
+  const taxableIncome = rentalNOI - firstYearInterest;
+  const rentalTax = taxableIncome>0 ? taxableIncome*mr : 0;
+  const interestShield = firstYearInterest*mr;
+
+  document.getElementById('pane-tax').innerHTML = `
+    <div class="note info" style="margin-bottom:14px"><span class="h">🇨🇦 The #1 Canadian tax rule to understand</span>
+      Unlike the U.S., <b>mortgage interest on your own home is NOT tax-deductible</b> in Canada. The flip side: interest on money borrowed <b>to earn income</b> (a rental, or investments) <b>is</b> deductible. Every Canadian tax strategy below is really about (a) getting the down payment tax-free, (b) sheltering the gain, or (c) converting "bad" non-deductible debt into "good" deductible debt — that last one is the Smith Manoeuvre tab.</div>
+
+    <div class="kpi-grid">
+      ${kpi('FHSA tax refund', CAD(fhsaRefund), 'on '+CAD(fhsaContrib)+' contributed','success')}
+      ${kpi('HBP tax-free pull', CAD(hbp), 'per person from RRSP','info')}
+      ${kpi('Principal-residence gain', 'Tax-free', '100% exempt on sale','gold')}
+      ${kpi('Rental interest shield', CAD(interestShield), 'yr-1 deduction × '+PCT(S.marginal,0),'purple')}
+    </div>
+
+    <div class="sub-seg" id="taxSub">
+      <button class="on" data-tx="buy">🏦 Down-Payment Boosters</button>
+      <button data-tx="home">🏠 Your Home (Principal Residence)</button>
+      <button data-tx="rental">🏘️ Rental / Investment Property</button>
+    </div>
+    <div id="taxBody"></div>`;
+
+  const bodies = {
+    buy: `
+      <div class="two-col">
+        <div class="card">
+          <div class="card-t"><span class="ic">📈</span> FHSA — First Home Savings Account</div>
+          <div class="card-d">The best down-payment tool in Canada: contributions are <b>tax-deductible</b> (like an RRSP) AND withdrawals for a home are <b>tax-free</b> (like a TFSA).</div>
+          <div class="fld-row" style="max-width:360px">
+            <div class="fld"><div class="fld-l"><label>$ / year</label><span class="v">${CAD(TAX.fhsaPerYear)}</span></div><input type="range" id="tx-fhsa-amt" min="2000" max="8000" step="500" value="${TAX.fhsaPerYear}"></div>
+            <div class="fld"><div class="fld-l"><label>Years</label><span class="v">${TAX.fhsaYears}</span></div><input type="range" id="tx-fhsa-yrs" min="1" max="5" step="1" value="${TAX.fhsaYears}"></div>
+          </div>
+          ${bar('Contributed', fhsaContrib, 40000, 'teal', CAD(fhsaContrib))}
+          ${bar('Tax refund generated', fhsaRefund, 40000, 'success', CAD(fhsaRefund))}
+          <div class="note tip"><b>$8,000/yr, $40,000 lifetime cap.</b> Two partners = up to <b>$80,000</b> of deductible, tax-free down-payment savings. Unused room carries forward (max +$8k). At ${PCT(S.marginal,0)} marginal rate, maxing it returns <b>${CAD(40000*mr)}</b> in refunds.</div>
+        </div>
+        <div class="card">
+          <div class="card-t"><span class="ic">🔄</span> HBP — Home Buyers' Plan</div>
+          <div class="card-d">Borrow from your own RRSP for the down payment — tax-free if repaid.</div>
+          <ul style="font-size:.82rem;color:var(--txt2);line-height:1.8;padding-left:18px">
+            <li>Withdraw up to <b>$60,000</b> per person ($120k per couple) tax-free.</li>
+            <li>Repay over <b>15 years</b> (starts year 5); miss a payment and it's taxed as income.</li>
+            <li><b>Stacks with the FHSA</b> — use both on the same purchase.</li>
+            <li>Contribute to the RRSP first (get the deduction), wait 90 days, then withdraw.</li>
+          </ul>
+          <div class="note info"><b>Combined firepower:</b> FHSA ${CAD(40000)} + HBP ${CAD(60000)} = <b>${CAD(100000)}</b> per person toward a down payment, much of it generating tax refunds you can recycle into more savings.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">🎁</span> Other Buyer Credits</div>
+        <div class="two-col">
+          <div><b style="font-size:.84rem">First-Time Home Buyers' Tax Credit</b><p style="font-size:.8rem;color:var(--txt2);margin-top:3px">A $10,000 non-refundable credit = up to <b>$1,500</b> back at tax time. Claim on the year you buy.</p></div>
+          <div><b style="font-size:.84rem">Land-transfer tax rebate</b><p style="font-size:.8rem;color:var(--txt2);margin-top:3px">${S.firstTime? `Applied in your snapshot: <b>${CAD(m.transfer.rebate)}</b> saved as a first-time buyer in ${PROVINCES[S.province]}.` : 'Toggle "first-time buyer" in the left panel to apply provincial/Toronto rebates (up to $8,475 combined).'}</p></div>
+        </div>
+      </div>`,
+    home: `
+      <div class="card">
+        <div class="card-t"><span class="ic">🏠</span> The Principal Residence Exemption (PRE)</div>
+        <div class="card-d">The single biggest tax break most Canadians ever get.</div>
+        <div class="note tip"><b>When you sell your principal residence, the entire capital gain is 100% tax-free.</b> Buy at ${CAD(m.price)}, sell years later at double — that gain is yours, untaxed. You must report the sale on your return (since 2016) to claim it.</div>
+        <ul style="font-size:.82rem;color:var(--txt2);line-height:1.8;padding-left:18px;margin-top:8px">
+          <li>Only <b>one</b> property per family per year can be designated.</li>
+          <li>Mortgage interest, property tax, and maintenance on your home are <b>not</b> deductible — the exemption is the trade-off.</li>
+          <li>Renting out part of the home (basement suite) can partially jeopardize the PRE on that portion — keep it modest and don't claim CCA on it.</li>
+          <li>A "house flipping" rule (2023+) taxes gains as <b>business income</b> if you sell within 365 days — the PRE won't save you.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">💡</span> Realtor's angle: your home is a tax-free compounding machine</div>
+        <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">Because the gain is tax-free, leveraged home appreciation is one of the most tax-efficient returns available. On a ${PCT(m.dpPct,0)} down payment of ${CAD(m.dpAmt)}, even modest ${PCT(3,0)}/yr appreciation on the full ${CAD(m.price)} value is a <b>${PCT(m.price*0.03/m.dpAmt*100,0)} tax-free return on your cash</b> in year one — that's the math behind "leverage + PRE."</p>
+        <div class="note warn">Leverage cuts both ways: the same multiplier amplifies losses if prices fall. Don't over-extend just because the upside is tax-free.</div>
+      </div>`,
+    rental: `
+      <div class="card">
+        <div class="card-t"><span class="ic">🏘️</span> Rental Property — Make the Interest Work for You</div>
+        <div class="card-d">If this mortgage were on a rental, the interest becomes deductible against rental income. Model it:</div>
+        <div class="fld-row" style="max-width:360px">
+          <div class="fld"><div class="fld-l"><label>Monthly rent</label><span class="v">${CAD(TAX.rentMonthly)}</span></div><input type="range" id="tx-rent" min="1000" max="8000" step="100" value="${TAX.rentMonthly}"></div>
+          <div class="fld"><div class="fld-l"><label>Operating costs</label><span class="v">${PCT(TAX.opex,0)} of rent</span></div><input type="range" id="tx-opex" min="10" max="50" step="1" value="${TAX.opex}"></div>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><tbody>
+          <tr><td>Gross annual rent</td><td>${CAD(rentalAnnualRent)}</td></tr>
+          <tr><td>− Operating costs (taxes, insurance, mgmt, repairs)</td><td>${CAD(rentalOpex)}</td></tr>
+          <tr><td>− Mortgage interest (deductible, yr 1)</td><td>${CAD(firstYearInterest)}</td></tr>
+          <tr class="hl"><td>Taxable rental income</td><td>${taxableIncome<0?'<span class="neg">'+CAD(taxableIncome)+' (loss)</span>':CAD(taxableIncome)}</td></tr>
+          <tr><td>Tax owed at ${PCT(S.marginal,0)} marginal</td><td>${CAD(rentalTax)}</td></tr>
+        </tbody></table></div>
+        <div class="note ${taxableIncome<0?'tip':'info'}">${taxableIncome<0
+          ? `This property shows a <b>paper loss of ${CAD(-taxableIncome)}</b> — deductible against your other income, refunding ~<b>${CAD(-taxableIncome*mr)}</b>. Meanwhile the tenant pays down your principal and the property appreciates. That's negative-gearing.`
+          : `The deductible interest shields <b>${CAD(interestShield)}</b> of tax in year 1. Only the profit after interest and expenses is taxed.`}</div>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">📚</span> What you can deduct on a rental</div>
+        <div class="two-col">
+          <ul style="font-size:.8rem;color:var(--txt2);line-height:1.8;padding-left:18px">
+            <li>Mortgage <b>interest</b> (not principal)</li>
+            <li>Property taxes &amp; insurance</li>
+            <li>Property-management &amp; advertising</li>
+            <li>Repairs &amp; maintenance</li>
+          </ul>
+          <ul style="font-size:.8rem;color:var(--txt2);line-height:1.8;padding-left:18px">
+            <li>Utilities you pay</li>
+            <li>Accounting / legal fees</li>
+            <li>Condo fees</li>
+            <li>CCA (depreciation) — but it can claw back the PRE &amp; trigger recapture on sale; use carefully</li>
+          </ul>
+        </div>
+        <div class="note warn"><b>Capital gains on a rental are taxable</b> (50% inclusion up to $250k of gains/yr, then 66.7% per the proposed 2024 rules). Hold it in the right name and time the sale.</div>
+      </div>`,
+  };
+  const setTax = k => { document.getElementById('taxBody').innerHTML = bodies[k];
+    const w=(id,fmt,fn)=>liveRange(id,fmt,v=>{ fn(v); RENDERERS.tax(); document.querySelectorAll('#taxSub button').forEach(b=>b.classList.toggle('on',b.dataset.tx===k)); setTax(k); });
+    w('tx-fhsa-amt', v=>CAD(v),         v=>TAX.fhsaPerYear=v);
+    w('tx-fhsa-yrs', v=>String(v),      v=>TAX.fhsaYears=v);
+    w('tx-rent',     v=>CAD(v),         v=>TAX.rentMonthly=v);
+    w('tx-opex',     v=>PCT(v,0)+' of rent', v=>TAX.opex=v);
+  };
+  document.getElementById('taxSub').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; document.querySelectorAll('#taxSub button').forEach(x=>x.classList.toggle('on',x===b)); setTax(b.dataset.tx); });
+  setTax('buy');
+};
+
+/* ════════════════ TAB 5 · LEVERAGE LAB ═════════════════════════════════ */
+const LEV = { helocRate: 6.5, invReturn: 7, borrow: 100000, years: 15, homeGrowth: 4 };
+RENDERERS.leverage = function(){
+  const m = model();
+  const mr = S.marginal/100;
+  // Available equity: lenders allow borrowing up to 80% of home value, minus mortgage.
+  // A standalone HELOC is capped at 65% LTV; readvanceable combos reach 80%.
+  const homeVal = m.price; // could grow; use current for available-now
+  const maxBorrow80 = Math.max(0, homeVal*0.80 - m.loan);
+  const helocRoom65 = Math.max(0, homeVal*0.65 - 0); // revolving portion cap
+  const borrow = Math.min(LEV.borrow, maxBorrow80);
+
+  // Rate arbitrage: cost of borrowing vs expected return.
+  // Investment-loan interest is tax-DEDUCTIBLE → after-tax cost = rate × (1 − marginal).
+  const afterTaxCost = LEV.helocRate/100*(1-mr);
+  const grossSpread = LEV.invReturn/100 - LEV.helocRate/100;
+  const netSpread = LEV.invReturn/100 - afterTaxCost;
+  // Project borrowed sum invested vs interest paid over N years (interest-only HELOC)
+  const fv = borrow * Math.pow(1+LEV.invReturn/100, LEV.years);
+  const interestPaidTotal = borrow*(LEV.helocRate/100)*LEV.years;
+  const taxRefunds = interestPaidTotal*mr;
+  const netInterestCost = interestPaidTotal - taxRefunds;
+  const netGain = (fv - borrow) - netInterestCost;
+
+  document.getElementById('pane-leverage').innerHTML = `
+    <div class="note info" style="margin-bottom:14px"><span class="h">🎯 What "good leverage" means</span>
+      Leverage is borrowing against your home equity to buy an income-producing asset (investments or a rental). It's worth it only when your <b>after-tax return beats your after-tax borrowing cost</b>, and only if you can stomach the downside. Because investment-loan interest is tax-deductible in Canada, your real cost is lower than the sticker rate.</div>
+
+    <div class="kpi-grid">
+      ${kpi('Equity you could tap', CAD(maxBorrow80), 'up to 80% LTV − mortgage','teal')}
+      ${kpi('After-tax borrow cost', PCT(afterTaxCost*100), 'HELOC '+PCT(LEV.helocRate)+' × (1−'+PCT(S.marginal,0)+')','gold')}
+      ${kpi('Net spread', (netSpread>=0?'+':'')+PCT(netSpread*100), netSpread>=0?'return beats cost':'cost beats return', netSpread>=0?'success':'danger')}
+      ${kpi(LEV.years+'-yr net gain', (netGain>=0?'+':'')+CAD(netGain), 'on '+CAD(borrow)+' borrowed', netGain>=0?'success':'danger')}
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">🧮</span> Rate-Arbitrage Calculator</div>
+      <div class="card-d">Borrow against home equity, invest it, and let the spread compound. Tune the assumptions:</div>
+      <div class="fld-row3" style="margin-bottom:8px">
+        <div class="fld"><div class="fld-l"><label>Amount borrowed</label><span class="v">${CAD(borrow)}</span></div><input type="range" id="lv-borrow" min="10000" max="${Math.max(50000,Math.round(maxBorrow80))}" step="5000" value="${borrow}"></div>
+        <div class="fld"><div class="fld-l"><label>HELOC rate</label><span class="v">${PCT(LEV.helocRate)}</span></div><input type="range" id="lv-heloc" min="2" max="12" step="0.1" value="${LEV.helocRate}"></div>
+        <div class="fld"><div class="fld-l"><label>Investment return</label><span class="v">${PCT(LEV.invReturn)}</span></div><input type="range" id="lv-inv" min="0" max="15" step="0.25" value="${LEV.invReturn}"></div>
+      </div>
+      <div class="fld" style="max-width:240px"><div class="fld-l"><label>Horizon</label><span class="v">${LEV.years} yr</span></div><input type="range" id="lv-yrs" min="3" max="30" step="1" value="${LEV.years}"></div>
+      <div class="tbl-wrap"><table class="tbl"><tbody>
+        <tr><td>Investment grows to (FV)</td><td>${CAD(fv)}</td></tr>
+        <tr><td>Investment profit</td><td class="pos">${CAD(fv-borrow)}</td></tr>
+        <tr><td>Interest paid over ${LEV.years} yr (interest-only)</td><td>${CAD(interestPaidTotal)}</td></tr>
+        <tr><td>Tax refunds (interest deductible × ${PCT(S.marginal,0)})</td><td class="pos">${CAD(taxRefunds)}</td></tr>
+        <tr><td>Net after-tax interest cost</td><td>${CAD(netInterestCost)}</td></tr>
+        <tr class="hl"><td>Net gain after all costs</td><td class="${netGain>=0?'pos':'neg'}">${CAD(netGain)}</td></tr>
+      </tbody></table></div>
+      <div class="note ${netGain>=0?'tip':'danger'}">${netGain>=0
+        ? `Positive carry: the borrowed money is projected to out-earn its after-tax cost by <b>${CAD(netGain)}</b>. The deductibility of the interest is doing real work here.`
+        : `Negative carry at these inputs — you'd lose <b>${CAD(-netGain)}</b>. Don't leverage when expected return doesn't clear your after-tax borrowing cost.`}</div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-t"><span class="ic">🏦</span> Three Ways to Pull Equity</div>
+        ${[['HELOC (revolving)','Borrow/repay anytime up to 65% LTV standalone. Interest-only minimums. Best for flexible investing &amp; the Smith Manoeuvre.'],
+           ['Readvanceable mortgage','A mortgage + HELOC combo (e.g. Manulife One, Scotia STEP) where the credit limit grows as you pay down principal. The engine for the Smith Manoeuvre — up to 80% LTV.'],
+           ['Refinance / blend','Break or blend the mortgage to pull a lump of equity at mortgage rates (lower than HELOC). Watch penalties.']
+          ].map(([h,p])=>`<div style="margin-bottom:10px"><b style="font-size:.83rem">${h}</b><p style="font-size:.79rem;color:var(--txt2);line-height:1.5;margin-top:2px">${p}</p></div>`).join('')}
+        <div class="note info">Standalone HELOC cap here (65% LTV): <b>${CAD(helocRoom65)}</b>. Combined with the mortgage up to 80%: <b>${CAD(maxBorrow80)}</b> of new borrowing room.</div>
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">⏱️</span> When to Take Leverage (Decision Rules)</div>
+        ${[['✅','Expected after-tax return clearly beats after-tax borrowing cost (aim for a 2%+ buffer).'],
+           ['✅','Long horizon (10+ yrs) so volatility averages out.'],
+           ['✅','Stable income that covers the interest even if investments pay nothing.'],
+           ['✅','You\'re investing in income-producing assets so interest stays deductible.'],
+           ['❌','Borrowing to fund lifestyle, a depreciating asset, or speculation.'],
+           ['❌','Rates rising fast or you\'re near retirement / job insecurity.'],
+          ].map(([i,p])=>`<div style="display:flex;gap:8px;margin-bottom:7px;font-size:.81rem;line-height:1.45"><span>${i}</span><span style="color:var(--txt2)">${p}</span></div>`).join('')}
+        <div class="note danger"><b>Risk reality:</b> leverage multiplies losses too. A margin/HELOC call or a market drop while you still owe the full loan can wipe out equity. Never leverage money you can't afford to lose.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">🏘️</span> Leverage Into a Rental (BRRRR in brief)</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6"><b>B</b>uy → <b>R</b>enovate → <b>R</b>ent → <b>R</b>efinance → <b>R</b>epeat. Use a HELOC for the down payment on a rental, the tenant covers the new mortgage, the interest is deductible, and after forcing appreciation you refinance to pull your capital back out and do it again. Powerful, but it stacks leverage on leverage — model vacancy, rate resets, and a price drop before committing.</p>
+    </div>`;
+
+  liveRange('lv-borrow', v=>CAD(v),   v=>{ LEV.borrow=v;    RENDERERS.leverage(); });
+  liveRange('lv-heloc',  v=>PCT(v),   v=>{ LEV.helocRate=v; RENDERERS.leverage(); });
+  liveRange('lv-inv',    v=>PCT(v),   v=>{ LEV.invReturn=v; RENDERERS.leverage(); });
+  liveRange('lv-yrs',    v=>v+' yr',  v=>{ LEV.years=v;     RENDERERS.leverage(); });
+};
+
+/* ════════════════ TAB 6 · SMITH MANOEUVRE ══════════════════════════════ */
+const SMITH = { helocRate: 6.5, invReturn: 7, accelerate: true, capitalizeInt: true };
+// Year-by-year simulation. Reborrow each dollar of principal paid and invest it;
+// HELOC interest is deductible → refund. Accelerated = refund prepays the mortgage.
+function smithSim(loan, nom, monthlyPay, helocRate, invReturn, marginal, accelerate, capitalize){
+  const i = periodicRate(nom,12), hr=helocRate/100, ir=invReturn/100;
+  let mtg=loan, heloc=0, port=0, totalRefund=0, totalHelocInt=0, lastRefund=0, yr=0;
+  const rows=[]; const maxYr=40;
+  while(mtg>0.01 && yr<maxYr){
+    yr++;
+    // accelerated: apply last year's refund as a lump prepayment up front
+    let lump=0;
+    if(accelerate && lastRefund>0){ lump=Math.min(lastRefund, mtg); mtg-=lump; }
+    let yrPrincipal=lump, yrMtgInt=0;
+    for(let mo=0;mo<12 && mtg>0.01;mo++){
+      const int=mtg*i; let prin=monthlyPay-int; if(prin>mtg)prin=mtg;
+      mtg-=prin; yrPrincipal+=prin; yrMtgInt+=int;
+    }
+    // reborrow all principal repaid this year → invest
+    heloc+=yrPrincipal; port+=yrPrincipal;
+    // HELOC interest for the year (approx on year-end balance)
+    const helocInt=heloc*hr; totalHelocInt+=helocInt;
+    if(capitalize){ heloc+=helocInt; port+=helocInt; } // borrow to pay the interest (re-advanceable)
+    // grow portfolio
+    port*=(1+ir);
+    const refund=helocInt*marginal/100; totalRefund+=refund; lastRefund=refund;
+    rows.push({yr, mtg:Math.max(0,mtg), heloc, port, refund, helocInt});
+    if(mtg<=0.01) break;
+  }
+  return { rows, years:yr, portfolio:port, helocDebt:heloc, totalRefund, totalHelocInt, net:port-heloc };
+}
+RENDERERS.smith = function(){
+  const m = model();
+  const baselineYears = amortize(m.loan,m.nom,12,m.monthlyPay).years;
+  const sim = smithSim(m.loan, m.nom, m.monthlyPay, SMITH.helocRate, SMITH.invReturn, S.marginal, SMITH.accelerate, SMITH.capitalizeInt);
+  const yearsSaved = (baselineYears - sim.years);
+
+  document.getElementById('pane-smith').innerHTML = `
+    <div class="note warn" style="margin-bottom:14px"><span class="h">🔁 The Smith Manoeuvre — Canada's signature mortgage tax play</span>
+      Your home mortgage interest isn't deductible — but an investment loan's is. The Smith Manoeuvre uses a <b>re-advanceable mortgage</b> to gradually convert your "bad" (non-deductible) mortgage into "good" (deductible) investment debt. Every dollar of principal you pay frees HELOC room; you immediately re-borrow it and invest. Over time you still owe roughly the same, but now the interest is tax-deductible <i>and</i> you've built an investment portfolio. <b>This is an advanced, higher-risk strategy — get professional advice.</b></div>
+
+    <div class="kpi-grid">
+      ${kpi('Mortgage gone in', yrsMonths(sim.years*12), 'vs '+yrsMonths(baselineYears*12)+' normally', 'success')}
+      ${kpi('Portfolio built', CAD(sim.portfolio), 'by the time mortgage clears','teal')}
+      ${kpi('Deductible debt', CAD(sim.helocDebt), 'HELOC (interest now deductible)','gold')}
+      ${kpi('Total tax refunds', CAD(sim.totalRefund), 'recycled into paydown','purple')}
+      ${kpi('Net investment position', CAD(sim.net), 'portfolio − HELOC', sim.net>=0?'success':'danger')}
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">🔧</span> Tune the Strategy</div>
+      <div class="fld-row3" style="margin-bottom:8px">
+        <div class="fld"><div class="fld-l"><label>HELOC rate</label><span class="v">${PCT(SMITH.helocRate)}</span></div><input type="range" id="sm-heloc" min="2" max="12" step="0.1" value="${SMITH.helocRate}"></div>
+        <div class="fld"><div class="fld-l"><label>Investment return</label><span class="v">${PCT(SMITH.invReturn)}</span></div><input type="range" id="sm-inv" min="0" max="15" step="0.25" value="${SMITH.invReturn}"></div>
+        <div class="fld"><div class="fld-l"><label>Marginal tax</label><span class="v">${PCT(S.marginal,0)}</span></div><input type="range" id="sm-marg" min="20" max="54" step="0.5" value="${S.marginal}"></div>
+      </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap">
+        <label style="display:flex;align-items:center;gap:7px;font-size:.82rem;cursor:pointer"><input type="checkbox" id="sm-accel" ${SMITH.accelerate?'checked':''} style="width:auto"> Accelerate (recycle tax refunds into mortgage)</label>
+        <label style="display:flex;align-items:center;gap:7px;font-size:.82rem;cursor:pointer"><input type="checkbox" id="sm-cap" ${SMITH.capitalizeInt?'checked':''} style="width:auto"> Capitalize HELOC interest (borrow to pay it)</label>
+      </div>
+      <div class="chart-box" style="margin-top:14px"><canvas id="smChart"></canvas></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card">
+        <div class="card-t"><span class="ic">📋</span> How It Works (5 Steps)</div>
+        ${[['Set up a re-advanceable mortgage','Replace your mortgage with a combo product (Scotia STEP, Manulife One, National Bank All-in-One). As you pay principal, the HELOC limit auto-grows by the same amount.'],
+           ['Pay your regular mortgage payment','Nothing changes about your normal payment — principal chips away as usual.'],
+           ['Re-borrow the freed-up room and invest','Each month, draw the newly available HELOC credit and invest it in income-producing assets (dividend stocks, ETFs, etc.).'],
+           ['Deduct the HELOC interest','Because the borrowed money earns income, that interest is tax-deductible — generating a refund each spring.'],
+           ['Recycle the refund','Throw the refund (and dividends) at the mortgage to pay it off faster, freeing even more room to re-borrow. The loop compounds.']
+          ].map(([h,p],idx)=>`<div class="step"><div class="step-n">${idx+1}</div><div class="step-b"><h4>${h}</h4><p>${p}</p></div></div>`).join('')}
+      </div>
+      <div class="card">
+        <div class="card-t"><span class="ic">⚠️</span> Risks &amp; Honest Caveats</div>
+        <ul style="font-size:.81rem;color:var(--txt2);line-height:1.75;padding-left:18px">
+          <li><b>You stay in debt longer.</b> You trade mortgage debt for investment debt — total leverage on your home stays high.</li>
+          <li><b>Market risk.</b> If investments fall, you still owe the HELOC in full. A crash early on hurts most.</li>
+          <li><b>Rate risk.</b> HELOC rates are variable; a spike raises your cost and can flip the spread negative.</li>
+          <li><b>Deductibility rules are strict.</b> Funds must be traceable to income-producing investments; mixing in personal spending poisons the deduction. Keep accounts clean.</li>
+          <li><b>Discipline required.</b> It only works if you actually invest the room and never raid the HELOC for lifestyle.</li>
+        </ul>
+        <div class="note danger">This tool's projection assumes steady returns and rates. Reality is volatile. Confirm with a fee-based advisor and accountant before starting.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">🗓️</span> Year-by-Year Conversion</div>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Year</th><th>Mortgage left</th><th>HELOC (deductible)</th><th>Portfolio</th><th>Tax refund</th></tr></thead>
+        <tbody>${sim.rows.map(r=>`<tr><td>Year ${r.yr}</td><td>${CAD(r.mtg)}</td><td>${CAD(r.heloc)}</td><td>${CAD(r.port)}</td><td class="pos">${CAD(r.refund)}</td></tr>`).join('')}</tbody>
+      </table></div>
+    </div>`;
+
+  liveRange('sm-heloc', v=>PCT(v),   v=>{ SMITH.helocRate=v; RENDERERS.smith(); });
+  liveRange('sm-inv',   v=>PCT(v),   v=>{ SMITH.invReturn=v; RENDERERS.smith(); });
+  liveRange('sm-marg',  v=>PCT(v,0), v=>{ S.marginal=v; save(); RENDERERS.smith(); });
+  liveCheck('sm-accel', v=>{ SMITH.accelerate=v;    RENDERERS.smith(); });
+  liveCheck('sm-cap',   v=>{ SMITH.capitalizeInt=v; RENDERERS.smith(); });
+
+  chart('smChart',{
+    type:'line',
+    data:{ labels:sim.rows.map(r=>'Yr '+r.yr),
+      datasets:[
+        {label:'Mortgage (non-deductible)', data:sim.rows.map(r=>Math.round(r.mtg)), borderColor:cssVar('--danger'), backgroundColor:cssVar('--dang-bg'), fill:true, tension:.3, pointRadius:0, borderWidth:2},
+        {label:'Portfolio', data:sim.rows.map(r=>Math.round(r.port)), borderColor:cssVar('--success'), tension:.3, pointRadius:0, borderWidth:2},
+        {label:'HELOC (deductible debt)', data:sim.rows.map(r=>Math.round(r.heloc)), borderColor:cssVar('--gold'), tension:.3, pointRadius:0, borderWidth:1.5, borderDash:[4,3]},
+      ]},
+    options:{ interaction:{mode:'index',intersect:false}, plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+CAD(c.parsed.y)}}}, scales:{ y:{ticks:{callback:v=>'$'+(v/1000)+'k'}} } }
+  });
+};
+
+/* ════════════════ TAB 7 · SMART MOVES (the math tricks) ════════════════ */
+RENDERERS.tricks = function(){
+  const m = model();
+  const monthly = m.monthlyPay;
+  const accel = paymentFor(m.loan,m.nom,S.amort,'accel-biweekly');
+  const accelSaved = amortize(m.loan,m.nom,12,monthly).totalInterest - amortize(m.loan,m.nom,26,accel.pay).totalInterest;
+
+  document.getElementById('pane-tricks').innerHTML = `
+    <div class="note tip" style="margin-bottom:14px"><span class="h">🧠 The realtor's playbook, in one place</span>
+      Seven mathematically-grounded moves that quietly add up to six figures over a mortgage life. Each is sized to <i>your</i> numbers.</div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">1</span> The "13th payment" trick (accelerated frequency)</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">Switch from monthly to <b>accelerated bi-weekly</b> and you make 26 half-payments = the equivalent of 13 monthly payments a year. The extra payment is 100% principal. On your mortgage that's <b>${CAD(accelSaved)}</b> saved and years off the term — for a payment most people don't even feel.</p>
+      <div class="note tip">Action: ask your lender to set payments to "accelerated bi-weekly," ideally aligned to your payday.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">2</span> Attack principal early — interest is front-loaded</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">In a mortgage's early years, most of each payment is interest. A prepayment in year 1 erases interest on that principal for the <i>entire</i> remaining amortization. A ${CAD(10000)} lump in year 1 of this mortgage saves far more than the same lump in year 15. <b>Front-load every dollar you can.</b></p>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">3</span> Rate arbitrage: deductible debt is cheap debt</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">A 6.5% HELOC used to invest really costs <b>${PCT(6.5*(1-S.marginal/100))}</b> after the tax deduction at your ${PCT(S.marginal,0)} bracket. If diversified investments return more than that over the long run, borrowing to invest builds wealth. This is the engine behind both the Leverage Lab and the Smith Manoeuvre.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">4</span> Make your mortgage tax-deductible (Smith Manoeuvre)</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">Canadian home-mortgage interest isn't deductible — but you can convert it. Re-borrow principal as you pay it and invest, turning non-deductible debt into deductible investment debt while building a portfolio. See the <b>🔁 Smith Manoeuvre</b> tab for a full projection.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">5</span> Use registered accounts for the down payment</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">FHSA ($40k, deductible + tax-free out) + HBP ($60k tax-free RRSP loan) = up to <b>${CAD(100000)} per person</b> toward a home, much of it generating refunds. Always fund these before a taxable savings account. Details on the <b>💰 Tax Strategy</b> tab.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">6</span> Shorten amortization at every renewal</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">When your income rises or you renew, reset the amortization <i>down</i> (e.g. 22 yrs instead of the original 25) rather than letting it ride. Each renewal is a free chance to compress the timeline. Keep the payment as high as you comfortably can.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">7</span> Never auto-renew; always shop & negotiate</div>
+      <p style="font-size:.82rem;color:var(--txt2);line-height:1.6">Each 0.25% you shave off this mortgage saves roughly <b>${CAD(amortize(m.loan,m.nom,12,monthly).totalInterest - amortize(m.loan,(S.rate-0.25)/100,12,levelPayment(m.loan,(S.rate-0.25)/100,12,S.amort*12)).totalInterest)}</b> over its life. Switching lenders at renewal is penalty-free. Five minutes of negotiation can be the highest-paid five minutes of your year. See <b>📉 Rate &amp; Renewal</b>.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">⚠️</span> Moves to approach with caution</div>
+      <ul style="font-size:.81rem;color:var(--txt2);line-height:1.75;padding-left:18px">
+        <li><b>"Velocity banking" / HELOC payment shuffling:</b> often oversold online. The real savings come from the extra principal, not magic — a simple prepayment achieves the same with less risk.</li>
+        <li><b>Over-leveraging:</b> just because you <i>can</i> borrow to 80% LTV doesn't mean you should. Keep a cash buffer for rate resets and vacancies.</li>
+        <li><b>Penalty-blind refinancing:</b> always price the IRD penalty before breaking a fixed mortgage early.</li>
+      </ul>
+    </div>`;
+};
+
+/* ════════════════ TAB 8 · BUY VS RENT ══════════════════════════════════ */
+const BVR = { rent: 3000, rentGrowth: 3, homeGrowth: 4, invReturn: 6, horizon: 10, maint: 1 };
+function buyVsRent(m){
+  const N = BVR.horizon, monthly = m.monthlyPay;
+  const closing = m.transfer.net + 1800;
+  const upfront = m.dpAmt + closing;
+  const homeInsMo = 100, propTaxMo = m.price*0.01/12, maintMo = m.price*(BVR.maint/100)/12;
+  const buyerMonthly0 = monthly + propTaxMo + maintMo + homeInsMo;
+
+  // amortization monthly balances
+  const sched = amortize(m.loan,m.nom,12,monthly);
+  const balAtMonth = mo => { // interpolate from yearly
+    const y = mo/12; const arr=sched.yearly;
+    for(let k=1;k<arr.length;k++){ if(arr[k].year>=y){ const a=arr[k-1],b=arr[k]; const t=(y-a.year)/(b.year-a.year||1); return a.balance+(b.balance-a.balance)*t; } }
+    return 0;
+  };
+
+  let port = upfront; // renter invests the upfront cash
+  let rent = BVR.rent;
+  const series=[];
+  for(let mo=1;mo<=N*12;mo++){
+    const maint = m.price*(BVR.maint/100)/12, ptax=m.price*0.01/12;
+    const buyerCost = monthly + ptax + maint + homeInsMo;
+    const diff = buyerCost - rent;               // if buyer pays more, renter invests the difference
+    port = port*(1+BVR.invReturn/100/12) + Math.max(0,diff);
+    rent *= (1+BVR.rentGrowth/100/12);
+    if(mo%12===0){
+      const yr=mo/12;
+      const homeVal = m.price*Math.pow(1+BVR.homeGrowth/100,yr);
+      const equity = homeVal*0.94 - balAtMonth(mo); // 6% selling cost (realtor+legal)
+      series.push({yr, equity, port});
+    }
+  }
+  const last = series[series.length-1];
+  return { series, buyNet:last.equity, rentNet:last.port, upfront, buyerMonthly0, winner: last.equity>=last.port?'buy':'rent', diff:Math.abs(last.equity-last.port) };
+}
+RENDERERS.rent = function(){
+  const m = model();
+  const r = buyVsRent(m);
+  document.getElementById('pane-rent').innerHTML = `
+    <div class="kpi-grid">
+      ${kpi('Buyer net worth', CAD(r.buyNet), 'home equity after '+BVR.horizon+' yr (net of sale costs)', r.winner==='buy'?'success':'info')}
+      ${kpi('Renter net worth', CAD(r.rentNet), 'invested down-payment + savings', r.winner==='rent'?'success':'info')}
+      ${kpi(r.winner==='buy'?'Buying wins by':'Renting wins by', CAD(r.diff), 'over '+BVR.horizon+' years', r.winner==='buy'?'success':'gold')}
+      ${kpi('Buyer monthly cost', CAD(r.buyerMonthly0), 'mortgage+tax+maint+ins','teal')}
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">⚖️</span> Net Worth: Buy vs Rent</div>
+      <div class="card-d">Assumes the renter invests the would-be down payment <b>and</b> any monthly cash they save vs owning. Tune every assumption:</div>
+      <div class="fld-row3" style="margin-bottom:8px">
+        <div class="fld"><div class="fld-l"><label>Rent now /mo</label><span class="v">${CAD(BVR.rent)}</span></div><input type="range" id="bv-rent" min="1000" max="7000" step="100" value="${BVR.rent}"></div>
+        <div class="fld"><div class="fld-l"><label>Rent growth</label><span class="v">${PCT(BVR.rentGrowth,1)}</span></div><input type="range" id="bv-rg" min="0" max="8" step="0.25" value="${BVR.rentGrowth}"></div>
+        <div class="fld"><div class="fld-l"><label>Home growth</label><span class="v">${PCT(BVR.homeGrowth,1)}</span></div><input type="range" id="bv-hg" min="0" max="8" step="0.25" value="${BVR.homeGrowth}"></div>
+      </div>
+      <div class="fld-row3">
+        <div class="fld"><div class="fld-l"><label>Invest return</label><span class="v">${PCT(BVR.invReturn,1)}</span></div><input type="range" id="bv-ir" min="0" max="12" step="0.25" value="${BVR.invReturn}"></div>
+        <div class="fld"><div class="fld-l"><label>Maintenance /yr</label><span class="v">${PCT(BVR.maint,1)}</span></div><input type="range" id="bv-mt" min="0" max="3" step="0.1" value="${BVR.maint}"></div>
+        <div class="fld"><div class="fld-l"><label>Horizon</label><span class="v">${BVR.horizon} yr</span></div><input type="range" id="bv-hz" min="3" max="30" step="1" value="${BVR.horizon}"></div>
+      </div>
+      <div class="chart-box" style="margin-top:8px"><canvas id="bvChart"></canvas></div>
+      <div class="note ${r.winner==='buy'?'tip':'info'}">${r.winner==='buy'
+        ? `At these assumptions, <b>buying wins by ${CAD(r.diff)}</b> over ${BVR.horizon} years — driven by leveraged, tax-free appreciation on the full home value plus forced savings via principal paydown.`
+        : `At these assumptions, <b>renting + investing wins by ${CAD(r.diff)}</b> over ${BVR.horizon} years. Buying tends to win over longer horizons and with higher home-price growth — push the sliders to see the crossover.`}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-t"><span class="ic">🔑</span> What tips the scales</div>
+      <div class="two-col">
+        <ul style="font-size:.81rem;color:var(--txt2);line-height:1.8;padding-left:18px">
+          <li><b>Time:</b> high upfront costs (LTT, closing, ~6% to sell) mean buying usually needs <b>5+ years</b> to pay off.</li>
+          <li><b>Tax-free gain:</b> home appreciation is 100% tax-free; investment gains are taxed — a hidden edge for buying.</li>
+          <li><b>Leverage:</b> you control a ${CAD(m.price)} asset with ${CAD(m.dpAmt)} down — appreciation is on the whole value.</li>
+        </ul>
+        <ul style="font-size:.81rem;color:var(--txt2);line-height:1.8;padding-left:18px">
+          <li><b>Discipline:</b> renting only wins if you <i>actually</i> invest the difference, every month.</li>
+          <li><b>Flexibility:</b> renting wins on mobility and avoids maintenance / special assessments.</li>
+          <li><b>Rates:</b> high mortgage rates raise the bar buying must clear.</li>
+        </ul>
+      </div>
+    </div>`;
+
+  liveRange('bv-rent', v=>CAD(v),   v=>{ BVR.rent=v;       RENDERERS.rent(); });
+  liveRange('bv-rg',   v=>PCT(v,1), v=>{ BVR.rentGrowth=v; RENDERERS.rent(); });
+  liveRange('bv-hg',   v=>PCT(v,1), v=>{ BVR.homeGrowth=v; RENDERERS.rent(); });
+  liveRange('bv-ir',   v=>PCT(v,1), v=>{ BVR.invReturn=v;  RENDERERS.rent(); });
+  liveRange('bv-mt',   v=>PCT(v,1), v=>{ BVR.maint=v;      RENDERERS.rent(); });
+  liveRange('bv-hz',   v=>v+' yr',  v=>{ BVR.horizon=v;    RENDERERS.rent(); });
+
+  chart('bvChart',{
+    type:'line',
+    data:{ labels:r.series.map(s=>'Yr '+s.yr),
+      datasets:[
+        {label:'Buy (home equity)', data:r.series.map(s=>Math.round(s.equity)), borderColor:cssVar('--acc'), backgroundColor:cssVar('--acc-bg'), fill:true, tension:.3, pointRadius:0, borderWidth:2},
+        {label:'Rent + invest', data:r.series.map(s=>Math.round(s.port)), borderColor:cssVar('--info'), tension:.3, pointRadius:0, borderWidth:2},
+      ]},
+    options:{ interaction:{mode:'index',intersect:false}, plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+': '+CAD(c.parsed.y)}}}, scales:{ y:{ticks:{callback:v=>'$'+(v/1000)+'k'}} } }
+  });
+};
+
+/* ─── Init ──────────────────────────────────────────────────────────────── */
+render();
+</script>
+</body>
+</html>
