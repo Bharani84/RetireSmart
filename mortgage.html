@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HappyHome — Smart Home Loan Strategist (India)</title>
+<meta name="description" content="India-focused home loan planner: EMI, tax optimizer, prepay strategies, rate hacks, leverage lab, math tricks, buy vs rent.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- PlanWise shared platform shell (master nav + theme) -->
+<link rel="stylesheet" href="platform.css">
+<script src="platform.js"></script>
+<style>
+/* ═══ TOKENS ════════════════════════════════════════════════════════════ */
+:root{
+  --hh:56px;
+  --bg:#eef2f7; --lp:#f5f7fc; --card:#fff;
+  --bdr:rgba(0,0,0,.07); --bdr2:rgba(0,0,0,.13);
+  --acc:#0d9488; --acc-bg:rgba(13,148,136,.1); --acc-bdr:rgba(13,148,136,.24);
+  --gold:#d97706; --gold-bg:rgba(217,119,6,.09);
+  --danger:#dc2626; --dang-bg:rgba(220,38,38,.08);
+  --success:#16a34a; --succ-bg:rgba(22,163,74,.1);
+  --warn:#ca8a04; --warn-bg:rgba(202,138,4,.09);
+  --info:#2563eb; --info-bg:rgba(37,99,235,.1);
+  --purple:#7c3aed; --purple-bg:rgba(124,58,237,.1);
+  --txt:#1e293b; --txt2:#64748b; --txt3:#94a3b8;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh-lg:0 4px 14px rgba(0,0,0,.08);
+  --ibg:#f8fafc; --r:12px; --rs:8px;
+}
+[data-theme="dark"]{
+  --bg:#07101f; --lp:rgba(0,0,0,.22); --card:rgba(255,255,255,.04);
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(255,255,255,.13);
+  --acc:#2dd4bf; --acc-bg:rgba(45,212,191,.12); --acc-bdr:rgba(45,212,191,.28);
+  --gold:#f4a261; --gold-bg:rgba(244,162,97,.1);
+  --danger:#ff6b6b; --dang-bg:rgba(255,107,107,.1);
+  --success:#51cf66; --succ-bg:rgba(81,207,102,.1);
+  --warn:#ffd43b; --warn-bg:rgba(255,212,59,.1);
+  --info:#60a5fa; --info-bg:rgba(96,165,250,.12);
+  --purple:#a78bfa; --purple-bg:rgba(167,139,250,.12);
+  --txt:#f0f4f8; --txt2:rgba(240,244,248,.55); --txt3:rgba(240,244,248,.28);
+  --sh:none; --sh-lg:none; --ibg:rgba(255,255,255,.06);
+}
+
+/* ═══ RESET ══════════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;font-size:14px;transition:background .3s,color .3s}
+
+/* ═══ HEADER ════════════════════════════════════════════════════════════ */
+.hdr{height:var(--hh);background:var(--card);box-shadow:var(--sh);border-bottom:1px solid var(--bdr);position:sticky;top:52px;z-index:100}
+.hdr-in{height:100%;display:flex;align-items:center;padding:0 18px;gap:14px;max-width:1600px;margin:0 auto}
+.logo{font-size:1rem;font-weight:800;white-space:nowrap;flex-shrink:0;background:linear-gradient(135deg,var(--acc),#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+[data-theme="dark"] .logo{background:linear-gradient(135deg,#2dd4bf,#22d3ee);-webkit-background-clip:text;background-clip:text}
+.logo-sub{font-size:.7rem;font-weight:500;color:var(--txt2);margin-left:6px}
+.subnav-lbl{font-size:.82rem;font-weight:800;color:var(--txt);white-space:nowrap;flex-shrink:0}
+.subnav-sub{font-size:.68rem;font-weight:500;color:var(--txt3)}
+.tabs{display:flex;gap:2px;flex:1;flex-wrap:wrap}
+.tbtn{padding:6px 12px;border-radius:7px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tbtn:hover{background:var(--ibg);color:var(--txt)}
+.tbtn.active{background:var(--acc-bg);color:var(--acc)}
+.theme-tog{background:var(--ibg);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;font-size:.8rem;cursor:pointer;color:var(--txt);transition:all .15s}
+.theme-tog:hover{background:var(--acc-bg);border-color:var(--acc-bdr);color:var(--acc)}
+
+/* ═══ LAYOUT ════════════════════════════════════════════════════════════ */
+.app{max-width:1600px;margin:0 auto;padding:14px 18px 40px}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+.panel{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh)}
+.panel-t{font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt2);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.panel-t .dot{width:6px;height:6px;border-radius:50%;background:var(--acc)}
+
+/* ═══ INPUTS ════════════════════════════════════════════════════════════ */
+.fld{margin-bottom:11px}
+.fld-l{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}
+.fld-l label{font-size:.72rem;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em}
+.fld-l .v{font-size:.82rem;font-weight:700;color:var(--acc)}
+.fld input[type=number],.fld input[type=text],.fld select{width:100%;padding:8px 10px;border:1px solid var(--bdr2);border-radius:var(--rs);background:var(--ibg);color:var(--txt);font-family:inherit;font-size:.85rem;outline:none;transition:all .15s}
+.fld input:focus,.fld select:focus{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc-bg)}
+.fld input[type=range]{-webkit-appearance:none;width:100%;height:4px;background:var(--bdr2);border-radius:4px;outline:none;margin-top:4px}
+.fld input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--acc);border-radius:50%;cursor:pointer;border:2px solid var(--card);box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fld .hint{font-size:.68rem;color:var(--txt3);margin-top:3px}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}
+.chip{padding:3px 8px;border-radius:5px;background:var(--ibg);border:1px solid var(--bdr);font-size:.72rem;cursor:pointer;color:var(--txt2);transition:all .15s}
+.chip:hover,.chip.on{background:var(--acc-bg);color:var(--acc);border-color:var(--acc-bdr)}
+
+/* ═══ KPI / STAT CARDS ═════════════════════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--acc)}
+.kpi.gold::before{background:var(--gold)}
+.kpi.warn::before{background:var(--warn)}
+.kpi.success::before{background:var(--success)}
+.kpi.danger::before{background:var(--danger)}
+.kpi.info::before{background:var(--info)}
+.kpi.purple::before{background:var(--purple)}
+.kpi-l{font-size:.68rem;text-transform:uppercase;font-weight:600;color:var(--txt2);letter-spacing:.05em;margin-bottom:3px}
+.kpi-v{font-size:1.25rem;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1.15}
+.kpi-s{font-size:.7rem;color:var(--txt2);margin-top:2px}
+.kpi-s.up{color:var(--success)}
+.kpi-s.dn{color:var(--danger)}
+
+/* ═══ TABS CONTENT ══════════════════════════════════════════════════════ */
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh);margin-bottom:14px}
+.card-t{font-size:.85rem;font-weight:700;color:var(--txt);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card-t .ic{width:22px;height:22px;background:var(--acc-bg);color:var(--acc);display:flex;align-items:center;justify-content:center;border-radius:6px;font-size:.85rem;font-weight:800}
+.card-d{font-size:.78rem;color:var(--txt2);margin-bottom:10px}
+
+/* ═══ TABLE ════════════════════════════════════════════════════════════ */
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem;font-variant-numeric:tabular-nums}
+.tbl th{text-align:right;font-weight:600;color:var(--txt2);padding:7px 8px;background:var(--ibg);font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--bdr)}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--bdr);color:var(--txt)}
+.tbl tr:hover td{background:var(--ibg)}
+.tbl-wrap{overflow:auto;max-height:380px;border:1px solid var(--bdr);border-radius:var(--rs)}
+
+/* ═══ CHART CONTAINER ═════════════════════════════════════════════════ */
+.chart-wrap{position:relative;height:260px;margin-top:8px}
+.chart-wrap.lg{height:320px}
+.chart-wrap.sm{height:180px}
+
+/* ═══ BADGES ════════════════════════════════════════════════════════════ */
+.badge{display:inline-block;padding:2px 8px;border-radius:11px;font-size:.7rem;font-weight:600;background:var(--acc-bg);color:var(--acc);margin-left:6px}
+.badge.gold{background:var(--gold-bg);color:var(--gold)}
+.badge.success{background:var(--succ-bg);color:var(--success)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.danger{background:var(--dang-bg);color:var(--danger)}
+.badge.info{background:var(--info-bg);color:var(--info)}
+.badge.purple{background:var(--purple-bg);color:var(--purple)}
+
+/* ═══ TIPS / CALLOUT ═════════════════════════════════════════════════ */
+.tip{padding:10px 12px;border-radius:var(--rs);border-left:3px solid var(--acc);background:var(--acc-bg);font-size:.8rem;color:var(--txt);margin:8px 0;line-height:1.5}
+.tip.gold{border-color:var(--gold);background:var(--gold-bg)}
+.tip.warn{border-color:var(--warn);background:var(--warn-bg)}
+.tip.success{border-color:var(--success);background:var(--succ-bg)}
+.tip.danger{border-color:var(--danger);background:var(--dang-bg)}
+.tip.info{border-color:var(--info);background:var(--info-bg)}
+.tip.purple{border-color:var(--purple);background:var(--purple-bg)}
+.tip b{font-weight:700}
+
+/* ═══ TRICK CARDS ═══════════════════════════════════════════════════════ */
+.trick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.trick{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh);transition:all .2s}
+.trick:hover{transform:translateY(-2px);box-shadow:var(--sh-lg);border-color:var(--acc-bdr)}
+.trick-h{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.trick-ic{width:34px;height:34px;border-radius:9px;background:var(--acc-bg);color:var(--acc);display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:800;flex-shrink:0}
+.trick-t{font-size:.92rem;font-weight:700;color:var(--txt);line-height:1.25}
+.trick-st{font-size:.7rem;color:var(--txt2);margin-top:2px;font-weight:500}
+.trick-d{font-size:.78rem;color:var(--txt2);line-height:1.55}
+.trick-d b{color:var(--txt);font-weight:600}
+.trick-save{margin-top:9px;padding:7px 10px;border-radius:var(--rs);background:var(--succ-bg);color:var(--success);font-size:.78rem;font-weight:700}
+.trick-save.warn{background:var(--warn-bg);color:var(--warn)}
+.trick-save.gold{background:var(--gold-bg);color:var(--gold)}
+
+/* ═══ SUB-TAB STRIP ═════════════════════════════════════════════════════ */
+.sub-tabs{display:flex;gap:2px;background:var(--ibg);padding:3px;border-radius:8px;margin-bottom:12px}
+.stbtn{flex:1;padding:6px 10px;border-radius:6px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .15s}
+.stbtn.active{background:var(--card);color:var(--acc);box-shadow:var(--sh)}
+
+/* ═══ CHECKLIST ════════════════════════════════════════════════════════ */
+.chk{display:flex;gap:8px;padding:7px 0;border-bottom:1px dashed var(--bdr);font-size:.8rem}
+.chk:last-child{border-bottom:none}
+.chk-ic{flex-shrink:0;width:18px;height:18px;border-radius:50%;background:var(--succ-bg);color:var(--success);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;margin-top:2px}
+.chk-ic.warn{background:var(--warn-bg);color:var(--warn)}
+.chk-ic.danger{background:var(--dang-bg);color:var(--danger)}
+.chk-tx b{color:var(--txt);font-weight:700}
+
+/* ═══ SCROLLBAR ═════════════════════════════════════════════════════════ */
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--txt3)}
+
+/* ═══ COMPARE GRID ═════════════════════════════════════════════════════ */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:700px){.cmp-grid{grid-template-columns:1fr}}
+.cmp-card{padding:14px;border-radius:var(--r);border:2px solid var(--bdr);background:var(--card)}
+.cmp-card.win{border-color:var(--success);background:linear-gradient(180deg,var(--succ-bg) 0%,var(--card) 60%)}
+.cmp-card.lose{border-color:var(--bdr);opacity:.85}
+.cmp-h{font-size:.95rem;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.cmp-v{font-size:1.5rem;font-weight:800;color:var(--txt);font-variant-numeric:tabular-nums;margin:4px 0}
+.cmp-tag{display:inline-block;padding:3px 8px;border-radius:11px;font-size:.7rem;font-weight:700}
+.cmp-tag.win{background:var(--succ-bg);color:var(--success)}
+.cmp-tag.lose{background:var(--bdr);color:var(--txt2)}
+
+/* ═══ MISC ══════════════════════════════════════════════════════════════ */
+.row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:.82rem}
+.row .lbl{color:var(--txt2)}
+.row .val{font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums}
+.row .val.pos{color:var(--success)}
+.row .val.neg{color:var(--danger)}
+.divider{height:1px;background:var(--bdr);margin:8px 0}
+
+.intro{padding:14px 18px;border-radius:var(--r);background:linear-gradient(135deg,var(--acc-bg),var(--info-bg));border:1px solid var(--acc-bdr);margin-bottom:14px}
+.intro h1{font-size:1.15rem;font-weight:800;margin-bottom:4px}
+.intro p{font-size:.82rem;color:var(--txt2);line-height:1.5}
+
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:900px){.split2{grid-template-columns:1fr}}
+
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;cursor:pointer;color:var(--txt2)}
+.toggle input{accent-color:var(--acc)}
+</style>
+</head>
+<body data-app="happyhome">
+<!-- ══════════════════════ PLATFORM BAR (shared, rendered by platform.js) ══ -->
+<div id="pw-bar"></div>
+<!-- ══════════════════════ HAPPY HOME SUB-NAV ═════════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="subnav-lbl">🏡 Happy Home <span class="subnav-sub">· Home Loan Strategist · India</span></div>
+    <nav class="tabs" id="tabs">
+      <button class="tbtn active" data-tab="dash">📊 Dashboard</button>
+      <button class="tbtn" data-tab="tax">💰 Tax Optimizer</button>
+      <button class="tbtn" data-tab="prepay">⚡ Prepay & Tenure</button>
+      <button class="tbtn" data-tab="rate">📉 Rate Hacks</button>
+      <button class="tbtn" data-tab="leverage">🎯 Leverage Lab</button>
+      <button class="tbtn" data-tab="tricks">🧠 Math Tricks</button>
+      <button class="tbtn" data-tab="compare">⚖️ Buy vs Rent</button>
+    </nav>
+  </div>
+</header>
+
+<main class="app">
+
+<!-- ═══ LEFT INPUTS + RIGHT CONTENT ═════════════════════════════════════ -->
+<div class="grid">
+
+<!-- ═══ LEFT: GLOBAL INPUTS ═══════════════════════════════════════════ -->
+<aside>
+  <div class="panel">
+    <div class="panel-t"><span class="dot"></span> Your Loan Inputs</div>
+
+    <div class="fld">
+      <div class="fld-l"><label>🏘️ Property Value</label><span class="v" id="propV">₹80 L</span></div>
+      <input type="range" id="prop" min="1000000" max="50000000" step="100000" value="8000000">
+      <div class="chip-row">
+        <span class="chip" data-prop="3000000">30 L</span>
+        <span class="chip" data-prop="5000000">50 L</span>
+        <span class="chip" data-prop="8000000">80 L</span>
+        <span class="chip" data-prop="15000000">1.5 Cr</span>
+        <span class="chip" data-prop="25000000">2.5 Cr</span>
+      </div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>💵 Down Payment %</label><span class="v" id="dpV">20%</span></div>
+      <input type="range" id="dp" min="10" max="80" step="1" value="20">
+      <div class="hint">Loan: <b id="loanAmt">₹64,00,000</b></div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>📊 Interest Rate (p.a.)</label><span class="v" id="rateV">8.50%</span></div>
+      <input type="range" id="rate" min="6" max="14" step="0.05" value="8.5">
+      <div class="hint">Today's range: HDFC 8.5%, SBI 8.4%, LIC HFL 8.5%, PNB 8.45%</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>📅 Tenure (years)</label><span class="v" id="tenV">20 yr</span></div>
+      <input type="range" id="ten" min="5" max="30" step="1" value="20">
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="fld">
+      <div class="fld-l"><label>👤 Annual Income</label><span class="v" id="incV">₹25 L</span></div>
+      <input type="range" id="inc" min="500000" max="10000000" step="100000" value="2500000">
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>💼 Tax Slab</label><span class="v" id="slabV">30%</span></div>
+      <select id="slab">
+        <option value="0">0% (no tax)</option>
+        <option value="5">5% slab</option>
+        <option value="10">10% slab</option>
+        <option value="15">15% slab</option>
+        <option value="20">20% slab</option>
+        <option value="30" selected>30% slab + surcharge</option>
+      </select>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>🏠 Property Use</label></div>
+      <select id="puse">
+        <option value="self">Self-Occupied</option>
+        <option value="let">Let-Out (Rental)</option>
+        <option value="2nd">2nd Home (Self)</option>
+      </select>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>👫 Joint Loan?</label></div>
+      <select id="joint">
+        <option value="no">No (single applicant)</option>
+        <option value="yes">Yes (with spouse / co-owner)</option>
+      </select>
+      <div class="hint">Joint = doubles tax benefit ✨</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>🆕 First-Time Buyer?</label></div>
+      <select id="ftb">
+        <option value="no">No</option>
+        <option value="yes">Yes (eligible for 80EEA if stamp ≤ ₹45L)</option>
+      </select>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="fld">
+      <div class="fld-l"><label>📈 Expected MF/SIP Return</label><span class="v" id="sipV">12%</span></div>
+      <input type="range" id="sip" min="6" max="18" step="0.5" value="12">
+      <div class="hint">For prepay vs invest comparison</div>
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>🏡 Property Appreciation</label><span class="v" id="appV">7%</span></div>
+      <input type="range" id="app" min="0" max="15" step="0.5" value="7">
+    </div>
+
+    <div class="fld">
+      <div class="fld-l"><label>🏠 Equiv Monthly Rent</label><span class="v" id="rentV">₹25,000</span></div>
+      <input type="range" id="rent" min="5000" max="200000" step="500" value="25000">
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="panel-t"><span class="dot"></span> Quick Snapshot</div>
+    <div class="row"><span class="lbl">EMI / month</span><span class="val" id="snEmi">₹0</span></div>
+    <div class="row"><span class="lbl">Total Interest</span><span class="val neg" id="snInt">₹0</span></div>
+    <div class="row"><span class="lbl">Total Payable</span><span class="val" id="snTot">₹0</span></div>
+    <div class="row"><span class="lbl">EMI / Income</span><span class="val" id="snRatio">—</span></div>
+    <div class="row"><span class="lbl">Tax Saved / yr</span><span class="val pos" id="snTax">₹0</span></div>
+  </div>
+</aside>
+
+<!-- ═══ RIGHT: TAB CONTENT ═══════════════════════════════════════════ -->
+<section>
+
+<!-- ─── DASHBOARD ─────────────────────────────────────────────────── -->
+<div class="tab-pane active" id="pane-dash">
+  <div class="intro">
+    <h1>🏠 Your Loan at a Glance</h1>
+    <p>Real-time EMI breakdown, year-wise principal/interest split, and your affordability score. Adjust inputs on the left to see live changes.</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-l">Monthly EMI</div><div class="kpi-v" id="kEmi">₹0</div><div class="kpi-s" id="kEmiSub">—</div></div>
+    <div class="kpi gold"><div class="kpi-l">Total Interest</div><div class="kpi-v" id="kInt">₹0</div><div class="kpi-s" id="kIntSub">—</div></div>
+    <div class="kpi info"><div class="kpi-l">Total Payable</div><div class="kpi-v" id="kTot">₹0</div><div class="kpi-s">Principal + Interest</div></div>
+    <div class="kpi success"><div class="kpi-l">Effective Cost</div><div class="kpi-v" id="kEff">₹0</div><div class="kpi-s" id="kEffSub">After tax savings</div></div>
+    <div class="kpi purple"><div class="kpi-l">Affordability</div><div class="kpi-v" id="kAff">—</div><div class="kpi-s" id="kAffSub">EMI vs income</div></div>
+    <div class="kpi warn"><div class="kpi-l">₹/lakh EMI</div><div class="kpi-v" id="kPerL">₹0</div><div class="kpi-s">Per ₹1L borrowed</div></div>
+  </div>
+
+  <div class="split2">
+    <div class="card">
+      <div class="card-t"><span class="ic">📊</span> Principal vs Interest Split</div>
+      <div class="card-d">How much of your total payable goes to each.</div>
+      <div class="chart-wrap"><canvas id="chPi"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-t"><span class="ic">📈</span> Outstanding Balance Curve</div>
+      <div class="card-d">How your loan balance reduces year by year.</div>
+      <div class="chart-wrap"><canvas id="chBal"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">📋</span> Year-Wise Amortization</div>
+    <div class="card-d">Notice how early years are mostly interest — this is why early prepayment is gold.</div>
+    <div class="chart-wrap lg"><canvas id="chAmort"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">📑</span> Detailed Yearly Schedule</div>
+    <div class="tbl-wrap">
+      <table class="tbl" id="amortTbl">
+        <thead><tr><th>Year</th><th>Opening</th><th>EMI Total</th><th>Principal</th><th>Interest</th><th>Closing</th><th>% Paid</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">✅</span> Realtor's Reality Check</div>
+    <div id="reality"></div>
+  </div>
+</div>
+
+<!-- ─── TAX OPTIMIZER ─────────────────────────────────────────────── -->
+<div class="tab-pane" id="pane-tax">
+  <div class="intro">
+    <h1>💰 Tax Optimizer — Maximize Every Rupee</h1>
+    <p>India's home loan tax structure stacked into a single view. We compute deductions for the <b>Old Regime</b> (best for most home loan owners) under Section 24(b), 80C, 80EE, and 80EEA — including joint loan optimization.</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi success"><div class="kpi-l">Annual Tax Saved</div><div class="kpi-v" id="tkSave">₹0</div><div class="kpi-s">In your current slab</div></div>
+    <div class="kpi info"><div class="kpi-l">Total Deduction</div><div class="kpi-v" id="tkDed">₹0</div><div class="kpi-s">Across all sections</div></div>
+    <div class="kpi gold"><div class="kpi-l">Lifetime Tax Saved</div><div class="kpi-v" id="tkLife">₹0</div><div class="kpi-s">Over loan tenure</div></div>
+    <div class="kpi purple"><div class="kpi-l">Effective Rate</div><div class="kpi-v" id="tkEff">—</div><div class="kpi-s">After tax savings</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">📜</span> Section-Wise Breakdown <span class="badge">Year 1</span></div>
+    <div class="tbl-wrap" style="max-height:none">
+      <table class="tbl" id="taxTbl">
+        <thead><tr><th>Section</th><th>What it covers</th><th>Cap</th><th>Your claim</th><th>Tax saved</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="taxNotes"></div>
+  </div>
+
+  <div class="split2">
+    <div class="card">
+      <div class="card-t"><span class="ic">👫</span> Joint Loan Magic</div>
+      <div class="card-d">If your spouse is a co-owner & co-borrower, both can independently claim 24(b) + 80C.</div>
+      <div id="jointBox"></div>
+    </div>
+    <div class="card">
+      <div class="card-t"><span class="ic">🏘️</span> Self vs Let-Out vs 2nd Home</div>
+      <div class="card-d">The tax math changes dramatically based on use.</div>
+      <div id="useBox"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🧮</span> Tax Saving Timeline (Year-by-Year)</div>
+    <div class="card-d">As interest portion of EMI falls, your 24(b) benefit also shrinks. Plan accordingly.</div>
+    <div class="chart-wrap"><canvas id="chTax"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">💡</span> Realtor's Tax Hacks</div>
+    <div id="taxHacks"></div>
+  </div>
+</div>
+
+<!-- ─── PREPAY & TENURE ────────────────────────────────────────────── -->
+<div class="tab-pane" id="pane-prepay">
+  <div class="intro">
+    <h1>⚡ Prepay Strategies — Slash Tenure & Interest</h1>
+    <p>Five proven strategies to reduce tenure. We simulate each on YOUR loan and show savings live. Pick the one that fits your cash flow.</p>
+  </div>
+
+  <div class="sub-tabs" id="prepayTabs">
+    <button class="stbtn active" data-pp="extra">1 Extra EMI/Year</button>
+    <button class="stbtn" data-pp="step">Step-Up 5% EMI</button>
+    <button class="stbtn" data-pp="lump">Annual Lumpsum</button>
+    <button class="stbtn" data-pp="round">Round-Up EMI</button>
+    <button class="stbtn" data-pp="bonus">Use Bonus (Y2-Y7)</button>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi success"><div class="kpi-l">New Tenure</div><div class="kpi-v" id="ppTen">—</div><div class="kpi-s" id="ppTenSub">—</div></div>
+    <div class="kpi gold"><div class="kpi-l">Interest Saved</div><div class="kpi-v" id="ppInt">—</div><div class="kpi-s">vs original loan</div></div>
+    <div class="kpi info"><div class="kpi-l">Years Cut</div><div class="kpi-v" id="ppYrs">—</div><div class="kpi-s">Off your timeline</div></div>
+    <div class="kpi purple"><div class="kpi-l">Total Paid</div><div class="kpi-v" id="ppTot">—</div><div class="kpi-s">Principal + Interest</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">📊</span> Strategy Explained</div>
+    <div id="ppExplain" class="card-d"></div>
+    <div class="chart-wrap"><canvas id="chPp"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">⚔️</span> All 5 Strategies Compared</div>
+    <div class="card-d">Side-by-side on your loan. Pick what's realistic for your income trajectory.</div>
+    <div class="tbl-wrap" style="max-height:none">
+      <table class="tbl" id="ppCmp">
+        <thead><tr><th>Strategy</th><th>New Tenure</th><th>Years Saved</th><th>Interest Saved</th><th>Effort</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🎯</span> The Golden Rule of Prepayment</div>
+    <div class="tip gold"><b>Prepay in the first 5–7 years</b> for maximum impact. In a 20-yr loan, ~70% of interest is paid in the first 8 years. ₹1L prepaid in Year 2 saves ~₹3L in interest. The same ₹1L in Year 15 saves only ~₹15K.</div>
+    <div class="tip"><b>RBI rule:</b> Floating-rate loans have <b>ZERO prepayment penalty</b>. Use it. Fixed-rate loans may charge 2–4%, so check before signing.</div>
+    <div class="tip warn"><b>Reduce tenure, not EMI:</b> When you prepay, ALWAYS ask the bank to keep EMI same and reduce tenure. They often default to "reduce EMI" which gives you less savings.</div>
+    <div class="tip success"><b>Prepay or invest?</b> Rule of thumb: If post-tax loan rate > expected investment return, prepay. We'll compute this for your situation in <b>Leverage Lab</b>.</div>
+  </div>
+</div>
+
+<!-- ─── RATE HACKS ──────────────────────────────────────────────────── -->
+<div class="tab-pane" id="pane-rate">
+  <div class="intro">
+    <h1>📉 Rate Reduction Hacks</h1>
+    <p>Negotiation, balance transfer, regime switch — concrete ways to slash your rate by 50–150 basis points.</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi success"><div class="kpi-l">If Rate ↓ 50 bps</div><div class="kpi-v" id="rk50">—</div><div class="kpi-s">EMI saving / month</div></div>
+    <div class="kpi info"><div class="kpi-l">If Rate ↓ 100 bps</div><div class="kpi-v" id="rk100">—</div><div class="kpi-s">EMI saving / month</div></div>
+    <div class="kpi gold"><div class="kpi-l">Lifetime Saved @ 50 bps</div><div class="kpi-v" id="rkL50">—</div><div class="kpi-s">If reduced today</div></div>
+    <div class="kpi purple"><div class="kpi-l">Lifetime Saved @ 100 bps</div><div class="kpi-v" id="rkL100">—</div><div class="kpi-s">If reduced today</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">⚖️</span> Rate Sensitivity — What 25 bps Really Means</div>
+    <div class="card-d">Tiny rate changes compound massively over 20 years. Visualizing this is the most underrated trick.</div>
+    <div class="chart-wrap"><canvas id="chRate"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🔄</span> Balance Transfer Calculator</div>
+    <div class="card-d">Switching banks can save lakhs — but only if the rate gap covers the switching costs.</div>
+    <div class="split2">
+      <div>
+        <div class="fld">
+          <div class="fld-l"><label>New Bank Rate</label><span class="v" id="btRateV">7.75%</span></div>
+          <input type="range" id="btRate" min="6" max="14" step="0.05" value="7.75">
+        </div>
+        <div class="fld">
+          <div class="fld-l"><label>Switch After (years)</label><span class="v" id="btYrV">3 yr</span></div>
+          <input type="range" id="btYr" min="1" max="20" step="1" value="3">
+        </div>
+        <div class="fld">
+          <div class="fld-l"><label>Processing & Legal Fees</label><span class="v" id="btFeeV">₹25,000</span></div>
+          <input type="range" id="btFee" min="0" max="100000" step="1000" value="25000">
+        </div>
+      </div>
+      <div id="btResult"></div>
+    </div>
+  </div>
+
+  <div class="trick-grid">
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">1</div>
+        <div><div class="trick-t">Call & Negotiate Rate Reset</div><div class="trick-st">Free · 30 minutes</div></div></div>
+      <div class="trick-d">Ask your bank to <b>reset to current card rate</b>. RBI mandates banks must offer this on RLLR/EBLR loans. They charge a small "conversion fee" (~₹1,000–10,000) but save you 25–50 bps. <b>Email + branch visit + threaten to switch = often works.</b></div>
+      <div class="trick-save">💰 Potential save: 25–50 bps · ₹1–4 L lifetime</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">2</div>
+        <div><div class="trick-t">Switch from MCLR/Base to RLLR/EBLR</div><div class="trick-st">Free · 1 week</div></div></div>
+      <div class="trick-d">If your loan is still on the older MCLR or Base Rate regime, switch to <b>Repo-Linked Lending Rate (RLLR)</b>. RBI rate cuts pass through in 3 months instead of being absorbed. <b>Mandatory ask for any loan taken before Oct 2019.</b></div>
+      <div class="trick-save warn">💰 Potential save: 40–80 bps</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">3</div>
+        <div><div class="trick-t">Balance Transfer to Lower Bank</div><div class="trick-st">Effort: 2–4 weeks</div></div></div>
+      <div class="trick-d">If gap is <b>≥ 50 bps</b> and remaining tenure > 7 years, transfer is worth it. SBI, HDFC, ICICI, Bajaj Housing aggressively poach. <b>Get 3 written offers, then ask your current bank to match.</b></div>
+      <div class="trick-save gold">💰 Often saves 50–150 bps · ₹3–15 L lifetime</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">4</div>
+        <div><div class="trick-t">Improve CIBIL → Rate Reduction</div><div class="trick-st">3–6 months</div></div></div>
+      <div class="trick-d">A CIBIL score jump from <b>750 → 800+</b> qualifies you for the bank's premier "Vintage Customer" rate (often 25–40 bps lower). Pay all credit cards on time, keep utilization < 30%, don't apply for new credit for 6 months.</div>
+      <div class="trick-save">💰 Save: 25–40 bps</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">5</div>
+        <div><div class="trick-t">Switch to Female Co-Owner</div><div class="trick-st">Stamp duty rebate</div></div></div>
+      <div class="trick-d">Most banks offer <b>5–10 bps lower rate</b> for loans in a woman's name. Bonus: <b>1–2% stamp duty rebate</b> in Delhi, Maharashtra, UP, Rajasthan, Haryana when property is registered under a woman.</div>
+      <div class="trick-save">💰 Save: 5–10 bps rate + 1–2% stamp duty</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">6</div>
+        <div><div class="trick-t">Salary Account Bundling</div><div class="trick-st">Free</div></div></div>
+      <div class="trick-d">If your salary is credited to the same bank, ask for the <b>"Salary Account Customer" concession</b>. SBI, HDFC, ICICI offer 5–15 bps off. Also: <b>government employees</b> get 10–25 bps concession universally.</div>
+      <div class="trick-save">💰 Save: 5–25 bps</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">7</div>
+        <div><div class="trick-t">Pay 2 EMIs Upfront at Disbursal</div><div class="trick-st">One-time</div></div></div>
+      <div class="trick-d">Pre-pay <b>first 2 EMIs from your down payment</b>. Some banks (LIC HFL, Bajaj) reduce effective rate. Not universal — ask specifically. Net effect: ~10–20 bps reduction.</div>
+      <div class="trick-save">💰 Save: 10–20 bps</div>
+    </div>
+    <div class="trick">
+      <div class="trick-h"><div class="trick-ic">8</div>
+        <div><div class="trick-t">Festive / Year-End Offers</div><div class="trick-st">Timing matters</div></div></div>
+      <div class="trick-d">Banks slash rates aggressively in <b>Sept–Nov (festive)</b> and <b>March (FY close)</b> to hit targets. Time your application here. Free credit report + zero processing fees often bundled. <b>Save 25–50 bps + ₹10–30K in fees.</b></div>
+      <div class="trick-save">💰 Save: 25–50 bps + fees</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── LEVERAGE LAB ──────────────────────────────────────────────── -->
+<div class="tab-pane" id="pane-leverage">
+  <div class="intro">
+    <h1>🎯 Leverage Lab — When & How to Use Debt Wisely</h1>
+    <p>Leverage is a tool, not a sin. We compute the <b>real post-tax cost</b> of your loan vs market returns, and tell you whether to prepay, invest, or borrow more.</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi info"><div class="kpi-l">Headline Rate</div><div class="kpi-v" id="lvHead">—</div><div class="kpi-s">Your loan rate</div></div>
+    <div class="kpi success"><div class="kpi-l">Post-Tax Cost</div><div class="kpi-v" id="lvPost">—</div><div class="kpi-s">True cost after 24(b)</div></div>
+    <div class="kpi gold"><div class="kpi-l">Expected MF Return</div><div class="kpi-v" id="lvMf">—</div><div class="kpi-s">Post-LTCG (12.5%)</div></div>
+    <div class="kpi purple"><div class="kpi-l">Verdict</div><div class="kpi-v" id="lvVerdict" style="font-size:1.05rem">—</div><div class="kpi-s" id="lvVerdictSub">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">⚔️</span> Prepay vs SIP — The Real Math</div>
+    <div class="card-d">You have ₹1L extra cash. Should you prepay the loan or SIP into an index fund? Let's see both paths over 10 years.</div>
+    <div class="chart-wrap"><canvas id="chLev"></canvas></div>
+    <div id="lvVerdictBox"></div>
+  </div>
+
+  <div class="split2">
+    <div class="card">
+      <div class="card-t"><span class="ic">🏘️</span> Rental Yield Leverage Play</div>
+      <div class="card-d">A let-out property loan often has <b>negative effective rate</b> after rent + unlimited 24(b). Magic.</div>
+      <div id="rentalLev"></div>
+    </div>
+    <div class="card">
+      <div class="card-t"><span class="ic">📐</span> Safe Leverage Ratios</div>
+      <div class="card-d">How much debt is too much? Banker's rules of thumb:</div>
+      <div id="safeLev"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🚀</span> The 5 Smart Leverage Plays</div>
+    <div class="trick-grid">
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">🏗️</div>
+          <div><div class="trick-t">Under-Construction Arbitrage</div><div class="trick-st">15–25% lower price</div></div></div>
+        <div class="trick-d">Buy in <b>RERA-registered Phase 1 launches</b> at ~20% discount. Pay only <b>pre-EMI (interest)</b> during construction; full EMI starts on possession. By possession, market value is 25–40% higher. <b>Risk:</b> only RERA + Tier-1 builders.</div>
+        <div class="trick-save gold">💰 Capital gain: 25–40% over 3 yrs</div>
+      </div>
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">🏘️</div>
+          <div><div class="trick-t">Let-Out 2nd Property</div><div class="trick-st">Unlimited 24(b)</div></div></div>
+        <div class="trick-d">2nd home, fully let out → <b>full interest is deductible</b> (no ₹2L cap, but losses capped at ₹2L/yr; rest carries forward 8 years). Rent yield 2.5–3.5% + tax-saved + appreciation = often 9–12% IRR.</div>
+        <div class="trick-save">💰 Net cost often < 3% after all benefits</div>
+      </div>
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">💼</div>
+          <div><div class="trick-t">HRA + Home Loan Combo</div><div class="trick-st">Both deductions!</div></div></div>
+        <div class="trick-d">Work in Mumbai, own home in your hometown rented out → claim <b>HRA exemption</b> on Mumbai rent <b>AND</b> full 24(b) + 80C on home loan. Perfectly legal. Common for IT professionals. ₹3–5L additional deduction/yr.</div>
+        <div class="trick-save success">💰 Save ₹1.5L+ tax / year</div>
+      </div>
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">💎</div>
+          <div><div class="trick-t">Top-Up Home Loan vs Personal Loan</div><div class="trick-st">8% vs 14%</div></div></div>
+        <div class="trick-d">Need ₹10L for renovation/wedding/car? <b>Top-up on existing home loan</b> at ~8.5% beats personal loan at 12–18%. If used for <b>house repair/extension</b>, also deductible under 24(b) up to ₹30K/yr.</div>
+        <div class="trick-save">💰 Save 4–8% interest vs personal loan</div>
+      </div>
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">⚖️</div>
+          <div><div class="trick-t">LAP (Loan Against Property)</div><div class="trick-st">9–11% rate</div></div></div>
+        <div class="trick-d">Already paid off some equity? <b>LAP gives you 50–70% of current property value</b> at 9–11% — cheaper than business loan or personal loan. Great for entrepreneurs deploying into business with 20%+ ROCE.</div>
+        <div class="trick-save warn">⚠️ Use only if return > 14% post-tax</div>
+      </div>
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">📊</div>
+          <div><div class="trick-t">SIP During Loan, Prepay Lumpsum</div><div class="trick-st">Compound twice</div></div></div>
+        <div class="trick-d">If your post-tax loan rate is 6% and Nifty50 SIP yields 11% post-LTCG, <b>SIP the extra cash for 5 years</b>, then liquidate to prepay a chunk. Net gain: ~₹15–25L on a ₹1L/mo SIP over 5 years vs straight prepay.</div>
+        <div class="trick-save success">💰 +₹15–25L over 5 yrs (typical)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">⛔</span> Leverage Red Flags — When NOT to Borrow More</div>
+    <div id="redFlags"></div>
+  </div>
+</div>
+
+<!-- ─── MATH TRICKS ─────────────────────────────────────────────── -->
+<div class="tab-pane" id="pane-tricks">
+  <div class="intro">
+    <h1>🧠 Mathematical Tricks — The 14 Hacks Realtors Don't Tell You</h1>
+    <p>Each trick is computed live on YOUR loan. These compound — stack 3–4 of them and shave a decade off your tenure.</p>
+  </div>
+
+  <div class="trick-grid" id="trickGrid"></div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-t"><span class="ic">🎓</span> The 20–20–20 Rule (Realtor's Sutra)</div>
+    <div class="tip gold"><b>20% down minimum · 20-year max tenure · 20% of income as max EMI.</b> Break any one and you're stressed; break two and you're house-poor. This is the single sanity check that prevents 90% of borrower regret.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">⏰</span> Optimal Prepayment Window</div>
+    <div class="card-d">When is each ₹ of prepayment most powerful? The answer surprises most people.</div>
+    <div class="chart-wrap"><canvas id="chOpt"></canvas></div>
+    <div class="tip"><b>Each ₹1L prepaid in Year 1 saves you ~3× as much interest as the same ₹1L prepaid in Year 10.</b> The chart above shows your exact savings per ₹1L by year. Use bonus / Diwali money / tax refund in the first 5 years.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🧮</span> The Stack Calculator — Combine Tricks</div>
+    <div class="card-d">Stack multiple tricks at once. Check the boxes and see combined impact.</div>
+    <div class="split2">
+      <div>
+        <label class="toggle" style="display:flex;padding:7px 0"><input type="checkbox" id="stkExtra" checked> <span>Pay 1 extra EMI per year (13 EMIs)</span></label>
+        <label class="toggle" style="display:flex;padding:7px 0"><input type="checkbox" id="stkStep"> <span>Step-up EMI by 5% every year</span></label>
+        <label class="toggle" style="display:flex;padding:7px 0"><input type="checkbox" id="stkRound" checked> <span>Round-up EMI to nearest ₹5,000</span></label>
+        <label class="toggle" style="display:flex;padding:7px 0"><input type="checkbox" id="stkLump"> <span>Prepay ₹1L lumpsum every year</span></label>
+        <label class="toggle" style="display:flex;padding:7px 0"><input type="checkbox" id="stkBonus" checked> <span>Use Diwali bonus (₹2L) in Years 2–6</span></label>
+      </div>
+      <div id="stackResult"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── BUY vs RENT ─────────────────────────────────────────────── -->
+<div class="tab-pane" id="pane-compare">
+  <div class="intro">
+    <h1>⚖️ Buy vs Rent — The Honest Comparison</h1>
+    <p>10-year wealth simulation. We account for EMI, taxes, maintenance, appreciation, AND what you'd earn by investing the down payment + EMI–rent gap. Most "buying is always better" claims fail this test.</p>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi info"><div class="kpi-l">Buy: Net Worth (10 yr)</div><div class="kpi-v" id="brBuy">—</div><div class="kpi-s">Property − Loan + Tax saved</div></div>
+    <div class="kpi gold"><div class="kpi-l">Rent: Net Worth (10 yr)</div><div class="kpi-v" id="brRent">—</div><div class="kpi-s">Rent paid + Invested savings</div></div>
+    <div class="kpi success"><div class="kpi-l">Winner</div><div class="kpi-v" id="brWin">—</div><div class="kpi-s" id="brWinSub">—</div></div>
+    <div class="kpi purple"><div class="kpi-l">Break-Even Year</div><div class="kpi-v" id="brBE">—</div><div class="kpi-s">When buying overtakes</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">📈</span> 10-Year Wealth Trajectory</div>
+    <div class="chart-wrap lg"><canvas id="chBR"></canvas></div>
+  </div>
+
+  <div class="cmp-grid">
+    <div class="cmp-card" id="brBuyCard">
+      <div class="cmp-h">🏠 Buy Path <span class="cmp-tag" id="brBuyTag">—</span></div>
+      <div class="cmp-v" id="brBuyV">₹0</div>
+      <div id="brBuyD"></div>
+    </div>
+    <div class="cmp-card" id="brRentCard">
+      <div class="cmp-h">🔑 Rent + Invest Path <span class="cmp-tag" id="brRentTag">—</span></div>
+      <div class="cmp-v" id="brRentV">₹0</div>
+      <div id="brRentD"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🧭</span> When to Buy, When to Rent</div>
+    <div class="trick-grid">
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">🏠</div><div><div class="trick-t">Buy When…</div></div></div>
+        <div class="trick-d">
+          ✓ Staying <b>≥ 7 years</b> in same city<br>
+          ✓ Rental yield in area is <b>< 2.5%</b> of property value (rent is cheap relative to price → renting wins now but you want stability)<br>
+          ✓ Stable income + 25% down ready<br>
+          ✓ Property appreciation expected > 7%/yr<br>
+          ✓ You're at peak tax slab (30%) — tax shield is meaningful<br>
+          ✓ Tier-1 / Tier-2 city primary residence
+        </div>
+      </div>
+      <div class="trick">
+        <div class="trick-h"><div class="trick-ic">🔑</div><div><div class="trick-t">Rent When…</div></div></div>
+        <div class="trick-d">
+          ✓ Job mobility likely in next 5 years<br>
+          ✓ Rental yield is <b>> 4%</b> (rent is high → renting is expensive, but property prices likely flat)<br>
+          ✓ Down payment can earn > 12% elsewhere (you're a skilled investor)<br>
+          ✓ Property prices look frothy (price/rent > 35×)<br>
+          ✓ Tier-1 metro on outskirts — better commute via rented inner-city flat<br>
+          ✓ You haven't yet built ₹50L corpus
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-t"><span class="ic">🎯</span> The Realtor's Honest Take</div>
+    <div class="tip purple"><b>Most Indians overweight emotional value of "owning".</b> That's fine — it has real utility (no landlord, stability, freedom to renovate). But financially, in many metros today (Bangalore, Pune, Hyderabad outskirts), <b>rent + invest</b> beats <b>buy + EMI</b> over 7-year horizons. Don't let "rent is throwing money away" guilt drive a multi-crore decision.</div>
+    <div class="tip gold"><b>The break-even truth:</b> Buying typically breaks even with renting <b>around Year 7–9</b> for self-occupied homes at current rates (8.5%) and appreciation (7%). Staying < 5 years? Renting almost always wins. Staying > 12 years? Buying almost always wins.</div>
+    <div class="tip success"><b>The combo play:</b> <b>Rent where you work, buy where you'll retire.</b> Rent a flat near the office (no EMI stress on prime real estate), buy a 2BHK in your hometown / tier-2 city you love (lower price, higher emotional return, often let-out for rental income).</div>
+  </div>
+</div>
+
+</section>
+</div>
+
+</main>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════
+   STATE
+   ═════════════════════════════════════════════════════════════════════ */
+const S = {
+  prop: 8000000, dp: 20, rate: 8.5, ten: 20,
+  inc: 2500000, slab: 30, puse: 'self', joint: 'no', ftb: 'no',
+  sip: 12, app: 7, rent: 25000,
+  prepay: 'extra',
+  btRate: 7.75, btYr: 3, btFee: 25000,
+};
+
+/* ═══════════════════════════════════════════════════════════════════════
+   FORMATTING
+   ═════════════════════════════════════════════════════════════════════ */
+const fmtINR = n => {
+  if (!isFinite(n)) return '—';
+  const abs = Math.abs(n);
+  if (abs >= 10000000) return '₹' + (n/10000000).toFixed(2) + ' Cr';
+  if (abs >= 100000) return '₹' + (n/100000).toFixed(2) + ' L';
+  return '₹' + Math.round(n).toLocaleString('en-IN');
+};
+const fmtR = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const fmtPct = (n,d=2) => n.toFixed(d) + '%';
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CORE EMI MATH
+   ═════════════════════════════════════════════════════════════════════ */
+function emi(P, annualR, years){
+  const r = annualR / 12 / 100;
+  const n = years * 12;
+  if (r === 0) return P / n;
+  return P * r * Math.pow(1+r, n) / (Math.pow(1+r, n) - 1);
+}
+
+// Amortization schedule: returns array of months {open, emi, principal, interest, close}
+function amort(P, annualR, years, extraMonthly=0, lumpYearly=0, stepUpPct=0){
+  const r = annualR / 12 / 100;
+  const n = years * 12;
+  let baseEmi = emi(P, annualR, years);
+  let bal = P;
+  const out = [];
+  let curEmi = baseEmi;
+  for (let m=1; m<=n*2 && bal > 0.5; m++){
+    if (stepUpPct > 0 && m > 1 && m % 12 === 1){
+      curEmi *= (1 + stepUpPct/100);
+    }
+    const open = bal;
+    const interest = bal * r;
+    let principal = curEmi - interest + extraMonthly;
+    if (m % 12 === 0) principal += lumpYearly;
+    if (principal > bal) principal = bal;
+    const emiTotal = principal + interest;
+    bal -= principal;
+    out.push({m, open, emi: emiTotal, principal, interest, close: bal});
+    if (bal < 0.5) break;
+  }
+  return out;
+}
+
+function yearlyAgg(months){
+  const yrs = [];
+  for (let y=0; y<Math.ceil(months.length/12); y++){
+    const slice = months.slice(y*12, (y+1)*12);
+    if (!slice.length) break;
+    yrs.push({
+      year: y+1,
+      open: slice[0].open,
+      emi: slice.reduce((s,x)=>s+x.emi,0),
+      principal: slice.reduce((s,x)=>s+x.principal,0),
+      interest: slice.reduce((s,x)=>s+x.interest,0),
+      close: slice[slice.length-1].close,
+    });
+  }
+  return yrs;
+}
+
+function totalInt(months){return months.reduce((s,x)=>s+x.interest,0);}
+function totalEmi(months){return months.reduce((s,x)=>s+x.emi,0);}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TAX MATH (India FY 2025-26, Old Regime)
+   ═════════════════════════════════════════════════════════════════════ */
+function taxYear1(loanAmt, annualR, years, slab, puse, joint, ftb, propVal){
+  const m = amort(loanAmt, annualR, years);
+  const y1 = yearlyAgg(m)[0];
+  if (!y1) return {ded: 0, save: 0, sections: []};
+
+  const interestY1 = y1.interest;
+  const principalY1 = y1.principal;
+  const mult = joint === 'yes' ? 2 : 1;
+
+  const sections = [];
+
+  // Section 24(b)
+  let cap24 = puse === 'let' ? Infinity : 200000;
+  let claim24 = Math.min(interestY1, cap24);
+  if (puse === 'let') claim24 = Math.min(claim24, 200000); // loss capped at 2L
+  sections.push({
+    sec: '24(b)',
+    desc: 'Interest deduction',
+    cap: puse === 'let' ? '₹2L set-off + carry fwd' : '₹2L / yr',
+    claim: claim24 * mult,
+    save: claim24 * (slab/100) * mult
+  });
+
+  // Section 80C
+  const claim80c = Math.min(principalY1, 150000);
+  sections.push({
+    sec: '80C',
+    desc: 'Principal repayment',
+    cap: '₹1.5L (shared with PPF, ELSS, LIC)',
+    claim: claim80c * mult,
+    save: claim80c * (slab/100) * mult
+  });
+
+  // 80EEA — first-time buyer, stamp ≤ ₹45L, additional ₹1.5L interest
+  let claim80eea = 0;
+  if (ftb === 'yes' && propVal <= 4500000 && puse !== 'let'){
+    const remaining = Math.max(0, interestY1 - 200000);
+    claim80eea = Math.min(remaining, 150000);
+    sections.push({
+      sec: '80EEA',
+      desc: 'First-time buyer extra interest',
+      cap: '₹1.5L (stamp ≤ ₹45L)',
+      claim: claim80eea * mult,
+      save: claim80eea * (slab/100) * mult
+    });
+  }
+
+  const totalDed = sections.reduce((s,x)=>s+x.claim, 0);
+  const totalSave = sections.reduce((s,x)=>s+x.save, 0);
+  return {ded: totalDed, save: totalSave, sections, interestY1, principalY1};
+}
+
+function lifetimeTaxSaved(months, slab, puse, joint, ftb, propVal){
+  const yrs = yearlyAgg(months);
+  const mult = joint === 'yes' ? 2 : 1;
+  let total = 0;
+  yrs.forEach((y,i)=>{
+    let int24 = Math.min(y.interest, puse === 'let' ? Infinity : 200000);
+    if (puse === 'let') int24 = Math.min(int24, 200000);
+    const p80c = Math.min(y.principal, 150000);
+    let eea = 0;
+    if (ftb === 'yes' && propVal <= 4500000 && puse !== 'let'){
+      eea = Math.min(Math.max(0, y.interest - 200000), 150000);
+    }
+    total += ((int24 + p80c + eea) * (slab/100)) * mult;
+  });
+  return total;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CHART HELPERS
+   ═════════════════════════════════════════════════════════════════════ */
+let charts = {};
+function getCss(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+function mkChart(id, cfg){
+  if (charts[id]) charts[id].destroy();
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  charts[id] = new Chart(ctx, cfg);
+}
+
+const chartDefaults = () => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {position: 'bottom', labels: {color: getCss('--txt2'), font: {size: 11, family: 'Inter'}, padding: 12, boxWidth: 10}},
+    tooltip: {
+      backgroundColor: getCss('--card'),
+      titleColor: getCss('--txt'),
+      bodyColor: getCss('--txt'),
+      borderColor: getCss('--bdr2'),
+      borderWidth: 1,
+      padding: 10,
+      callbacks: {label: (ctx)=> `${ctx.dataset.label}: ${fmtINR(ctx.parsed.y ?? ctx.parsed)}`}
+    }
+  },
+  scales: {
+    x: {ticks: {color: getCss('--txt2'), font: {size: 10}}, grid: {color: getCss('--bdr')}},
+    y: {ticks: {color: getCss('--txt2'), font: {size: 10}, callback: v => fmtINR(v)}, grid: {color: getCss('--bdr')}}
+  }
+});
+
+/* ═══════════════════════════════════════════════════════════════════════
+   READ INPUTS
+   ═════════════════════════════════════════════════════════════════════ */
+function loanAmount(){return S.prop * (1 - S.dp/100);}
+
+function readInputs(){
+  S.prop = +document.getElementById('prop').value;
+  S.dp = +document.getElementById('dp').value;
+  S.rate = +document.getElementById('rate').value;
+  S.ten = +document.getElementById('ten').value;
+  S.inc = +document.getElementById('inc').value;
+  S.slab = +document.getElementById('slab').value;
+  S.puse = document.getElementById('puse').value;
+  S.joint = document.getElementById('joint').value;
+  S.ftb = document.getElementById('ftb').value;
+  S.sip = +document.getElementById('sip').value;
+  S.app = +document.getElementById('app').value;
+  S.rent = +document.getElementById('rent').value;
+
+  document.getElementById('propV').textContent = fmtINR(S.prop);
+  document.getElementById('dpV').textContent = S.dp + '%';
+  document.getElementById('loanAmt').textContent = fmtR(loanAmount());
+  document.getElementById('rateV').textContent = S.rate.toFixed(2) + '%';
+  document.getElementById('tenV').textContent = S.ten + ' yr';
+  document.getElementById('incV').textContent = fmtINR(S.inc);
+  document.getElementById('slabV').textContent = S.slab + '%';
+  document.getElementById('sipV').textContent = S.sip + '%';
+  document.getElementById('appV').textContent = S.app + '%';
+  document.getElementById('rentV').textContent = fmtR(S.rent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: DASHBOARD
+   ═════════════════════════════════════════════════════════════════════ */
+function renderDash(){
+  const P = loanAmount();
+  const e = emi(P, S.rate, S.ten);
+  const m = amort(P, S.rate, S.ten);
+  const tInt = totalInt(m);
+  const tEmi = totalEmi(m);
+  const tax = taxYear1(P, S.rate, S.ten, S.slab, S.puse, S.joint, S.ftb, S.prop);
+  const lifeTax = lifetimeTaxSaved(m, S.slab, S.puse, S.joint, S.ftb, S.prop);
+  const eff = tEmi - lifeTax;
+  const monthlyInc = S.inc / 12;
+  const ratio = e / monthlyInc * 100;
+  const perLakhEmi = e / (P/100000);
+
+  // KPIs
+  document.getElementById('kEmi').textContent = fmtR(e);
+  document.getElementById('kEmiSub').textContent = 'For ' + S.ten + ' years';
+  document.getElementById('kInt').textContent = fmtINR(tInt);
+  document.getElementById('kIntSub').textContent = (tInt/P*100).toFixed(0) + '% of principal';
+  document.getElementById('kTot').textContent = fmtINR(tEmi);
+  document.getElementById('kEff').textContent = fmtINR(eff);
+  document.getElementById('kEffSub').textContent = 'Saves ' + fmtINR(lifeTax) + ' in taxes';
+  document.getElementById('kAff').textContent = ratio.toFixed(0) + '%';
+  let affMsg, affCls;
+  if (ratio < 25){affMsg = '✅ Very comfortable'; affCls='success';}
+  else if (ratio < 35){affMsg = '🟡 Comfortable'; affCls='gold';}
+  else if (ratio < 45){affMsg = '🟠 Stretched'; affCls='warn';}
+  else {affMsg = '🔴 Risky'; affCls='danger';}
+  document.getElementById('kAffSub').textContent = affMsg;
+  document.getElementById('kPerL').textContent = fmtR(perLakhEmi);
+
+  // Snapshot panel
+  document.getElementById('snEmi').textContent = fmtR(e);
+  document.getElementById('snInt').textContent = fmtINR(tInt);
+  document.getElementById('snTot').textContent = fmtINR(tEmi);
+  document.getElementById('snRatio').textContent = ratio.toFixed(0) + '%';
+  document.getElementById('snTax').textContent = fmtINR(tax.save) + '/yr';
+
+  // PRINCIPAL VS INTEREST DOUGHNUT
+  mkChart('chPi', {
+    type: 'doughnut',
+    data: {
+      labels: ['Principal', 'Interest'],
+      datasets: [{
+        data: [P, tInt],
+        backgroundColor: [getCss('--acc'), getCss('--gold')],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {position: 'bottom', labels: {color: getCss('--txt2'), font: {size: 11}, padding: 12}},
+        tooltip: {callbacks: {label: c => `${c.label}: ${fmtINR(c.parsed)} (${(c.parsed/(P+tInt)*100).toFixed(1)}%)`}}
+      }
+    }
+  });
+
+  // BALANCE CURVE
+  const yrs = yearlyAgg(m);
+  mkChart('chBal', {
+    type: 'line',
+    data: {
+      labels: yrs.map(y=>'Y'+y.year),
+      datasets: [{
+        label: 'Outstanding Balance',
+        data: yrs.map(y=>y.close),
+        borderColor: getCss('--acc'),
+        backgroundColor: getCss('--acc-bg'),
+        fill: true, tension: 0.3, borderWidth: 2, pointRadius: 0
+      }]
+    },
+    options: chartDefaults()
+  });
+
+  // AMORTIZATION STACKED
+  mkChart('chAmort', {
+    type: 'bar',
+    data: {
+      labels: yrs.map(y=>'Y'+y.year),
+      datasets: [
+        {label: 'Principal', data: yrs.map(y=>y.principal), backgroundColor: getCss('--acc')},
+        {label: 'Interest', data: yrs.map(y=>y.interest), backgroundColor: getCss('--gold')}
+      ]
+    },
+    options: {
+      ...chartDefaults(),
+      scales: {x: {stacked: true, ticks:{color:getCss('--txt2'),font:{size:10}}, grid:{color:getCss('--bdr')}}, y: {stacked: true, ticks:{color:getCss('--txt2'),font:{size:10},callback:v=>fmtINR(v)}, grid:{color:getCss('--bdr')}}}
+    }
+  });
+
+  // YEARLY TABLE
+  const tb = document.querySelector('#amortTbl tbody');
+  tb.innerHTML = yrs.map(y => `
+    <tr>
+      <td>Year ${y.year}</td>
+      <td>${fmtINR(y.open)}</td>
+      <td>${fmtINR(y.emi)}</td>
+      <td style="color:var(--success)">${fmtINR(y.principal)}</td>
+      <td style="color:var(--danger)">${fmtINR(y.interest)}</td>
+      <td>${fmtINR(y.close)}</td>
+      <td>${((1-y.close/P)*100).toFixed(1)}%</td>
+    </tr>`).join('');
+
+  // REALITY CHECK
+  const reality = document.getElementById('reality');
+  const checks = [];
+  checks.push({ok: S.dp >= 20, t: `<b>Down payment</b>: ${S.dp}% ${S.dp>=20?'✓ Meets 20% rule':'❌ Below 20% — bank may charge higher rate & no 80EEA for high prop value'}`});
+  checks.push({ok: S.ten <= 20, t: `<b>Tenure</b>: ${S.ten} yr ${S.ten<=20?'✓ Within 20-yr sane limit':'⚠️ Over 20 yr — total interest balloons by ' + (((tInt/P)-1)*100).toFixed(0) + '%'}`});
+  checks.push({ok: ratio < 35, t: `<b>EMI / Income</b>: ${ratio.toFixed(0)}% ${ratio<35?'✓ Sustainable':'⚠️ Over 35% — high financial stress, no buffer for emergencies'}`});
+  checks.push({ok: P/S.inc < 5.5, t: `<b>Loan-to-income</b>: ${(P/S.inc).toFixed(1)}× annual income ${P/S.inc<5.5?'✓ Healthy':'⚠️ Over 5.5× — leverage is high'}`});
+  checks.push({ok: S.rate < 9, t: `<b>Interest rate</b>: ${S.rate}% ${S.rate<9?'✓ Competitive':'⚠️ Above market — try Rate Hacks tab'}`});
+  checks.push({ok: tInt < P, t: `<b>Total interest vs principal</b>: ${(tInt/P*100).toFixed(0)}% ${tInt<P?'✓ Interest < principal':'❌ Interest exceeds principal — shorten tenure or prepay aggressively'}`});
+
+  reality.innerHTML = checks.map(c => `
+    <div class="chk">
+      <div class="chk-ic ${c.ok?'':'danger'}">${c.ok?'✓':'!'}</div>
+      <div class="chk-tx">${c.t}</div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: TAX
+   ═════════════════════════════════════════════════════════════════════ */
+function renderTax(){
+  const P = loanAmount();
+  const e = emi(P, S.rate, S.ten);
+  const m = amort(P, S.rate, S.ten);
+  const tax = taxYear1(P, S.rate, S.ten, S.slab, S.puse, S.joint, S.ftb, S.prop);
+  const lifeTax = lifetimeTaxSaved(m, S.slab, S.puse, S.joint, S.ftb, S.prop);
+
+  document.getElementById('tkSave').textContent = fmtINR(tax.save);
+  document.getElementById('tkDed').textContent = fmtINR(tax.ded);
+  document.getElementById('tkLife').textContent = fmtINR(lifeTax);
+  const tEmi = totalEmi(m);
+  const effRate = ((tEmi - lifeTax - P) / P / S.ten * 100);
+  document.getElementById('tkEff').textContent = effRate.toFixed(2) + '%';
+
+  // Section table
+  const tb = document.querySelector('#taxTbl tbody');
+  tb.innerHTML = tax.sections.map(s => `
+    <tr>
+      <td><b>${s.sec}</b></td>
+      <td>${s.desc}</td>
+      <td>${s.cap}</td>
+      <td>${fmtR(s.claim)}</td>
+      <td style="color:var(--success)"><b>${fmtR(s.save)}</b></td>
+    </tr>`).join('');
+
+  // Notes
+  const notes = document.getElementById('taxNotes');
+  let noteHtml = '';
+  if (S.puse === 'self'){
+    noteHtml += '<div class="tip"><b>Self-occupied:</b> 24(b) capped at ₹2L. If your annual interest exceeds ₹2L, the excess is lost. <b>Strategy:</b> Convert to let-out (rent to family at market rate) OR add joint borrower to double the cap.</div>';
+  } else if (S.puse === 'let'){
+    noteHtml += '<div class="tip success"><b>Let-out:</b> Full interest is deductible from rental income — but net "loss from house property" set-off against salary is capped at ₹2L/yr (excess carries forward 8 years). Massive benefit for high-EMI loans.</div>';
+  } else {
+    noteHtml += '<div class="tip warn"><b>2nd Home (Self):</b> From AY 2020-21, both homes can be self-occupied with ₹2L cap on COMBINED interest. Often better to declare 2nd as "deemed let-out" with notional rent — unlocks full interest deduction.</div>';
+  }
+  if (S.joint === 'yes'){
+    noteHtml += '<div class="tip success"><b>Joint loan engaged:</b> Both you and your co-applicant claim independently — effectively <b>doubling all caps</b>. ₹2L → ₹4L on 24(b), ₹1.5L → ₹3L on 80C. Must be co-owner AND co-borrower AND share EMI from joint account.</div>';
+  } else if (S.slab >= 20){
+    noteHtml += '<div class="tip gold"><b>Hack:</b> Add your spouse as joint owner + co-borrower. Stamp duty for the transfer is minimal if she\'s the spouse. Tax savings double — easily an extra ₹60K–₹1L/yr.</div>';
+  }
+  if (S.ftb === 'yes' && S.prop > 4500000){
+    noteHtml += '<div class="tip warn"><b>80EEA blocked:</b> Stamp duty value exceeds ₹45L. You miss the extra ₹1.5L interest deduction. (80EEA was applicable for loans sanctioned 2019–2022, but extension rules vary — check with CA for grandfathered claims.)</div>';
+  }
+  notes.innerHTML = noteHtml;
+
+  // Joint loan box
+  const jb = document.getElementById('jointBox');
+  const singleSave = lifetimeTaxSaved(m, S.slab, S.puse, 'no', S.ftb, S.prop);
+  const jointSave = lifetimeTaxSaved(m, S.slab, S.puse, 'yes', S.ftb, S.prop);
+  jb.innerHTML = `
+    <div class="row"><span class="lbl">Single applicant (lifetime)</span><span class="val">${fmtINR(singleSave)}</span></div>
+    <div class="row"><span class="lbl">Joint applicants (lifetime)</span><span class="val pos">${fmtINR(jointSave)}</span></div>
+    <div class="row"><span class="lbl">Extra savings if joint</span><span class="val pos">${fmtINR(jointSave - singleSave)}</span></div>
+    <div class="tip success" style="margin-top:8px"><b>Requirements:</b> Both co-owner of property + co-borrower of loan + EMI debited from joint account (or both pay from own accounts in proportion). Pro-tip: <b>structure 50:50 ownership</b> for maximum benefit.</div>
+  `;
+
+  // Use comparison box
+  const ub = document.getElementById('useBox');
+  const selfTax = lifetimeTaxSaved(m, S.slab, 'self', S.joint, S.ftb, S.prop);
+  const letTax = lifetimeTaxSaved(m, S.slab, 'let', S.joint, S.ftb, S.prop);
+  ub.innerHTML = `
+    <div class="row"><span class="lbl">Self-occupied (lifetime tax saved)</span><span class="val">${fmtINR(selfTax)}</span></div>
+    <div class="row"><span class="lbl">Let-out (lifetime tax saved)</span><span class="val pos">${fmtINR(letTax)}</span></div>
+    <div class="row"><span class="lbl">Difference</span><span class="val pos">${fmtINR(letTax - selfTax)}</span></div>
+    <div class="tip"><b>If property is in another city:</b> declare as let-out (rent to family ok if at market rate) → claim full interest. Pay HRA from your work city. Stack both benefits.</div>
+  `;
+
+  // Tax timeline chart
+  const yrs = yearlyAgg(m);
+  const mult = S.joint === 'yes' ? 2 : 1;
+  const taxByYear = yrs.map(y => {
+    let int24 = Math.min(y.interest, S.puse === 'let' ? Infinity : 200000);
+    if (S.puse === 'let') int24 = Math.min(int24, 200000);
+    const p80c = Math.min(y.principal, 150000);
+    let eea = 0;
+    if (S.ftb === 'yes' && S.prop <= 4500000 && S.puse !== 'let'){
+      eea = Math.min(Math.max(0, y.interest - 200000), 150000);
+    }
+    return ((int24 + p80c + eea) * (S.slab/100)) * mult;
+  });
+
+  mkChart('chTax', {
+    type: 'bar',
+    data: {
+      labels: yrs.map(y => 'Y'+y.year),
+      datasets: [{
+        label: 'Annual Tax Saved',
+        data: taxByYear,
+        backgroundColor: getCss('--success'),
+        borderRadius: 4
+      }]
+    },
+    options: chartDefaults()
+  });
+
+  // Hacks
+  document.getElementById('taxHacks').innerHTML = `
+    <div class="tip success"><b>Hack 1 — Convert to Let-Out:</b> Rent your house to a relative at market rate (must be genuine — bank transfer, rent agreement). Unlocks full interest deduction beyond ₹2L cap. Net tax saving often ₹50K–₹1.5L extra per year.</div>
+    <div class="tip gold"><b>Hack 2 — Top-Up Loan = Cheap & Tax-Efficient:</b> Need money for repair/renovation? Use home loan top-up at ~8.5% (vs personal loan at 14%). If used for property improvement, additional ₹30K/yr deductible under 24(b).</div>
+    <div class="tip"><b>Hack 3 — Pre-Construction Interest:</b> Interest paid during construction is deductible in <b>5 equal installments</b> starting the year you get possession (within ₹2L cap). Don't forget to claim it — many CAs miss this.</div>
+    <div class="tip info"><b>Hack 4 — HRA + Home Loan Together:</b> Living in a rented flat (own city) while owning a let-out flat elsewhere — claim HRA exemption AND full 24(b). Combined deduction often ₹6–8L/yr.</div>
+    <div class="tip purple"><b>Hack 5 — Spouse + Parents:</b> Property in spouse + parent name (joint owners, all earning) → 3-way deduction split = ₹6L cap on 24(b), ₹4.5L on 80C. Niche but powerful for HNI families.</div>
+    <div class="tip warn"><b>Hack 6 — Old vs New Regime:</b> Home loan is the #1 reason to stick with Old Regime. Run the math: if 24(b) + 80C + 80EEA + HRA > ₹5L, Old Regime usually wins by ₹50K–₹1.5L/yr.</div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: PREPAY
+   ═════════════════════════════════════════════════════════════════════ */
+function ppStrategies(){
+  const P = loanAmount();
+  const baseE = emi(P, S.rate, S.ten);
+  const baseM = amort(P, S.rate, S.ten);
+  const baseInt = totalInt(baseM);
+
+  // Strategy implementations
+  const extraEmiYear = amort(P, S.rate, S.ten, 0, baseE, 0); // 1 extra EMI/yr = 1 extra EMI as lump
+  const stepUp = amort(P, S.rate, S.ten, 0, 0, 5);
+  const lumpsum = amort(P, S.rate, S.ten, 0, 100000, 0);
+  // Round up to nearest 5000
+  const roundExtra = Math.ceil(baseE / 5000) * 5000 - baseE;
+  const round = amort(P, S.rate, S.ten, roundExtra, 0, 0);
+  // Bonus: lump 2L for years 2-6 only — approximate by 2L for 5 years
+  // We'll simulate manually for bonus
+  function bonusSim(){
+    const r = S.rate/12/100;
+    let bal = P;
+    let curEmi = baseE;
+    const out = [];
+    const n = S.ten*12;
+    for (let m=1; m<=n*2 && bal>0.5; m++){
+      const open = bal;
+      const interest = bal * r;
+      let principal = curEmi - interest;
+      // Bonus in Dec of years 2-6 (months 24,36,48,60,72)
+      if ([24,36,48,60,72].includes(m)) principal += 200000;
+      if (principal > bal) principal = bal;
+      bal -= principal;
+      out.push({m, open, emi: principal+interest, principal, interest, close: bal});
+      if (bal < 0.5) break;
+    }
+    return out;
+  }
+  const bonus = bonusSim();
+
+  return {extraEmiYear, stepUp, lumpsum, round, bonus, base: baseM, baseInt, P, baseE};
+}
+
+function renderPrepay(){
+  const s = ppStrategies();
+  let m, lbl, explain;
+  if (S.prepay === 'extra'){m = s.extraEmiYear; lbl='1 Extra EMI/yr';
+    explain = `Pay <b>13 EMIs per year</b> instead of 12 — use your Diwali / annual bonus to fund the 13th EMI. Your monthly EMI of <b>${fmtR(s.baseE)}</b> stays the same; you just contribute one extra anytime in the year. <br><br><b>The math:</b> An extra EMI = pure principal reduction. Over 20 years, this typically cuts ~4–5 years off your loan.`;}
+  else if (S.prepay === 'step'){m = s.stepUp;
+    explain = `Increase your EMI by <b>5% every year</b>. Year 1: ${fmtR(s.baseE)}, Year 2: ${fmtR(s.baseE*1.05)}, Year 5: ${fmtR(s.baseE*Math.pow(1.05,4))}. Matches your annual salary hike. <br><br><b>The math:</b> Compounds powerfully — typical 20-yr loan finishes in 10–12 years.`;}
+  else if (S.prepay === 'lump'){m = s.lumpsum;
+    explain = `Prepay <b>₹1,00,000 as a lump sum every year</b> (e.g. with tax refund or year-end bonus). EMI stays ${fmtR(s.baseE)}. <br><br><b>The math:</b> ₹1L/yr × 20 yr = ₹20L extra principal — but the interest savings are 3–4× that thanks to compounding.`;}
+  else if (S.prepay === 'round'){m = s.round;
+    explain = `<b>Round up your EMI to the nearest ₹5,000.</b> Your EMI of ${fmtR(s.baseE)} becomes <b>${fmtR(Math.ceil(s.baseE/5000)*5000)}</b> (extra ${fmtR(Math.ceil(s.baseE/5000)*5000-s.baseE)}/month). Painless — you barely notice it. <br><br><b>The math:</b> Even ₹500–₹3,000 extra per month, treated as principal, knocks 1.5–3 years off and saves 4–10% of total interest.`;}
+  else if (S.prepay === 'bonus'){m = s.bonus;
+    explain = `Use your <b>₹2L annual bonus</b> for prepayment, but only for <b>Years 2–6</b> (the highest-impact window). After Year 7, your bonus goes back to investments/lifestyle. <br><br><b>The math:</b> ₹10L total deployed in the most powerful years saves 25–35% of total interest. The "early prepayment compounds hardest" principle.`;}
+
+  const yrs = yearlyAgg(m);
+  const newTen = (m.length/12);
+  const tIntNew = totalInt(m);
+  const tEmiNew = totalEmi(m);
+  const intSaved = s.baseInt - tIntNew;
+  const yrsCut = S.ten - newTen;
+
+  document.getElementById('ppTen').textContent = newTen.toFixed(1) + ' yr';
+  document.getElementById('ppTenSub').textContent = 'vs original ' + S.ten + ' yr';
+  document.getElementById('ppInt').textContent = fmtINR(intSaved);
+  document.getElementById('ppYrs').textContent = yrsCut.toFixed(1) + ' yr';
+  document.getElementById('ppTot').textContent = fmtINR(tEmiNew);
+
+  document.getElementById('ppExplain').innerHTML = explain;
+
+  // Chart: original vs new balance
+  const baseYrs = yearlyAgg(s.base);
+  const labelsMax = Math.max(baseYrs.length, yrs.length);
+  const labels = Array.from({length: labelsMax}, (_,i)=>'Y'+(i+1));
+  const baseBal = labels.map((_,i)=> baseYrs[i] ? baseYrs[i].close : 0);
+  const newBal = labels.map((_,i)=> yrs[i] ? yrs[i].close : 0);
+
+  mkChart('chPp', {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {label: 'Original Loan Balance', data: baseBal, borderColor: getCss('--gold'), backgroundColor: 'transparent', borderWidth: 2, pointRadius: 0, borderDash: [4,4]},
+        {label: 'With Prepay Strategy', data: newBal, borderColor: getCss('--success'), backgroundColor: getCss('--succ-bg'), borderWidth: 2, pointRadius: 0, fill: true, tension: 0.3}
+      ]
+    },
+    options: chartDefaults()
+  });
+
+  // Compare all strategies
+  const stratList = [
+    {nm: '1 Extra EMI / Year', m: s.extraEmiYear, eff: 'Easy 🟢'},
+    {nm: 'Step-Up 5% EMI', m: s.stepUp, eff: 'Medium 🟡'},
+    {nm: 'Annual ₹1L Lumpsum', m: s.lumpsum, eff: 'Medium 🟡'},
+    {nm: 'Round-Up EMI', m: s.round, eff: 'Easiest 🟢'},
+    {nm: 'Bonus Years 2-6', m: s.bonus, eff: 'Easy 🟢'},
+  ];
+  const tb = document.querySelector('#ppCmp tbody');
+  tb.innerHTML = stratList.map(st => {
+    const t = (st.m.length/12).toFixed(1);
+    const i = totalInt(st.m);
+    const cut = (S.ten - st.m.length/12).toFixed(1);
+    const saved = s.baseInt - i;
+    return `<tr>
+      <td><b>${st.nm}</b></td>
+      <td>${t} yr</td>
+      <td style="color:var(--success)"><b>${cut} yr</b></td>
+      <td style="color:var(--success)"><b>${fmtINR(saved)}</b></td>
+      <td>${st.eff}</td>
+    </tr>`;
+  }).join('');
+  tb.innerHTML += `<tr style="background:var(--ibg)"><td><b>No Prepayment (Baseline)</b></td><td>${S.ten} yr</td><td>—</td><td>—</td><td>—</td></tr>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: RATE HACKS
+   ═════════════════════════════════════════════════════════════════════ */
+function renderRate(){
+  const P = loanAmount();
+  const baseE = emi(P, S.rate, S.ten);
+  const baseM = amort(P, S.rate, S.ten);
+  const baseTot = totalEmi(baseM);
+
+  const e50 = emi(P, S.rate - 0.5, S.ten);
+  const e100 = emi(P, S.rate - 1, S.ten);
+  const m50 = amort(P, S.rate - 0.5, S.ten);
+  const m100 = amort(P, S.rate - 1, S.ten);
+
+  document.getElementById('rk50').textContent = fmtR(baseE - e50);
+  document.getElementById('rk100').textContent = fmtR(baseE - e100);
+  document.getElementById('rkL50').textContent = fmtINR(baseTot - totalEmi(m50));
+  document.getElementById('rkL100').textContent = fmtINR(baseTot - totalEmi(m100));
+
+  // Rate sensitivity chart: total interest for various rates
+  const rates = [];
+  for (let r = Math.max(6, S.rate-2); r <= S.rate+2; r += 0.25) rates.push(+r.toFixed(2));
+  const ints = rates.map(r => totalInt(amort(P, r, S.ten)));
+  mkChart('chRate', {
+    type: 'bar',
+    data: {
+      labels: rates.map(r => r.toFixed(2) + '%'),
+      datasets: [{
+        label: 'Total Interest',
+        data: ints,
+        backgroundColor: rates.map(r => Math.abs(r - S.rate) < 0.01 ? getCss('--danger') : getCss('--info')),
+        borderRadius: 4
+      }]
+    },
+    options: chartDefaults()
+  });
+
+  // Balance Transfer Calculator
+  renderBT();
+}
+
+function renderBT(){
+  const btRate = +document.getElementById('btRate').value;
+  const btYr = +document.getElementById('btYr').value;
+  const btFee = +document.getElementById('btFee').value;
+  document.getElementById('btRateV').textContent = btRate.toFixed(2) + '%';
+  document.getElementById('btYrV').textContent = btYr + ' yr';
+  document.getElementById('btFeeV').textContent = fmtR(btFee);
+
+  const P = loanAmount();
+  const baseM = amort(P, S.rate, S.ten);
+  // Find balance after btYr years
+  const monthIdx = btYr * 12 - 1;
+  const balAtSwitch = baseM[monthIdx] ? baseM[monthIdx].close : 0;
+  const remainingTen = S.ten - btYr;
+
+  // Old continuation
+  const oldContM = baseM.slice(monthIdx + 1);
+  const oldRemainingPayout = totalEmi(oldContM);
+
+  // New loan
+  const newM = amort(balAtSwitch, btRate, remainingTen);
+  const newPayout = totalEmi(newM);
+
+  const netSave = oldRemainingPayout - newPayout - btFee;
+  const newEmi = emi(balAtSwitch, btRate, remainingTen);
+  const oldEmi = emi(P, S.rate, S.ten);
+
+  document.getElementById('btResult').innerHTML = `
+    <div class="row"><span class="lbl">Balance at switch (Y${btYr})</span><span class="val">${fmtINR(balAtSwitch)}</span></div>
+    <div class="row"><span class="lbl">Old EMI continues</span><span class="val">${fmtR(oldEmi)} for ${remainingTen}y</span></div>
+    <div class="row"><span class="lbl">New EMI @ ${btRate}%</span><span class="val pos">${fmtR(newEmi)} for ${remainingTen}y</span></div>
+    <div class="row"><span class="lbl">Monthly EMI saved</span><span class="val pos">${fmtR(oldEmi - newEmi)}</span></div>
+    <div class="row"><span class="lbl">Old total remaining</span><span class="val">${fmtINR(oldRemainingPayout)}</span></div>
+    <div class="row"><span class="lbl">New total payout</span><span class="val">${fmtINR(newPayout)}</span></div>
+    <div class="row"><span class="lbl">Switching fees</span><span class="val neg">−${fmtR(btFee)}</span></div>
+    <div class="divider"></div>
+    <div class="row" style="font-size:.95rem"><span class="lbl"><b>Net Lifetime Savings</b></span><span class="val ${netSave>0?'pos':'neg'}" style="font-size:1.1rem"><b>${netSave>0?'+':''}${fmtINR(netSave)}</b></span></div>
+    ${netSave > 50000 ? '<div class="tip success" style="margin-top:8px"><b>✅ Switch is worth it.</b> Get 3 quotes, then ask current bank to match. Often they will — best of both worlds.</div>' : netSave > 0 ? '<div class="tip warn" style="margin-top:8px"><b>🟡 Marginal benefit.</b> Try negotiating with current bank first — they may match for free.</div>' : '<div class="tip danger" style="margin-top:8px"><b>❌ Not worth switching.</b> The fees + hassle outweigh the savings.</div>'}
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: LEVERAGE
+   ═════════════════════════════════════════════════════════════════════ */
+function renderLev(){
+  const P = loanAmount();
+  const m = amort(P, S.rate, S.ten);
+  const tax = taxYear1(P, S.rate, S.ten, S.slab, S.puse, S.joint, S.ftb, S.prop);
+
+  // Approximate post-tax rate: rate × (1 - effective tax shield ratio)
+  const annualInt = m.slice(0,12).reduce((s,x)=>s+x.interest,0);
+  const taxShieldOnInt = Math.min(annualInt, S.puse === 'let' ? annualInt : 200000) * (S.joint === 'yes' ? 2 : 1) * (S.slab/100);
+  const postTaxRate = S.rate * (1 - Math.min(taxShieldOnInt / annualInt, 0.5)); // shield up to 50%
+  // For MF, assume LTCG 12.5% on gains above 1.25L; effective ~10.5% on 12% gross
+  const sipPostTax = S.sip * (1 - 0.105/100*S.sip); // crude
+
+  document.getElementById('lvHead').textContent = S.rate.toFixed(2) + '%';
+  document.getElementById('lvPost').textContent = postTaxRate.toFixed(2) + '%';
+  document.getElementById('lvMf').textContent = sipPostTax.toFixed(2) + '%';
+
+  let verdict, vSub, vCls;
+  if (sipPostTax > postTaxRate + 2){
+    verdict = 'INVEST'; vCls = 'success';
+    vSub = 'MF beats post-tax loan cost by ' + (sipPostTax - postTaxRate).toFixed(1) + '%. Keep loan, SIP the spare cash.';
+  } else if (sipPostTax > postTaxRate){
+    verdict = 'SPLIT'; vCls = 'warn';
+    vSub = 'Close call. Do 50% prepay, 50% SIP.';
+  } else {
+    verdict = 'PREPAY'; vCls = 'danger';
+    vSub = 'Loan cost exceeds MF return. Prepay first.';
+  }
+  const vEl = document.getElementById('lvVerdict');
+  vEl.textContent = verdict;
+  vEl.style.color = vCls === 'success' ? getCss('--success') : vCls === 'warn' ? getCss('--warn') : getCss('--danger');
+  document.getElementById('lvVerdictSub').textContent = vSub;
+
+  // Chart: Prepay vs SIP over 10 years
+  // Scenario: ₹1L/yr extra cash
+  const yrs = 10;
+  const prepayPath = [];
+  const sipPath = [];
+  // Prepay path: prepay 1L/yr → reduces loan; remaining principal at end of yr Y = approximation
+  const mP = amort(P, S.rate, S.ten, 0, 100000, 0);
+  const baseY = yearlyAgg(amort(P, S.rate, S.ten));
+  const prepY = yearlyAgg(mP);
+  for (let y = 1; y <= yrs; y++){
+    // Prepay value at year y = base balance − prepay balance (interest saved) PLUS no investment
+    const baseBalY = baseY[y-1] ? baseY[y-1].close : 0;
+    const prepBalY = prepY[y-1] ? prepY[y-1].close : 0;
+    prepayPath.push(baseBalY - prepBalY);
+    // SIP path: 100000/yr at sipPostTax compounded
+    let sipVal = 0;
+    for (let k = 1; k <= y; k++) sipVal += 100000 * Math.pow(1 + sipPostTax/100, y - k + 1);
+    sipPath.push(sipVal);
+  }
+  mkChart('chLev', {
+    type: 'line',
+    data: {
+      labels: Array.from({length:yrs}, (_,i)=>'Y'+(i+1)),
+      datasets: [
+        {label: 'Prepay Path: Interest Saved', data: prepayPath, borderColor: getCss('--info'), backgroundColor: 'transparent', borderWidth: 2, tension: 0.3},
+        {label: 'SIP Path: Corpus Built', data: sipPath, borderColor: getCss('--success'), backgroundColor: getCss('--succ-bg'), fill: true, borderWidth: 2, tension: 0.3}
+      ]
+    },
+    options: chartDefaults()
+  });
+
+  // Verdict box
+  const finalDiff = sipPath[yrs-1] - prepayPath[yrs-1];
+  document.getElementById('lvVerdictBox').innerHTML = `
+    <div class="tip ${finalDiff > 0 ? 'success' : 'danger'}" style="margin-top:10px">
+      <b>10-year result for ₹1L/yr extra cash:</b><br>
+      → If you <b>prepay</b>: you save ${fmtINR(prepayPath[yrs-1])} in interest.<br>
+      → If you <b>SIP</b>: you build a corpus of ${fmtINR(sipPath[yrs-1])} (post-tax).<br>
+      <b>Net advantage of ${finalDiff>0?'investing':'prepaying'}: ${fmtINR(Math.abs(finalDiff))}</b> over 10 years.
+    </div>
+  `;
+
+  // Rental leverage
+  const monthlyRentY = S.rent;
+  const annualRent = monthlyRentY * 12 * 0.7; // 30% vacancy/repair allowance
+  const annualEmi = emi(P, S.rate, S.ten) * 12;
+  const annualIntY1 = annualInt;
+  const taxSavedLet = Math.min(annualIntY1, Math.min(annualIntY1, 200000 + Math.max(annualIntY1-200000, 0))) * (S.slab/100); // crude
+  const effOutflow = annualEmi - annualRent - taxSavedLet;
+  const effRateRental = (effOutflow / P) * 100;
+  document.getElementById('rentalLev').innerHTML = `
+    <div class="row"><span class="lbl">Annual EMI</span><span class="val">${fmtINR(annualEmi)}</span></div>
+    <div class="row"><span class="lbl">Annual rent (net of ~30% vac/repair)</span><span class="val pos">−${fmtINR(annualRent)}</span></div>
+    <div class="row"><span class="lbl">Tax saved (let-out, 24b uncapped)</span><span class="val pos">−${fmtINR(taxSavedLet)}</span></div>
+    <div class="row"><span class="lbl">Net annual outflow</span><span class="val">${fmtINR(effOutflow)}</span></div>
+    <div class="row"><span class="lbl">Effective cost on loan principal</span><span class="val">${effRateRental.toFixed(2)}%/yr</span></div>
+    <div class="tip ${effRateRental < S.app ? 'success' : 'warn'}" style="margin-top:8px">
+      ${effRateRental < S.app
+        ? `<b>Net positive leverage!</b> Property appreciates at ${S.app}%, but your effective cost is only ${effRateRental.toFixed(1)}%. Pure arbitrage of ${(S.app-effRateRental).toFixed(1)}%/yr on the leveraged amount.`
+        : `<b>Marginal play.</b> Your effective cost (${effRateRental.toFixed(1)}%) exceeds appreciation (${S.app}%). Only attractive if rent or rates change favorably.`}
+    </div>
+  `;
+
+  // Safe leverage rules
+  document.getElementById('safeLev').innerHTML = `
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>EMI ≤ 40%</b> of net monthly income (banks lend up to 50–55%, but that's stress zone)</div></div>
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>Total EMI (all loans) ≤ 50%</b> of income</div></div>
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>Loan ≤ 5× annual income</b> (above 6× = high risk)</div></div>
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>Down payment ≥ 20%</b> (15% if 80EEA stamp ≤ 45L)</div></div>
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>Emergency fund = 6× EMI</b> in liquid funds BEFORE buying</div></div>
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>Job stability:</b> 3+ years in current sector. Avoid leverage in volatile careers (early startup, gig economy)</div></div>
+    <div class="chk"><div class="chk-ic">✓</div><div class="chk-tx"><b>Term insurance ≥ loan amount + 1Cr</b> — protects family from forced sale</div></div>
+  `;
+
+  // Red flags
+  document.getElementById('redFlags').innerHTML = `
+    <div class="tip danger"><b>🚫 Don't take a 2nd home loan if:</b> existing EMI > 35% of income, no 12-month emergency fund, job tenure < 3 years, expected return on new property < post-tax rate.</div>
+    <div class="tip warn"><b>⚠️ Avoid LAP (Loan Against Property) for:</b> stock market speculation, lifestyle purchases, paying off credit card EMIs (use balance transfer instead). LAP is for productive deployment only.</div>
+    <div class="tip danger"><b>🚫 Never leverage to invest in:</b> small/mid-cap PMS, F&O, crypto, ULIPs, single stocks. The asymmetric downside destroys families. Leverage demands stable, broad-market deployment.</div>
+    <div class="tip warn"><b>⚠️ Reverse mortgage:</b> Only at age 60+, only on fully-paid home, only as last resort. Watch the fine print on rate resets and prepayment penalties.</div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: TRICKS
+   ═════════════════════════════════════════════════════════════════════ */
+const tricks = [
+  {
+    n:1, ic:'🎯', t:'The 13th EMI Hack', st:'Pay 13 EMIs/year',
+    d:'Pay one extra EMI from your annual bonus. Counted as pure principal. <b>On YOUR loan: saves {{intSave_extra}} and cuts {{yrCut_extra}} years.</b>'
+  },
+  {
+    n:2, ic:'⬆️', t:'Step-Up EMI (Salary Hike Sync)', st:'Match your raise',
+    d:'Get 8–10% salary hike yearly? Increase EMI by just 5%. <b>On YOUR loan: ends in {{yr_step}} yr (saves {{yrCut_step}} yr & {{intSave_step}}).</b>'
+  },
+  {
+    n:3, ic:'🔄', t:'Round-Up EMI', st:'Hide extra in EMI',
+    d:'EMI of ₹47,328 → round to ₹50,000. The ₹2,672/mo is invisible but kills interest. <b>On YOUR loan: saves {{intSave_round}}.</b>'
+  },
+  {
+    n:4, ic:'💎', t:'Tax Refund → Direct Prepay', st:'Free money loop',
+    d:'Each year, your home loan generates ~₹60K-₹1L tax refund (slab × 24b deduction). Route it back as Q1 prepayment. <b>Compounds the deduction.</b>'
+  },
+  {
+    n:5, ic:'🪙', t:'Pay 1% Principal Every 6 Months', st:'Twice yearly',
+    d:'Set calendar reminder: April + October prepay 1% of remaining principal. Tiny effort, ~3-year tenure cut. <b>On ₹{{loanL}}L loan = ~₹{{onepct}}/half-year.</b>'
+  },
+  {
+    n:6, ic:'📅', t:'Bi-Monthly EMI Trick', st:'NRI hack',
+    d:'Split EMI in two — half by 15th, half by 30th. The first half saves ~15 days of interest each month. Annual saving: ~half an EMI free.'
+  },
+  {
+    n:7, ic:'🎁', t:'Diwali Bonus → Year 2–6 Prepay', st:'Surgical strikes',
+    d:'₹2L bonus → use for prepay ONLY in Years 2–6 (highest impact window). <b>On YOUR loan: ₹10L deployed saves {{intSave_bonus}} in interest.</b>'
+  },
+  {
+    n:8, ic:'⚡', t:'The Rate Reset Email', st:'30-min cash hack',
+    d:'Email your bank quoting 3 competitor rates. They\'ll reset for ₹1K–₹10K fee. <b>Even 25 bps cut saves ~{{rateCut25}} lifetime on your loan.</b>'
+  },
+  {
+    n:9, ic:'🏃', t:'Reduce Tenure (Not EMI) on Prepay', st:'Default trap',
+    d:'When you prepay, banks <b>default to reducing your EMI</b>. ALWAYS submit a written request: "Keep EMI, reduce tenure." 30–40% more savings.'
+  },
+  {
+    n:10, ic:'👥', t:'Add Co-Borrower Mid-Loan', st:'Joint tax magic',
+    d:'Add spouse as co-owner & co-borrower 2 years in. Bank typically allows. <b>Doubles all tax caps → extra ₹50K–₹1L/yr tax saved</b> (slab dependent).'
+  },
+  {
+    n:11, ic:'🏚️', t:'The Let-Out Loophole', st:'Uncap 24(b)',
+    d:'Rent your house to family/friend at market rate (genuine lease). Status switches to "let-out" → <b>full interest deductible</b>. Watch for ₹2L set-off cap.'
+  },
+  {
+    n:12, ic:'💸', t:'PPF Maturity Lump Sum', st:'Tax-free arbitrage',
+    d:'PPF matures every 15 years tax-free. Use full corpus as one-shot prepay — instant ~30% interest cost reduction. Best timed at Years 10–15.'
+  },
+  {
+    n:13, ic:'🌐', t:'Float vs Fixed Toggle', st:'Cycle play',
+    d:'Take floating during rate-cut cycles (RBI dovish), switch to fixed near cycle bottom. Banks charge 0.5–1% conversion fee. Average gain: 50–100 bps.'
+  },
+  {
+    n:14, ic:'🧾', t:'Pre-EMI = ₹0 Until Possession', st:'Builder secret',
+    d:'On under-construction property, opt for "Subvention scheme" — builder pays EMI till possession. Saves 2–3 years of EMI outflow. <b>Verify builder cred.</b>'
+  },
+];
+
+function renderTricks(){
+  const P = loanAmount();
+  const baseM = amort(P, S.rate, S.ten);
+  const baseInt = totalInt(baseM);
+
+  const extraM = amort(P, S.rate, S.ten, 0, emi(P, S.rate, S.ten), 0);
+  const stepM = amort(P, S.rate, S.ten, 0, 0, 5);
+  const roundEmi = emi(P, S.rate, S.ten);
+  const roundExtra = Math.ceil(roundEmi/5000)*5000 - roundEmi;
+  const roundM = amort(P, S.rate, S.ten, roundExtra, 0, 0);
+
+  function bonusSim(){
+    const r = S.rate/12/100;
+    let bal = P;
+    const baseE = emi(P, S.rate, S.ten);
+    const out = [];
+    const n = S.ten*12;
+    for (let m=1; m<=n*2 && bal>0.5; m++){
+      const interest = bal * r;
+      let principal = baseE - interest;
+      if ([24,36,48,60,72].includes(m)) principal += 200000;
+      if (principal > bal) principal = bal;
+      bal -= principal;
+      out.push({m, principal, interest});
+      if (bal < 0.5) break;
+    }
+    return out;
+  }
+  const bonusM = bonusSim();
+
+  const m50 = amort(P, S.rate - 0.25, S.ten);
+
+  const repl = {
+    intSave_extra: fmtINR(baseInt - totalInt(extraM)),
+    yrCut_extra: (S.ten - extraM.length/12).toFixed(1),
+    yr_step: (stepM.length/12).toFixed(1),
+    yrCut_step: (S.ten - stepM.length/12).toFixed(1),
+    intSave_step: fmtINR(baseInt - totalInt(stepM)),
+    intSave_round: fmtINR(baseInt - totalInt(roundM)),
+    intSave_bonus: fmtINR(baseInt - bonusM.reduce((s,x)=>s+x.interest,0)),
+    rateCut25: fmtINR(totalEmi(baseM) - totalEmi(m50)),
+    loanL: (P/100000).toFixed(0),
+    onepct: fmtR(P * 0.01)
+  };
+
+  const grid = document.getElementById('trickGrid');
+  grid.innerHTML = tricks.map(t => {
+    let d = t.d;
+    Object.entries(repl).forEach(([k,v]) => d = d.replaceAll('{{'+k+'}}', v));
+    return `
+      <div class="trick">
+        <div class="trick-h">
+          <div class="trick-ic">${t.ic}</div>
+          <div><div class="trick-t">${t.n}. ${t.t}</div><div class="trick-st">${t.st}</div></div>
+        </div>
+        <div class="trick-d">${d}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Optimal prepayment window chart
+  const yrs = [...Array(S.ten).keys()].map(i=>i+1);
+  const savingsByYear = yrs.map(y => {
+    // Prepay 1L in year y and see interest saved
+    const r = S.rate/12/100;
+    let bal = P;
+    let savedInt = 0;
+    const baseE = emi(P, S.rate, S.ten);
+    const baseSched = amort(P, S.rate, S.ten);
+    const baseTotInt = totalInt(baseSched);
+    // Simulate: prepay 100000 at start of year y (month (y-1)*12 + 1)
+    bal = P;
+    let totInt2 = 0;
+    for (let mo = 1; mo <= S.ten*12*2 && bal > 0.5; mo++){
+      const interest = bal * r;
+      let principal = baseE - interest;
+      if (mo === (y-1)*12 + 1) principal += 100000;
+      if (principal > bal) principal = bal;
+      totInt2 += interest;
+      bal -= principal;
+      if (bal < 0.5) break;
+    }
+    return baseTotInt - totInt2;
+  });
+
+  mkChart('chOpt', {
+    type: 'bar',
+    data: {
+      labels: yrs.map(y=>'Y'+y),
+      datasets: [{
+        label: 'Interest saved per ₹1L prepaid',
+        data: savingsByYear,
+        backgroundColor: savingsByYear.map((_,i) => i < 5 ? getCss('--success') : i < 10 ? getCss('--gold') : getCss('--bdr2')),
+        borderRadius: 4
+      }]
+    },
+    options: chartDefaults()
+  });
+
+  renderStack();
+}
+
+function renderStack(){
+  const P = loanAmount();
+  const r = S.rate/12/100;
+  const baseE = emi(P, S.rate, S.ten);
+  const baseInt = totalInt(amort(P, S.rate, S.ten));
+
+  const opts = {
+    extra: document.getElementById('stkExtra').checked,
+    step: document.getElementById('stkStep').checked,
+    round: document.getElementById('stkRound').checked,
+    lump: document.getElementById('stkLump').checked,
+    bonus: document.getElementById('stkBonus').checked,
+  };
+
+  const roundExtra = opts.round ? (Math.ceil(baseE/5000)*5000 - baseE) : 0;
+
+  let bal = P;
+  let curEmi = baseE + roundExtra;
+  let totInt = 0;
+  let months = 0;
+  for (let mo = 1; mo <= S.ten*12*3 && bal > 0.5; mo++){
+    months = mo;
+    if (opts.step && mo > 1 && mo % 12 === 1){
+      curEmi = curEmi * 1.05;
+    }
+    const interest = bal * r;
+    let principal = curEmi - interest;
+    if (opts.extra && mo % 12 === 0) principal += baseE;
+    if (opts.lump && mo % 12 === 0) principal += 100000;
+    if (opts.bonus && [24,36,48,60,72].includes(mo)) principal += 200000;
+    if (principal > bal) principal = bal;
+    totInt += interest;
+    bal -= principal;
+    if (bal < 0.5) break;
+  }
+  const newTen = months/12;
+  const intSaved = baseInt - totInt;
+
+  document.getElementById('stackResult').innerHTML = `
+    <div class="kpi success" style="margin-bottom:8px"><div class="kpi-l">Stacked New Tenure</div><div class="kpi-v">${newTen.toFixed(1)} yr</div><div class="kpi-s">Saved ${(S.ten-newTen).toFixed(1)} years</div></div>
+    <div class="kpi gold"><div class="kpi-l">Total Interest Saved</div><div class="kpi-v">${fmtINR(intSaved)}</div><div class="kpi-s">${(intSaved/baseInt*100).toFixed(0)}% of original interest</div></div>
+    <div class="tip success" style="margin-top:10px">Combined effect of selected tricks. <b>Stacking 3+ tricks typically halves your effective tenure.</b></div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   RENDER: BUY vs RENT
+   ═════════════════════════════════════════════════════════════════════ */
+function renderBR(){
+  const yrs = 10;
+  const P = loanAmount();
+  const downPmt = S.prop - P;
+  const baseE = emi(P, S.rate, S.ten);
+  const baseM = amort(P, S.rate, S.ten);
+  const buyPath = [], rentPath = [];
+
+  // Buy path: each year, net worth = property value - loan balance + lifetime tax saved so far
+  const tax = taxYear1(P, S.rate, S.ten, S.slab, S.puse, S.joint, S.ftb, S.prop);
+  const annualTaxSaved = tax.save;
+  const annualMaint = S.prop * 0.005; // 0.5% maintenance
+  let propValue = S.prop;
+  const yrAgg = yearlyAgg(baseM);
+  let cumTaxSaved = 0;
+
+  // Rent path: invest down payment + (EMI-Rent-Maint) saved every year at sip return
+  let invested = downPmt;
+  let monthlyRent = S.rent;
+  const rentInflation = 0.08; // 8%/yr rent hike
+
+  for (let y = 1; y <= yrs; y++){
+    propValue *= (1 + S.app/100);
+    const loanBal = yrAgg[y-1] ? yrAgg[y-1].close : 0;
+    cumTaxSaved += annualTaxSaved;
+    const buyNW = propValue - loanBal + cumTaxSaved - (annualMaint * y);
+    buyPath.push(buyNW);
+
+    // Rent path
+    const annualRent = monthlyRent * 12;
+    const annualEmi = baseE * 12;
+    const yearlySave = annualEmi + annualMaint - annualRent - annualTaxSaved;
+    invested = invested * (1 + S.sip/100) + Math.max(yearlySave, 0);
+    rentPath.push(invested);
+    monthlyRent *= (1 + rentInflation);
+  }
+
+  const buyFinal = buyPath[yrs-1];
+  const rentFinal = rentPath[yrs-1];
+
+  document.getElementById('brBuy').textContent = fmtINR(buyFinal);
+  document.getElementById('brRent').textContent = fmtINR(rentFinal);
+  const winner = buyFinal > rentFinal ? 'BUY' : 'RENT';
+  const winEl = document.getElementById('brWin');
+  winEl.textContent = winner;
+  winEl.style.color = winner === 'BUY' ? getCss('--info') : getCss('--gold');
+  document.getElementById('brWinSub').textContent = `By ${fmtINR(Math.abs(buyFinal - rentFinal))}`;
+
+  // Break-even
+  let be = 'After Y10';
+  for (let i = 0; i < yrs; i++){
+    if (buyPath[i] > rentPath[i]){be = 'Y' + (i+1); break;}
+  }
+  document.getElementById('brBE').textContent = be;
+
+  // Card details
+  const buyCard = document.getElementById('brBuyCard');
+  const rentCard = document.getElementById('brRentCard');
+  buyCard.classList.toggle('win', buyFinal > rentFinal);
+  buyCard.classList.toggle('lose', buyFinal <= rentFinal);
+  rentCard.classList.toggle('win', rentFinal > buyFinal);
+  rentCard.classList.toggle('lose', rentFinal <= buyFinal);
+
+  document.getElementById('brBuyTag').textContent = buyFinal > rentFinal ? 'WINNER' : 'BEHIND';
+  document.getElementById('brBuyTag').className = 'cmp-tag ' + (buyFinal > rentFinal ? 'win' : 'lose');
+  document.getElementById('brRentTag').textContent = rentFinal > buyFinal ? 'WINNER' : 'BEHIND';
+  document.getElementById('brRentTag').className = 'cmp-tag ' + (rentFinal > buyFinal ? 'win' : 'lose');
+
+  document.getElementById('brBuyV').textContent = fmtINR(buyFinal);
+  document.getElementById('brRentV').textContent = fmtINR(rentFinal);
+
+  document.getElementById('brBuyD').innerHTML = `
+    <div class="row"><span class="lbl">Property value (Y10)</span><span class="val">${fmtINR(propValue)}</span></div>
+    <div class="row"><span class="lbl">− Outstanding loan</span><span class="val neg">${fmtINR(yrAgg[yrs-1] ? yrAgg[yrs-1].close : 0)}</span></div>
+    <div class="row"><span class="lbl">+ Tax saved (10 yr)</span><span class="val pos">${fmtINR(cumTaxSaved)}</span></div>
+    <div class="row"><span class="lbl">− Maintenance (10 yr)</span><span class="val neg">${fmtINR(annualMaint*10)}</span></div>
+    <div class="row"><span class="lbl">Down payment</span><span class="val">${fmtINR(downPmt)} (sunk)</span></div>
+  `;
+
+  document.getElementById('brRentD').innerHTML = `
+    <div class="row"><span class="lbl">Down payment invested at ${S.sip}%</span><span class="val">${fmtINR(downPmt*Math.pow(1+S.sip/100,10))}</span></div>
+    <div class="row"><span class="lbl">EMI−Rent surplus invested</span><span class="val pos">${fmtINR(rentFinal - downPmt*Math.pow(1+S.sip/100,10))}</span></div>
+    <div class="row"><span class="lbl">Rent paid (10 yr cumul)</span><span class="val neg">~${fmtINR(S.rent*12*((Math.pow(1.08,10)-1)/0.08))}</span></div>
+    <div class="row"><span class="lbl">Flexibility</span><span class="val">High ⭐</span></div>
+    <div class="row"><span class="lbl">No emotional ownership</span><span class="val">—</span></div>
+  `;
+
+  mkChart('chBR', {
+    type: 'line',
+    data: {
+      labels: Array.from({length:yrs}, (_,i)=>'Y'+(i+1)),
+      datasets: [
+        {label: 'Buy: Net Worth', data: buyPath, borderColor: getCss('--info'), backgroundColor: getCss('--info-bg'), fill: true, borderWidth: 2, tension: 0.3},
+        {label: 'Rent + Invest: Net Worth', data: rentPath, borderColor: getCss('--gold'), backgroundColor: getCss('--gold-bg'), fill: true, borderWidth: 2, tension: 0.3}
+      ]
+    },
+    options: chartDefaults()
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MAIN RENDER LOOP
+   ═════════════════════════════════════════════════════════════════════ */
+function renderAll(){
+  readInputs();
+  renderDash();
+  renderTax();
+  renderPrepay();
+  renderRate();
+  renderLev();
+  renderTricks();
+  renderBR();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   EVENTS
+   ═════════════════════════════════════════════════════════════════════ */
+['prop','dp','rate','ten','inc','slab','puse','joint','ftb','sip','app','rent'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderAll);
+});
+document.querySelectorAll('[data-prop]').forEach(c => c.addEventListener('click', () => {
+  document.getElementById('prop').value = c.dataset.prop;
+  renderAll();
+}));
+
+// Tabs
+document.querySelectorAll('.tbtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tbtn').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('pane-' + b.dataset.tab).classList.add('active');
+}));
+
+// Prepay sub-tabs
+document.querySelectorAll('#prepayTabs .stbtn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('#prepayTabs .stbtn').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  S.prepay = b.dataset.pp;
+  renderPrepay();
+}));
+
+// Balance transfer inputs
+['btRate','btYr','btFee'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderRate);
+});
+
+// Stack tricks
+['stkExtra','stkStep','stkRound','stkLump','stkBonus'].forEach(id => {
+  document.getElementById(id).addEventListener('change', renderStack);
+});
+
+// Theme is owned by the shared platform shell (platform.js). Re-render on change.
+window.addEventListener('pw-theme-change', renderAll);
+
+// Initial render
+renderAll();
+</script>
+</body>
+</html>

@@ -8,10 +8,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- PlanWise shared platform shell (master nav + theme) -->
+<link rel="stylesheet" href="platform.css">
+<script src="platform.js"></script>
 <style>
 /* ═══ TOKENS ═══════════════════════════════════════════════════════════ */
 :root{
-  --hh:56px;
+  --hh:92px; /* total chrome: PlanWise bar (52) + RetireSmart sub-nav (40) */
   --bg:#eef2f7; --lp:#f5f7fc; --card:#fff;
   --bdr:rgba(0,0,0,.07); --bdr2:rgba(0,0,0,.13);
   --acc:#0891b2; --acc-bg:rgba(8,145,178,.09); --acc-bdr:rgba(8,145,178,.22);
@@ -41,20 +44,17 @@ html,body{height:100%;overflow:hidden}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;font-size:14px;transition:background .3s,color .3s}
 
 /* ═══ HEADER ════════════════════════════════════════════════════════════ */
-.hdr{height:var(--hh);z-index:100;position:relative;background:var(--card);box-shadow:var(--sh);border-bottom:1px solid var(--bdr)}
-.hdr-in{height:100%;display:flex;align-items:center;padding:0 14px;gap:10px}
-.logo{font-size:.95rem;font-weight:800;white-space:nowrap;flex-shrink:0;background:linear-gradient(135deg,var(--acc),#0369a1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-[data-theme="dark"] .logo{background:linear-gradient(135deg,#00d4aa,#0098cc);-webkit-background-clip:text;background-clip:text}
-.tabs{display:flex;gap:2px;flex:1}
+/* RetireSmart sub-nav row (master PlanWise bar is rendered by platform.js above) */
+.hdr{height:40px;z-index:100;position:relative;background:var(--card);box-shadow:var(--sh);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 14px;gap:10px}
+.subnav-lbl{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);white-space:nowrap}
+.tabs{display:flex;gap:2px}
 .tbtn{padding:4px 12px;border-radius:6px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:500;cursor:pointer;transition:all .2s}
 .tbtn.active{background:var(--acc-bg);color:var(--acc)}
 .tbtn:hover:not(.active):not(:disabled){background:rgba(0,0,0,.04);color:var(--txt)}
 [data-theme="dark"] .tbtn:hover:not(.active):not(:disabled){background:rgba(255,255,255,.06)}
 .tbtn:disabled{opacity:.3;cursor:not-allowed}
 .bdg{font-size:.57rem;background:var(--gold-bg);color:var(--gold);border-radius:4px;padding:1px 4px;margin-left:2px;vertical-align:middle}
-.theme-btn{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:20px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .2s;flex-shrink:0}
-.theme-btn:hover{border-color:var(--acc-bdr);color:var(--acc)}
-.sind{font-size:.68rem;color:var(--txt3);white-space:nowrap;transition:color .4s;flex-shrink:0}
+.sind{font-size:.68rem;color:var(--txt3);white-space:nowrap;transition:color .4s;flex-shrink:0;margin-left:auto}
 .sind.saving{color:var(--gold)}.sind.saved{color:var(--success)}
 
 /* ═══ TAB PANELS ════════════════════════════════════════════════════════ */
@@ -360,22 +360,18 @@ input[type=range]:focus{border:none;box-shadow:none}
 .card:nth-child(6){animation-delay:.20s}.card:nth-child(7){animation-delay:.24s}
 </style>
 </head>
-<body>
+<body data-app="retiresmart">
 
-<!-- ══════════════════════ HEADER ══════════════════════════════════════ -->
+<!-- ══════════════════════ PLATFORM BAR (shared, rendered by platform.js) ══ -->
+<div id="pw-bar"></div>
+<!-- ══════════════════════ RETIRESMART SUB-NAV ════════════════════════════ -->
 <header class="hdr">
-  <div class="hdr-in">
-    <div class="logo">💼 RetireSmart</div>
-    <nav class="tabs">
-      <button class="tbtn active" id="tbtn-retirement" onclick="switchTab('retirement')">📊 Retirement</button>
-      <button class="tbtn" id="tbtn-currency" onclick="switchTab('currency')">💱 Currency</button>
-      <button class="tbtn" disabled>📈 Investing <span class="bdg">Soon</span></button>
-      <button class="tbtn" disabled>🔬 Research <span class="bdg">Soon</span></button>
-      <button class="tbtn" disabled>📰 News <span class="bdg">Soon</span></button>
-    </nav>
-    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()">🌙 Dark</button>
-    <div class="sind" id="sind">Auto-saved ✓</div>
-  </div>
+  <span class="subnav-lbl">RetireSmart</span>
+  <nav class="tabs">
+    <button class="tbtn active" id="tbtn-retirement" onclick="switchTab('retirement')">📊 Retirement</button>
+    <button class="tbtn" id="tbtn-currency" onclick="switchTab('currency')">💱 Currency</button>
+  </nav>
+  <div class="sind" id="sind">Auto-saved ✓</div>
 </header>
 
 <!-- ══════════════════════════════════════════════════════════════════════
@@ -884,14 +880,12 @@ function switchTab(name){
 }
 
 /* ── THEME ──────────────────────────────────────────── */
-function toggleTheme(){
-  const dk=isDark();
-  document.documentElement.dataset.theme=dk?'light':'dark';
-  $('theme-btn').textContent=dk?'🌙 Dark':'☀️ Light';
-  localStorage.setItem('rs_theme',dk?'light':'dark');
+// Theme is owned by the shared platform shell (platform.js). When it toggles,
+// re-render our theme-dependent charts.
+window.addEventListener('pw-theme-change',()=>{
   if(retChart)recalc();
   if(activeTab==='currency')renderCurrencyDash();
-}
+});
 
 /* ── COLLAPSIBLE ────────────────────────────────────── */
 function tog(id){
@@ -1893,10 +1887,7 @@ function refreshCardFilledStates(){
 
 /* ── INIT ───────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
-  const t=localStorage.getItem('rs_theme')||'light';
-  document.documentElement.dataset.theme=t;
-  $('theme-btn').textContent=t==='dark'?'☀️ Light':'🌙 Dark';
-
+  // Theme is applied by platform.js (shared across all PlanWise apps).
   $('dob').addEventListener('change',recalc);
   $('rage').addEventListener('input',()=>{updQbs(+$('rage').value);recalc()});
   $('rcountry').addEventListener('change',onCountry);
