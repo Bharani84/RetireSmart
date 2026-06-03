@@ -123,6 +123,7 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .f{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
 .f:last-child{margin-bottom:0}
 .f label{font-size:.65rem;font-weight:600;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase}
+.f input.solved{background:var(--acc-bg);border-color:var(--acc-bdr);color:var(--acc);font-weight:700}
 .hint{font-size:.66rem;color:var(--txt3);line-height:1.4}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
@@ -813,15 +814,19 @@ input[type=range]:focus{border:none;box-shadow:none}
     <div class="cbody" id="cbody-cagr"><div class="cbody-in">
       <div class="f">
         <label for="cagr-iv">💵 Initial Value</label>
-        <input type="number" id="cagr-iv" min="0" step="any" placeholder="e.g. 100000" oninput="calcCAGR()">
+        <input type="number" id="cagr-iv" min="0" step="any" placeholder="e.g. 10" oninput="cagrInput('iv')">
       </div>
       <div class="f" style="margin-top:10px">
         <label for="cagr-fv">🏁 Final Value</label>
-        <input type="number" id="cagr-fv" min="0" step="any" placeholder="e.g. 250000" oninput="calcCAGR()">
+        <input type="number" id="cagr-fv" min="0" step="any" placeholder="e.g. 250000" oninput="cagrInput('fv')">
+      </div>
+      <div class="f" style="margin-top:10px">
+        <label for="cagr-rate">📈 CAGR % / year</label>
+        <input type="number" id="cagr-rate" step="any" placeholder="e.g. 20" oninput="cagrInput('cagr')">
       </div>
       <div class="f" style="margin-top:10px">
         <label for="cagr-yrs">📅 Number of Years</label>
-        <input type="number" id="cagr-yrs" min="0.01" step="any" placeholder="e.g. 5" oninput="calcCAGR()">
+        <input type="number" id="cagr-yrs" min="0.01" step="any" placeholder="e.g. 5" oninput="cagrInput('yrs')">
         <div class="qbtns">
           <button class="qb" onclick="setCagrYrs(3)">3</button>
           <button class="qb" onclick="setCagrYrs(5)">5</button>
@@ -831,7 +836,7 @@ input[type=range]:focus{border:none;box-shadow:none}
           <button class="qb" onclick="setCagrYrs(25)">25</button>
         </div>
       </div>
-      <div class="hint" style="margin-top:11px">💡 CAGR is the steady yearly rate that would grow your <strong>Initial Value</strong> into the <strong>Final Value</strong> over the given years — it smooths the ups and downs into one average annual %.</div>
+      <div class="hint" style="margin-top:11px">💡 Fill in any <strong>three</strong> boxes — typically Years plus two of Initial / Final / CAGR — and the fourth fills in automatically (highlighted).</div>
     </div></div>
   </div>
 
@@ -859,16 +864,16 @@ input[type=range]:focus{border:none;box-shadow:none}
 <div class="rp">
   <div class="ph" id="cagr-ph">
     <div class="pi">🧮</div>
-    <div class="pt">Enter values on the left</div>
-    <div class="pp">Fill in the initial value, final value, and number of years to see your compound annual growth rate.</div>
+    <div class="pt">Enter any three values</div>
+    <div class="pp">Type the number of years plus any two of Initial, Final, or CAGR — the calculator fills in the rest automatically.</div>
   </div>
 
   <div id="cagr-results" style="display:none">
     <div class="sumg">
       <div class="sc sc-a"><div class="sl">CAGR (per year)</div><div class="sv" id="cagr-out">—</div><div class="ss" id="cagr-out-sub">Compound annual growth rate</div></div>
+      <div class="sc"><div class="sl">Final Value</div><div class="sv" id="cagr-second">—</div><div class="ss">After the given years</div></div>
       <div class="sc"><div class="sl">Total Growth</div><div class="sv" id="cagr-total">—</div><div class="ss">Over the whole period</div></div>
       <div class="sc"><div class="sl">Growth Multiple</div><div class="sv" id="cagr-mult">—</div><div class="ss">Final ÷ Initial</div></div>
-      <div class="sc"><div class="sl">Absolute Change</div><div class="sv" id="cagr-abs">—</div><div class="ss">Final − Initial</div></div>
     </div>
 
     <div class="chcard">
@@ -978,29 +983,83 @@ function switchTab(name){
   if(name==='cagr')calcCAGR();
 }
 
-/* ── CAGR CALCULATOR ────────────────────────────────── */
-let cagrChart=null;
-function setCagrYrs(y){const e=$('cagr-yrs');if(!e)return;e.value=y;markFilled(e);calcCAGR();}
+/* ── CAGR CALCULATOR ────────────────────────────────────────────────────
+   No mode buttons. Fill any three of {Initial, Final, CAGR, Years} and the
+   fourth auto-computes. The "output" is whichever field is NOT among the three
+   you edited most recently — so as you type, the untouched box fills itself. */
+let cagrChart=null, cagrEntered=[], cagrLastOut=null;
+const CAGR_FIELDS={iv:'cagr-iv',fv:'cagr-fv',cagr:'cagr-rate',yrs:'cagr-yrs'};
+// Track the fields the user has actually typed a value into (recency order).
+// Clearing a box removes it; the box we auto-fill is never added (set programmatically).
+function cagrInput(key){
+  const v=$(CAGR_FIELDS[key]).value;
+  cagrEntered=cagrEntered.filter(k=>k!==key);
+  if(v!=null && v.trim()!=='') cagrEntered.push(key);
+  calcCAGR();
+}
+function setCagrYrs(y){const e=$('cagr-yrs');if(!e)return;e.value=y;markFilled(e);cagrInput('yrs');}
 function calcCAGR(){
-  const iv=parseFloat($('cagr-iv').value);
-  const fv=parseFloat($('cagr-fv').value);
-  const n=parseFloat($('cagr-yrs').value);
-  const valid=iv>0 && fv>0 && n>0;
+  const keys=['iv','fv','cagr','yrs'];
+  keys.forEach(k=>{const el=$(CAGR_FIELDS[k]);if(el)el.classList.remove('solved');});
+
+  // The OUTPUT is whichever field the user has NOT supplied — i.e. the one not among
+  // the three most-recently entered boxes. We auto-fill it and keep recomputing it as
+  // the user edits the other boxes; clearing a box makes it the output again.
+  let output=null;
+  if(cagrEntered.length>=3){const recent3=cagrEntered.slice(-3);output=keys.find(k=>!recent3.includes(k));}
+
+  let iv=parseFloat($('cagr-iv').value);
+  let fv=parseFloat($('cagr-fv').value);
+  let ratePct=parseFloat($('cagr-rate').value);
+  let n=parseFloat($('cagr-yrs').value);
+
+  let valid=false;
+  if(output==='fv'){            // need iv, ratePct, n
+    valid=iv>0 && n>0 && isFinite(ratePct) && ratePct>-100;
+    if(valid)fv=iv*Math.pow(1+ratePct/100,n);
+  } else if(output==='iv'){     // need fv, ratePct, n
+    valid=fv>0 && n>0 && isFinite(ratePct) && ratePct>-100;
+    if(valid)iv=fv/Math.pow(1+ratePct/100,n);
+  } else if(output==='cagr'){   // need iv, fv, n
+    valid=iv>0 && fv>0 && n>0;
+    if(valid)ratePct=(Math.pow(fv/iv,1/n)-1)*100;
+  } else if(output==='yrs'){    // need iv, fv, ratePct
+    valid=iv>0 && fv>0 && isFinite(ratePct) && ratePct>-100 && Math.abs(ratePct)>1e-9;
+    if(valid){n=Math.log(fv/iv)/Math.log(1+ratePct/100); if(!(n>0&&isFinite(n)))valid=false;}
+  }
+
   $('cagr-ph').style.display=valid?'none':'';
   $('cagr-results').style.display=valid?'':'none';
-  if(!valid){if(cagrChart){cagrChart.destroy();cagrChart=null;}return;}
+  if(!valid){
+    // Not enough info — wipe any leftover auto-filled value so nothing stale lingers.
+    if(cagrLastOut && !cagrEntered.includes(cagrLastOut)){$(CAGR_FIELDS[cagrLastOut]).value='';}
+    cagrLastOut=null;
+    if(cagrChart){cagrChart.destroy();cagrChart=null;}
+    return;
+  }
 
-  const cagr=Math.pow(fv/iv,1/n)-1, cagrPct=cagr*100;
-  const totalGrowth=(fv/iv-1)*100, mult=fv/iv, abs=fv-iv;
+  // If the auto-filled field changed, clear the previous one's stale value.
+  if(cagrLastOut && cagrLastOut!==output && !cagrEntered.includes(cagrLastOut)){$(CAGR_FIELDS[cagrLastOut]).value='';}
+  cagrLastOut=output;
+
+  // Write the computed value back into its box and highlight it.
+  const outEl=$(CAGR_FIELDS[output]);
+  outEl.classList.add('solved');
+  if(output==='cagr')outEl.value=+ratePct.toFixed(4);
+  else if(output==='yrs')outEl.value=+n.toFixed(2);
+  else outEl.value=+(output==='fv'?fv:iv).toFixed(2);
+
+  const cagr=ratePct/100;
+  const totalGrowth=(fv/iv-1)*100, mult=fv/iv;
   const nf=v=>v.toLocaleString(undefined,{maximumFractionDigits:2});
 
-  $('cagr-out').textContent=cagrPct.toFixed(2)+'%';
-  $('cagr-out-sub').textContent=cagrPct>=0?'Compound annual growth rate':'Compound annual decline';
+  $('cagr-out').textContent=ratePct.toFixed(2)+'%';
+  $('cagr-out-sub').textContent=ratePct>=0?'Compound annual growth rate':'Compound annual decline';
+  $('cagr-second').textContent=nf(fv);
   $('cagr-total').textContent=(totalGrowth>=0?'+':'')+totalGrowth.toFixed(2)+'%';
   $('cagr-mult').textContent=mult.toFixed(2)+'×';
-  $('cagr-abs').textContent=(abs>=0?'+':'')+nf(abs);
   $('cagr-badge').style.display='';
-  $('cagr-badge').textContent=`📈 ${cagrPct.toFixed(2)}% / yr`;
+  $('cagr-badge').textContent=`📈 ${ratePct.toFixed(2)}% / yr`;
 
   // Year-by-year value series for chart + table (whole years, plus a final partial year if needed)
   const labels=[], data=[], whole=Math.floor(n);
