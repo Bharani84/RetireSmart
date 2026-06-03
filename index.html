@@ -377,6 +377,7 @@ input[type=range]:focus{border:none;box-shadow:none}
   <nav class="tabs">
     <button class="tbtn active" id="tbtn-retirement" onclick="switchTab('retirement')">📊 Retirement</button>
     <button class="tbtn" id="tbtn-currency" onclick="switchTab('currency')">💱 Currency</button>
+    <button class="tbtn" id="tbtn-cagr" onclick="switchTab('cagr')">🧮 CAGR</button>
   </nav>
   <div class="sind" id="sind">Auto-saved ✓</div>
 </header>
@@ -795,6 +796,96 @@ input[type=range]:focus{border:none;box-shadow:none}
 </div><!-- /tab-currency -->
 
 
+<!-- ══════════════════════════════════════════════════════════════════════
+     TAB 3 — CAGR CALCULATOR
+══════════════════════════════════════════════════════════════════════════ -->
+<div id="tab-cagr" class="tab-panel">
+<div class="layout">
+
+<!-- LEFT: CAGR inputs -->
+<div class="lp">
+  <div class="card">
+    <div class="ch" onclick="tog('cagr')">
+      <div class="ci ci-t">🧮</div>
+      <div class="ctxt"><div class="ct">CAGR Calculator</div><div class="csum">Compound Annual Growth Rate</div></div>
+      <div class="chev up" id="chev-cagr">▾</div>
+    </div>
+    <div class="cbody" id="cbody-cagr"><div class="cbody-in">
+      <div class="f">
+        <label for="cagr-iv">💵 Initial Value</label>
+        <input type="number" id="cagr-iv" min="0" step="any" placeholder="e.g. 100000" oninput="calcCAGR()">
+      </div>
+      <div class="f" style="margin-top:10px">
+        <label for="cagr-fv">🏁 Final Value</label>
+        <input type="number" id="cagr-fv" min="0" step="any" placeholder="e.g. 250000" oninput="calcCAGR()">
+      </div>
+      <div class="f" style="margin-top:10px">
+        <label for="cagr-yrs">📅 Number of Years</label>
+        <input type="number" id="cagr-yrs" min="0.01" step="any" placeholder="e.g. 5" oninput="calcCAGR()">
+        <div class="qbtns">
+          <button class="qb" onclick="setCagrYrs(3)">3</button>
+          <button class="qb" onclick="setCagrYrs(5)">5</button>
+          <button class="qb" onclick="setCagrYrs(10)">10</button>
+          <button class="qb" onclick="setCagrYrs(15)">15</button>
+          <button class="qb" onclick="setCagrYrs(20)">20</button>
+          <button class="qb" onclick="setCagrYrs(25)">25</button>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:11px">💡 CAGR is the steady yearly rate that would grow your <strong>Initial Value</strong> into the <strong>Final Value</strong> over the given years — it smooths the ups and downs into one average annual %.</div>
+    </div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch" onclick="tog('cagrhelp')">
+      <div class="ci ci-b">📘</div>
+      <div class="ctxt"><div class="ct">How CAGR Works</div><div class="csum">Formula &amp; example</div></div>
+      <div class="chev" id="chev-cagrhelp">▾</div>
+    </div>
+    <div class="cbody closed" id="cbody-cagrhelp"><div class="cbody-in">
+      <div style="font-size:.8rem;line-height:1.8;color:var(--txt2)">
+        <p style="margin-bottom:8px"><strong>Formula:</strong> CAGR = (Final ÷ Initial)<sup>(1 ÷ years)</sup> − 1</p>
+        <p style="margin-bottom:8px"><strong>Example:</strong> 100,000 → 250,000 in 5 years → (2.5)<sup>1/5</sup> − 1 = <strong>20.11% / yr</strong>.</p>
+        <p style="margin-bottom:8px"><strong>Why it matters:</strong> Real returns jump around year to year. CAGR is the single smooth rate that would produce the same end result — perfect for comparing investments fairly.</p>
+        <p><strong>Note:</strong> CAGR ignores in-between volatility and any deposits/withdrawals made along the way.</p>
+      </div>
+    </div></div>
+  </div>
+</div><!-- /lp cagr -->
+
+<!-- Draggable splitter -->
+<div class="splitter" title="Drag to resize panels"></div>
+
+<!-- RIGHT: CAGR results -->
+<div class="rp">
+  <div class="ph" id="cagr-ph">
+    <div class="pi">🧮</div>
+    <div class="pt">Enter values on the left</div>
+    <div class="pp">Fill in the initial value, final value, and number of years to see your compound annual growth rate.</div>
+  </div>
+
+  <div id="cagr-results" style="display:none">
+    <div class="sumg">
+      <div class="sc sc-a"><div class="sl">CAGR (per year)</div><div class="sv" id="cagr-out">—</div><div class="ss" id="cagr-out-sub">Compound annual growth rate</div></div>
+      <div class="sc"><div class="sl">Total Growth</div><div class="sv" id="cagr-total">—</div><div class="ss">Over the whole period</div></div>
+      <div class="sc"><div class="sl">Growth Multiple</div><div class="sv" id="cagr-mult">—</div><div class="ss">Final ÷ Initial</div></div>
+      <div class="sc"><div class="sl">Absolute Change</div><div class="sv" id="cagr-abs">—</div><div class="ss">Final − Initial</div></div>
+    </div>
+
+    <div class="chcard">
+      <div class="chtitle"><span>📈 Growth Over Time</span><span id="cagr-badge" class="gr-badge" style="display:none"></span></div>
+      <div class="chw" style="height:235px"><canvas id="cagr-chart"></canvas></div>
+    </div>
+
+    <div class="tcard">
+      <div class="tchead"><div class="tct">📅 Year-by-Year Value</div><div class="hint">Growing at the steady CAGR rate</div></div>
+      <div class="tinr"><table class="ytbl"><thead><tr><th>Year</th><th>Value</th><th>Gain that year</th><th>Cumulative growth</th></tr></thead><tbody id="cagr-body"></tbody></table></div>
+    </div>
+  </div>
+</div><!-- /rp cagr -->
+</div><!-- /layout cagr -->
+</div><!-- /tab-cagr -->
+
+
 <!-- ══════════════════════ MODAL HOST (used by profile actions) ══════════════════ -->
 <div id="modal-host"></div>
 
@@ -884,6 +975,68 @@ function switchTab(name){
   document.querySelectorAll('.tbtn[id^="tbtn-"]').forEach(b=>b.classList.remove('active'));
   $(`tbtn-${name}`).classList.add('active');
   if(name==='currency')renderCurrencyDash();
+  if(name==='cagr')calcCAGR();
+}
+
+/* ── CAGR CALCULATOR ────────────────────────────────── */
+let cagrChart=null;
+function setCagrYrs(y){const e=$('cagr-yrs');if(!e)return;e.value=y;markFilled(e);calcCAGR();}
+function calcCAGR(){
+  const iv=parseFloat($('cagr-iv').value);
+  const fv=parseFloat($('cagr-fv').value);
+  const n=parseFloat($('cagr-yrs').value);
+  const valid=iv>0 && fv>0 && n>0;
+  $('cagr-ph').style.display=valid?'none':'';
+  $('cagr-results').style.display=valid?'':'none';
+  if(!valid){if(cagrChart){cagrChart.destroy();cagrChart=null;}return;}
+
+  const cagr=Math.pow(fv/iv,1/n)-1, cagrPct=cagr*100;
+  const totalGrowth=(fv/iv-1)*100, mult=fv/iv, abs=fv-iv;
+  const nf=v=>v.toLocaleString(undefined,{maximumFractionDigits:2});
+
+  $('cagr-out').textContent=cagrPct.toFixed(2)+'%';
+  $('cagr-out-sub').textContent=cagrPct>=0?'Compound annual growth rate':'Compound annual decline';
+  $('cagr-total').textContent=(totalGrowth>=0?'+':'')+totalGrowth.toFixed(2)+'%';
+  $('cagr-mult').textContent=mult.toFixed(2)+'×';
+  $('cagr-abs').textContent=(abs>=0?'+':'')+nf(abs);
+  $('cagr-badge').style.display='';
+  $('cagr-badge').textContent=`📈 ${cagrPct.toFixed(2)}% / yr`;
+
+  // Year-by-year value series for chart + table (whole years, plus a final partial year if needed)
+  const labels=[], data=[], whole=Math.floor(n);
+  for(let k=0;k<=whole;k++){labels.push('Yr '+k);data.push(iv*Math.pow(1+cagr,k));}
+  if(n>whole){labels.push('Yr '+(Number.isInteger(n)?n:n.toFixed(1)));data.push(fv);}
+
+  const rows=[]; let prev=iv;
+  for(let k=1;k<=whole;k++){
+    const val=iv*Math.pow(1+cagr,k), gain=val-prev, cum=(val/iv-1)*100;
+    rows.push(`<tr><td>Year ${k}</td><td>${nf(val)}</td><td class="${gain>=0?'cg':'cr'}">${gain>=0?'+':''}${nf(gain)}</td><td>${cum>=0?'+':''}${cum.toFixed(1)}%</td></tr>`);
+    prev=val;
+  }
+  if(n>whole){
+    const gain=fv-prev;
+    rows.push(`<tr class="rret"><td>Year ${Number.isInteger(n)?n:n.toFixed(1)} 🏁</td><td>${nf(fv)}</td><td class="${gain>=0?'cg':'cr'}">${gain>=0?'+':''}${nf(gain)}</td><td>${totalGrowth>=0?'+':''}${totalGrowth.toFixed(1)}%</td></tr>`);
+  }
+  $('cagr-body').innerHTML=rows.join('');
+
+  drawCagrChart(labels,data);
+}
+function drawCagrChart(labels,data){
+  const ctx=$('cagr-chart').getContext('2d');
+  const dk=document.documentElement.getAttribute('data-theme')==='dark';
+  const aC=dk?'#00d4aa':'#0891b2';
+  const compact=v=>new Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:1}).format(v);
+  if(cagrChart)cagrChart.destroy();
+  cagrChart=new Chart(ctx,{
+    type:'line',
+    data:{labels,datasets:[{label:'Value',data,borderColor:aC,borderWidth:2.5,pointRadius:labels.length<=20?3:0,tension:.35,fill:true,backgroundColor:dk?'rgba(0,212,170,.07)':'rgba(8,145,178,.07)'}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:dk?'rgba(10,20,40,.96)':'rgba(255,255,255,.97)',titleColor:dk?'#f0f4f8':'#1e293b',bodyColor:dk?'rgba(240,244,248,.7)':'#64748b',borderColor:dk?'rgba(255,255,255,.1)':'rgba(0,0,0,.1)',borderWidth:1,padding:9,callbacks:{label:c=>' '+c.raw.toLocaleString(undefined,{maximumFractionDigits:2})}}},
+      scales:{
+        x:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}},
+        y:{grid:{color:dk?'rgba(255,255,255,.04)':'rgba(0,0,0,.05)'},ticks:{color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10},callback:v=>compact(v)},title:{display:true,text:'Value',color:dk?'rgba(240,244,248,.35)':'#94a3b8',font:{size:10}}}
+      }}
+  });
 }
 
 /* ── THEME ──────────────────────────────────────────── */
@@ -892,6 +1045,7 @@ function switchTab(name){
 window.addEventListener('pw-theme-change',()=>{
   if(retChart)recalc();
   if(activeTab==='currency')renderCurrencyDash();
+  if(activeTab==='cagr')calcCAGR();
 });
 
 /* ── COLLAPSIBLE ────────────────────────────────────── */
