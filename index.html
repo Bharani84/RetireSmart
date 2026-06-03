@@ -1333,7 +1333,7 @@ function renderAssetView(){
   const tv=lastAssetData.filter(r=>r.type!=='Income').reduce((s,r)=>s+r.val,0);
   // Sort
   rows=[...rows].sort((a,b)=>{
-    const col=abkSort.col==='alloc'?'val':abkSort.col==='def'?'type':abkSort.col;
+    const col=abkSort.col==='alloc'?'val':abkSort.col==='def'?'type':abkSort.col==='mg'?'ag':abkSort.col;
     let va=a[col],vb=b[col];
     if(typeof va==='string')va=va.toLowerCase(),vb=vb.toLowerCase();
     return abkSort.dir*(va>vb?1:va<vb?-1:0);
@@ -1347,6 +1347,7 @@ function renderAssetView(){
       {key:'val',label:`Value (${RC.c})`},
       {key:'irate',label:'Gr. Rate'},
       {key:'ag',label:'Annual $ Growth'},
+      {key:'mg',label:'Monthly $ Growth'},
     ];
     const tagCls=t=>t==='Cash'?'abk-cash':t==='Investment'?'abk-inv':'abk-inc';
     const headHtml=cols.map(c=>{
@@ -1360,6 +1361,7 @@ function renderAssetView(){
       const inactiveTag=r._inactive?` <span style="font-size:.58rem;background:var(--warn-bg);color:var(--warn);border-radius:4px;padding:1px 5px;font-weight:700">⚠️ not added (0yr to retire)</span>`:'';
       const valCell=r.type==='Income'?`<span style="color:var(--success);font-weight:700">${fmtF(r._saveMo||0)}/mo saved</span>${inactiveTag}`:(r.noRate?`<span style="color:var(--warn)">${r.cur} — set rate in Currency tab</span>`:fmtF(r.val));
       const grCell=r.ag>0?`<span class="cg">+${fmtK(r.ag)}/yr</span>`:r.ag<0?`<span class="cr">${fmtK(r.ag)}/yr</span>`:`<span style="color:var(--txt3)">—</span>`;
+      const mgCell=r.ag>0?`<span class="cg">+${fmtK(r.ag/12)}/mo</span>`:r.ag<0?`<span class="cr">${fmtK(r.ag/12)}/mo</span>`:`<span style="color:var(--txt3)">—</span>`;
       const sipBadge=r._sipMo>0?` <span style="color:var(--success);font-size:.65rem;font-weight:600">+${fmtF(r._sipMo)}/mo SIP</span>`:'';
       // GR. RATE: show EFFECTIVE rate (asset growth × currency change) so it matches the Annual $ Growth column.
       // For foreign-currency rows with non-zero fx change, add a small breakdown line + tooltip.
@@ -1376,7 +1378,7 @@ function renderAssetView(){
           curGrCell=`${_ir.toFixed(1)}%`;
         }
       }
-      return`<tr><td><strong>${r.label||'—'}</strong>${noRateBadge}</td><td><span class="abk-tag ${tagCls(r.type)}">${r.type}</span></td><td>${pct}</td><td>${valCell}</td><td>${curGrCell}</td><td>${grCell}${sipBadge}</td></tr>`;
+      return`<tr><td><strong>${r.label||'—'}</strong>${noRateBadge}</td><td><span class="abk-tag ${tagCls(r.type)}">${r.type}</span></td><td>${pct}</td><td>${valCell}</td><td>${curGrCell}</td><td>${grCell}${sipBadge}</td><td>${mgCell}</td></tr>`;
     }).join('');
     const totAg=lastAssetData.reduce((s,r)=>s+r.ag,0);
     // Portfolio-wide effective growth rate: weighted by value across non-Income assets, including currency effects.
@@ -1386,8 +1388,8 @@ function renderAssetView(){
       <div style="overflow-x:auto">
       <table class="abk-tbl">
         <thead><tr>${headHtml}</tr></thead>
-        <tbody>${bodyHtml||'<tr><td colspan="6" style="text-align:center;color:var(--txt3);padding:10px">No results</td></tr>'}</tbody>
-        <tfoot><tr><td><strong>Total</strong></td><td></td><td>100%</td><td style="color:var(--acc);font-size:.84rem">${fmtF(tv)}</td><td title="Value-weighted effective rate across all assets, including currency change"><strong>${totEffRate.toFixed(1)}%</strong></td><td class="cg">+${fmtK(totAg)}/yr</td></tr></tfoot>
+        <tbody>${bodyHtml||'<tr><td colspan="7" style="text-align:center;color:var(--txt3);padding:10px">No results</td></tr>'}</tbody>
+        <tfoot><tr><td><strong>Total</strong></td><td></td><td>100%</td><td style="color:var(--acc);font-size:.84rem">${fmtF(tv)}</td><td title="Value-weighted effective rate across all assets, including currency change"><strong>${totEffRate.toFixed(1)}%</strong></td><td class="cg">+${fmtK(totAg)}/yr</td><td class="cg">+${fmtK(totAg/12)}/mo</td></tr></tfoot>
       </table></div>`;
   } else {
     // Chart view: horizontal bars
