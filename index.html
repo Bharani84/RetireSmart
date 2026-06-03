@@ -240,6 +240,13 @@ input[type=range]:focus{border:none;box-shadow:none}
 .sc .sl{font-size:.63rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
 .sc .sv{font-size:1.2rem;font-weight:800;line-height:1}
 .sc .ss{font-size:.65rem;color:var(--txt2);margin-top:3px}
+.sc .sl .info-i{position:relative;font-size:.62rem;color:var(--txt3);cursor:help;margin-left:1px}
+/* Instant custom tooltip (no native title delay) */
+.info-i::after{content:attr(data-tip);position:absolute;top:165%;right:-6px;left:auto;width:215px;background:rgba(76,91,122,.97);color:#f4f7fb;padding:7px 9px;border-radius:7px;font-size:.66rem;font-weight:500;line-height:1.4;letter-spacing:0;text-transform:none;text-align:left;box-shadow:0 6px 18px rgba(30,41,59,.18);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .1s ease;z-index:400}
+.info-i::before{content:'';position:absolute;top:165%;right:3px;left:auto;transform:translateY(-100%);border:5px solid transparent;border-bottom-color:rgba(76,91,122,.97);opacity:0;visibility:hidden;transition:opacity .1s ease;z-index:400}
+.info-i:hover::after,.info-i:hover::before{opacity:1;visibility:visible}
+.sc .ss.growth-note{color:var(--txt3);font-size:.62rem;margin-top:5px;padding-top:5px;border-top:1px dashed var(--bdr)}
+.sc .ss.growth-note:empty{display:none}
 .sc-a{border-color:var(--acc-bdr)}.sc-a .sv{color:var(--acc)}
 .sc-g{border-color:rgba(217,119,6,.22)}.sc-g .sv{color:var(--gold)}
 .sc-ok .sv{color:var(--success)}.sc-bad .sv{color:var(--danger)}
@@ -609,7 +616,7 @@ input[type=range]:focus{border:none;box-shadow:none}
       <div class="sc sc-a"><div class="sl">Total Savings Today</div><div class="sv" id="s-today">—</div><div class="ss" id="s-today-sub">—</div></div>
       <div class="sc sc-g"><div class="sl">Savings at Retirement</div><div class="sv" id="s-retire">—</div><div class="ss" id="s-retire-sub">—</div></div>
       <div class="sc"><div class="sl">Monthly Income from Portfolio</div><div class="sv" id="s-budget">—</div><div class="ss" id="s-budget-sub">At retirement</div></div>
-      <div class="sc" id="s-last-card"><div class="sl">Funds Last Until</div><div class="sv" id="s-last">—</div><div class="ss" id="s-last-sub">—</div></div>
+      <div class="sc" id="s-last-card"><div class="sl">Funds Last Until <span class="info-i" id="s-last-info" data-tip="Based on your portfolio's blended growth rate — cash + investments are combined into one pot that grows at a single blended rate.">ⓘ</span></div><div class="sv" id="s-last">—</div><div class="ss" id="s-last-sub">—</div><div class="ss growth-note" id="s-last-growth"></div></div>
     </div>
     <div class="abk-card">
       <div class="abk-head">
@@ -1492,6 +1499,10 @@ function recalc(){
   const slc=$('s-last-card');
   if(!depAge||depAge>=endAge){$('s-last').textContent=`Age ${endAge}+`;$('s-last-sub').textContent='🎉 Lasts the full period!';slc.className='sc sc-ok'}
   else{$('s-last').textContent=`Age ${depAge}`;$('s-last-sub').textContent='⚠️ Runs out early';slc.className='sc sc-bad'}
+  // Short clarifier: this projection assumes the whole pot grows at one blended rate.
+  const hasPortfolio=!(Math.abs(pr)<1&&Math.abs(totToday)<1);
+  $('s-last-growth').textContent=hasPortfolio?`Assumes ${wg.toFixed(1)}% blended growth`:'';
+  $('s-last-info').setAttribute('data-tip',`Based on your portfolio's blended growth rate (${wg.toFixed(1)}% / yr) — cash + investments are combined into one pot that grows at a single blended rate.`);
 
   renderAssets();
 
