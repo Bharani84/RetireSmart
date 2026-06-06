@@ -234,6 +234,7 @@ input[type=range]:focus{border:none;box-shadow:none}
 .sg{background:var(--succ-bg);border:1px solid rgba(22,163,74,.25);color:var(--success)}
 .sw{background:var(--warn-bg);border:1px solid rgba(202,138,4,.25);color:var(--warn)}
 .sb{background:var(--dang-bg);border:1px solid rgba(220,38,38,.25);color:var(--danger)}
+.sn{background:var(--ibg);border:1px solid var(--bdr);color:var(--txt2)}
 .sumg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .sumg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
 .sc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:11px;box-shadow:var(--sh);transition:transform .2s}
@@ -251,7 +252,7 @@ input[type=range]:focus{border:none;box-shadow:none}
 .sc-a{border-color:var(--acc-bdr)}.sc-a .sv{color:var(--acc)}
 .sc-g{border-color:rgba(217,119,6,.22)}.sc-g .sv{color:var(--gold)}
 .sc-ok .sv{color:var(--success)}.sc-bad .sv{color:var(--danger)}
-.cg{color:var(--success)}.cr{color:var(--danger)}.cgo{color:var(--gold)}
+.cg{color:var(--success)}.cr{color:var(--danger)}.cgo{color:var(--gold)}.cw{color:var(--warn)}
 
 /* ═══ ASSET BREAKDOWN ═══════════════════════════════════════════════════ */
 .abk-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:11px;box-shadow:var(--sh);overflow:hidden}
@@ -938,17 +939,17 @@ const $=id=>document.getElementById(id);
 const nid=()=>++uid;
 function fmtK(n){
   if(!isFinite(n))return'—';
-  const s=RC.s,a=Math.abs(n);
-  if(a>=1e9)return s+(n/1e9).toFixed(1)+'B';
-  if(a>=1e6)return s+(n/1e6).toFixed(2)+'M';
-  if(a>=1e3)return s+(n/1e3).toFixed(0)+'K';
-  return s+n.toFixed(0);
+  const s=RC.s,neg=n<0?'-':'',a=Math.abs(n);
+  if(a>=1e9)return neg+s+(a/1e9).toFixed(1)+'B';
+  if(a>=1e6)return neg+s+(a/1e6).toFixed(2)+'M';
+  if(a>=1e3)return neg+s+(a/1e3).toFixed(0)+'K';
+  return neg+s+a.toFixed(0);
 }
 function fmtF(n){
   if(!isFinite(n))return'—';
-  const a=Math.abs(n);
-  if(a>=1e6)return RC.s+(n/1e6).toFixed(2)+'M';
-  return RC.s+n.toLocaleString('en',{maximumFractionDigits:0});
+  const neg=n<0?'-':'',a=Math.abs(n);
+  if(a>=1e6)return neg+RC.s+(a/1e6).toFixed(2)+'M';
+  return neg+RC.s+a.toLocaleString('en',{maximumFractionDigits:0});
 }
 function dR(){clearTimeout(rcT);rcT=setTimeout(recalc,320)}
 // Safe slider value — 0 is valid, only fall back to def when field is empty/NaN
@@ -1618,7 +1619,7 @@ function recalc(){
   let curAge=null,ytr=null;
   if(dv){
     curAge=calcAge(dv);ytr=Math.max(0,rAge-curAge);
-    $('age-badge').style.display='flex';$('age-txt').textContent=`You are ${curAge} years old`;
+    $('age-badge').style.display='flex';$('age-txt').textContent=`You are ${curAge} year${curAge===1?'':'s'} old`;
     $('ytr-b').style.display='flex';
     if(ytr<=0){$('ytr-txt').textContent='You\'ve reached retirement age! 🎉';$('ytr-hint').textContent=''}
     else{const ry=new Date().getFullYear()+ytr;$('ytr-txt').textContent=`${ytr} year${ytr===1?'':'s'} to go`;$('ytr-hint').textContent=`Estimated retirement: ${ry}`}
@@ -1686,8 +1687,13 @@ function recalc(){
   for(let i=1;i<base.bs.length;i++){if(base.bs[i]===0){depAge=base.lb[i];break}}
   const endAge=rAge+ryrs;
 
+  // When there's effectively no portfolio at retirement, show a neutral prompt
+  // instead of an alarming "runs out" message (nothing has been entered yet).
+  const noMoney = pr<1;
+
   let stH='';
-  if(!depAge||depAge>=endAge)stH=`<div class="status sg">✅ Great news — your savings look like they'll last through retirement!</div>`;
+  if(noMoney)stH=`<div class="status sn">➕ Add your cash, investments, or income on the left to see your retirement projection.</div>`;
+  else if(!depAge||depAge>=endAge)stH=`<div class="status sg">✅ Great news — your savings look like they'll last through retirement!</div>`;
   else if(depAge>=rAge+ryrs*.6)stH=`<div class="status sw">⚠️ Your savings may start running low around age ${depAge}. A little more saving now could make a big difference.</div>`;
   else stH=`<div class="status sb">🚨 At this rate, savings could run out around age ${depAge}. Try increasing your monthly savings or trimming your retirement budget.</div>`;
   $('status-wrap').innerHTML=stH;
@@ -1700,7 +1706,10 @@ function recalc(){
   $('s-retire-sub').textContent=`After ${ytr}yr${hasSip&&hasIncomeSav?' incl. SIP & income savings':hasSip?' incl. monthly SIP':hasIncomeSav?' incl. income savings':''}`;
   const wrMon=aWRet_planned/12;    // sustainable monthly income at the set withdrawal rate
   const sBud=$('s-budget');
-  if(expMo>0&&budgetOverrides){
+  if(noMoney){
+    sBud.textContent='—';
+    $('s-budget-sub').textContent='Add assets to see income';
+  } else if(expMo>0&&budgetOverrides){
     // Budget exceeds sustainable withdrawal — show sustainable income, warn about shortfall
     sBud.innerHTML=`<span style="color:var(--danger,#dc2626)">${fmtF(wrMon)}/mo</span>`;
     $('s-budget-sub').innerHTML=`At ${wrRate}% · <span style="color:var(--danger,#dc2626)">⚠️ Budget ${fmtF(mBudRet)}/mo exceeds income — ${fmtF(mBudRet-wrMon)}/mo drawn from principal</span>`;
@@ -1712,7 +1721,8 @@ function recalc(){
     $('s-budget-sub').textContent=`At ${wrRate}% withdrawal rate`;
   }
   const slc=$('s-last-card');
-  if(!depAge||depAge>=endAge){$('s-last').textContent=`Age ${endAge}+`;$('s-last-sub').textContent='🎉 Lasts the full period!';slc.className='sc sc-ok'}
+  if(noMoney){$('s-last').textContent='—';$('s-last-sub').textContent='Add assets to project';slc.className='sc'}
+  else if(!depAge||depAge>=endAge){$('s-last').textContent=`Age ${endAge}+`;$('s-last-sub').textContent='🎉 Lasts the full period!';slc.className='sc sc-ok'}
   else{$('s-last').textContent=`Age ${depAge}`;$('s-last-sub').textContent='⚠️ Runs out early';slc.className='sc sc-bad'}
   // Short clarifier: this projection assumes the whole pot grows at one blended rate.
   const hasPortfolio=!(Math.abs(pr)<1&&Math.abs(totToday)<1);
@@ -1761,15 +1771,19 @@ function recalc(){
   const rowsHtml=[];
   for(let i=0;i<base.lb.length;i++){
     const age=base.lb[i],bal=base.bs[i],sp=aWRet*Math.pow(1+infl/100,i),ann=Math.min(bal,sp);
-    // Monthly Income column = WR-based sustainable income (matches L4 card). Annual Withdrawal still shows actual draw incl. principal.
+    // A "shortfall" year = the balance couldn't fully fund the planned withdrawal (you're draining the last of it).
+    const shortfall=bal>0 && ann<sp-1;
+    // Monthly Income column = WR-based sustainable income (matches L4 card) in normal years; in a
+    // shortfall year it shows what's actually affordable (the capped draw), not the planned figure.
     const spPlanned=aWRet_planned*Math.pow(1+infl/100,i);
-    const mon=bal>0?spPlanned/12:0;
+    const mon=bal>0?(shortfall?ann/12:spPlanned/12):0;
     // Year-i monthly budget (inflation-adjusted). When sustainable income falls short, highlight red.
     const budMo=mBudRet*Math.pow(1+infl/100,i);
     const monShort=mon>0 && expMo>0 && mon<budMo;
     const isFirst=i===0, isZero=bal===0;
+    const statusCell=isZero?'<span class="cr">⚠️ Out</span>':shortfall?'<span class="cw">⚠️ Low</span>':'<span class="cg">✅</span>';
     rowsHtml.push({
-      html:`<td>${sy2+ytr+i}</td><td class="${isFirst?'cgo':''}">${age}${isFirst?' 🎉':''}</td><td class="${bal>0?'cg':'cr'}">${bal>0?fmtF(bal):'Depleted ⚠️'}</td><td>${ann>0?fmtF(ann):'—'}</td><td class="${monShort?'cr':''}" title="${monShort?'Below your monthly budget of '+fmtF(budMo):''}">${mon>0?fmtF(mon):'—'}</td><td>${bal>0?'<span class="cg">✅</span>':'<span class="cr">⚠️ Out</span>'}</td>`,
+      html:`<td>${sy2+ytr+i}</td><td class="${isFirst?'cgo':''}">${age}${isFirst?' 🎉':''}</td><td class="${bal>0?'cg':'cr'}">${bal>0?fmtF(bal):'Depleted ⚠️'}</td><td>${ann>0?fmtF(ann):'—'}</td><td class="${monShort?'cr':''}" title="${monShort?'Below your monthly budget of '+fmtF(budMo):''}">${mon>0?fmtF(mon):'—'}</td><td>${statusCell}</td>`,
       cls: isFirst?'rret':'',
       st: isZero?'opacity:.6':''
     });
