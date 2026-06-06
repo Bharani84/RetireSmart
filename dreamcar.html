@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarSmart — The Smart Way to Buy, Finance, Run & Sell a Car</title>
+<meta name="description" content="A car dealer's-eye toolkit: buy new vs used vs lease, optimise your loan, beat depreciation, save tax & insurance, and sell at the right time — for Canada and India.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="platform.css">
+<script src="platform.js"></script>
+<style>
+/* ═══ TOKENS ═══════════════════════════════════════════════════════════ */
+:root{
+  --hh:92px; /* pw-bar (52) + sub-nav (40) */
+  --lpw:440px;
+  --bg:#eef2f7; --lp:#f5f7fc; --card:#fff;
+  --bdr:rgba(0,0,0,.07); --bdr2:rgba(0,0,0,.13);
+  --acc:#0891b2; --acc-bg:rgba(8,145,178,.09); --acc-bdr:rgba(8,145,178,.22);
+  --gold:#d97706; --gold-bg:rgba(217,119,6,.09);
+  --danger:#dc2626; --dang-bg:rgba(220,38,38,.08);
+  --success:#16a34a; --succ-bg:rgba(22,163,74,.1);
+  --warn:#ca8a04; --warn-bg:rgba(202,138,4,.09);
+  --violet:#7c3aed; --violet-bg:rgba(124,58,237,.1);
+  --txt:#1e293b; --txt2:#64748b; --txt3:#94a3b8;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --ibg:#f8fafc; --r:12px; --rs:8px;
+}
+[data-theme="dark"]{
+  --bg:#07101f; --lp:rgba(0,0,0,.22); --card:rgba(255,255,255,.04);
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(255,255,255,.13);
+  --acc:#00d4aa; --acc-bg:rgba(0,212,170,.1); --acc-bdr:rgba(0,212,170,.22);
+  --gold:#f4a261; --gold-bg:rgba(244,162,97,.1);
+  --danger:#ff6b6b; --dang-bg:rgba(255,107,107,.1);
+  --success:#51cf66; --succ-bg:rgba(81,207,102,.1);
+  --warn:#ffd43b; --warn-bg:rgba(255,212,59,.1);
+  --violet:#a78bfa; --violet-bg:rgba(167,139,250,.12);
+  --txt:#f0f4f8; --txt2:rgba(240,244,248,.55); --txt3:rgba(240,244,248,.3);
+  --sh:none; --ibg:rgba(255,255,255,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.5;font-size:14px;transition:background .3s,color .3s;overflow:hidden}
+
+/* ═══ SUB-NAV ═══════════════════════════════════════════════════════════ */
+.hdr{height:40px;z-index:100;position:relative;background:var(--card);box-shadow:var(--sh);border-bottom:1px solid var(--bdr);display:flex;align-items:center;padding:0 14px;gap:8px;overflow-x:auto}
+.subnav-lbl{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--txt3);white-space:nowrap}
+.tabs{display:flex;gap:2px}
+.tbtn{padding:5px 12px;border-radius:6px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tbtn.active{background:var(--acc-bg);color:var(--acc)}
+.tbtn:hover:not(.active){background:rgba(0,0,0,.04);color:var(--txt)}
+.car-ctry{margin-left:auto;display:flex;gap:4px;flex-shrink:0}
+.car-ctry button{padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.car-ctry button.active{background:var(--acc-bg);color:var(--acc);border-color:var(--acc-bdr)}
+.car-ctry button:hover:not(.active){color:var(--txt)}
+[data-theme="dark"] .tbtn:hover:not(.active){background:rgba(255,255,255,.06)}
+
+/* ═══ PANELS / LAYOUT ═══════════════════════════════════════════════════ */
+.tab-panel{display:none;height:calc(100vh - var(--hh));overflow:hidden}
+.tab-panel.active{display:block}
+.layout{display:grid;grid-template-columns:var(--lpw) 1fr;height:100%;overflow:hidden}
+.lp,.rp{overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+.lp::-webkit-scrollbar,.rp::-webkit-scrollbar{width:5px}
+.lp::-webkit-scrollbar-thumb,.rp::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:2px}
+.lp{padding:12px 11px 40px;background:var(--lp);border-right:1px solid var(--bdr)}
+.rp{padding:14px 16px 50px;background:var(--bg)}
+.rp.full{grid-column:1/-1}
+.full-only .layout{grid-template-columns:1fr}
+.full-only .lp{display:none}
+
+/* ═══ CARDS ═════════════════════════════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);margin-bottom:9px;box-shadow:var(--sh);overflow:hidden;transition:border-color .2s}
+.card:hover{border-color:var(--bdr2)}
+.ch{display:flex;align-items:center;gap:9px;padding:12px 13px;cursor:pointer;user-select:none;transition:background .15s}
+.ch:hover{background:rgba(0,0,0,.02)}
+[data-theme="dark"] .ch:hover{background:rgba(255,255,255,.03)}
+.ci{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.ci-t{background:var(--acc-bg)}.ci-g{background:var(--gold-bg)}.ci-p{background:var(--violet-bg)}.ci-b{background:rgba(59,130,246,.1)}.ci-gr{background:var(--succ-bg)}.ci-d{background:var(--dang-bg)}
+.ctxt{flex:1;min-width:0}
+.ct{font-size:.86rem;font-weight:700;line-height:1.2}
+.csum{font-size:.68rem;color:var(--txt2);margin-top:1px}
+.chev{width:16px;height:16px;display:flex;align-items:center;justify-content:center;color:var(--txt3);font-size:.58rem;transition:transform .3s;flex-shrink:0}
+.chev.up{transform:rotate(180deg)}
+.cbody{overflow:hidden;max-height:6000px;opacity:1;transition:max-height .38s cubic-bezier(.4,0,.2,1),opacity .28s ease}
+.cbody.closed{max-height:0;opacity:0;pointer-events:none}
+.cbody-in{padding:0 13px 14px}
+
+/* ═══ FORMS ═════════════════════════════════════════════════════════════ */
+.f{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.f:last-child{margin-bottom:0}
+.f label{font-size:.65rem;font-weight:600;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase}
+.hint{font-size:.66rem;color:var(--txt3);line-height:1.4}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.inwrap{position:relative;display:flex;align-items:center}
+.inwrap .pre{position:absolute;left:9px;font-size:.8rem;color:var(--txt3);pointer-events:none}
+.inwrap .suf{position:absolute;right:9px;font-size:.72rem;color:var(--txt3);pointer-events:none}
+.inwrap.haspre input{padding-left:24px}
+.inwrap.hassuf input{padding-right:34px}
+input,select{background:var(--ibg);border:1px solid var(--bdr2);border-radius:var(--rs);color:var(--txt);font-family:inherit;font-size:.82rem;padding:8px 9px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-bg)}
+input::placeholder{color:var(--txt3)}
+select option{background:var(--card);color:var(--txt)}
+input[type=number]::-webkit-inner-spin-button{opacity:.35}
+.seg{display:flex;border:1px solid var(--bdr2);border-radius:var(--rs);overflow:hidden}
+.seg button{flex:1;padding:7px 6px;border:none;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.74rem;font-weight:600;cursor:pointer;transition:all .15s}
+.seg button.active{background:var(--acc-bg);color:var(--acc)}
+.seg button:not(:last-child){border-right:1px solid var(--bdr2)}
+
+/* ═══ SLIDERS ═══════════════════════════════════════════════════════════ */
+.slw{display:flex;flex-direction:column;gap:5px;margin-bottom:11px}
+.slh{display:flex;justify-content:space-between;align-items:center}
+.sll{font-size:.65rem;font-weight:600;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase}
+.slv{font-size:.92rem;font-weight:700;color:var(--acc)}
+input[type=range]{-webkit-appearance:none;appearance:none;padding:0;height:5px;border-radius:3px;background:rgba(0,0,0,.1);cursor:pointer;border:none}
+[data-theme="dark"] input[type=range]{background:rgba(255,255,255,.12)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 0 0 3px var(--acc-bg);transition:box-shadow .15s}
+input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)}
+
+/* ═══ RIGHT-PANEL COMPONENTS ════════════════════════════════════════════ */
+.rp-h{font-size:1.05rem;font-weight:800;margin-bottom:2px}
+.rp-sub{font-size:.74rem;color:var(--txt2);margin-bottom:13px}
+.reco{display:flex;gap:11px;align-items:flex-start;background:var(--succ-bg);border:1px solid rgba(22,163,74,.25);border-radius:var(--r);padding:13px 15px;margin-bottom:14px}
+.reco.warn{background:var(--gold-bg);border-color:rgba(217,119,6,.25)}
+.reco.info{background:var(--acc-bg);border-color:var(--acc-bdr)}
+.reco-ico{font-size:1.5rem;flex-shrink:0;line-height:1}
+.reco-t{font-size:.92rem;font-weight:800;margin-bottom:3px}
+.reco-m{font-size:.76rem;color:var(--txt);line-height:1.55}
+.reco-m b{color:inherit}
+
+.kgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 13px;box-shadow:var(--sh)}
+.kpi.hl{background:var(--acc-bg);border-color:var(--acc-bdr)}
+.kpi-l{font-size:.64rem;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.kpi-v{font-size:1.3rem;font-weight:800;line-height:1.05}
+.kpi-s{font-size:.66rem;color:var(--txt3);margin-top:3px}
+.kpi-v.pos{color:var(--success)}.kpi-v.neg{color:var(--danger)}.kpi-v.acc{color:var(--acc)}
+
+.verdict{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px}
+.vc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh);position:relative;transition:all .2s}
+.vc.best{border-color:var(--success);box-shadow:var(--sh),inset 0 0 0 1px var(--success)}
+.vc-badge{position:absolute;top:-9px;left:13px;font-size:.6rem;font-weight:800;background:var(--success);color:#fff;border-radius:5px;padding:2px 8px;letter-spacing:.04em}
+.vc-h{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.vc-ico{font-size:1.2rem}
+.vc-name{font-size:.92rem;font-weight:800}
+.vc-cost{font-size:1.45rem;font-weight:800;line-height:1}
+.vc-costl{font-size:.62rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.vc-rows{margin-top:10px;border-top:1px solid var(--bdr);padding-top:9px}
+.vc-row{display:flex;justify-content:space-between;font-size:.72rem;padding:2px 0;color:var(--txt2)}
+.vc-row b{color:var(--txt);font-weight:600}
+.vc-row.sub{border-top:1px solid var(--bdr);margin-top:4px;padding-top:5px;font-weight:600;color:var(--txt)}
+.vc-row.net{border-top:2px solid var(--acc-bdr);margin-top:4px;padding-top:5px;font-size:.78rem;color:var(--acc);font-weight:800}
+.vc-row.net b{color:var(--acc);font-weight:800}
+
+.rank{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px 6px;box-shadow:var(--sh);margin-bottom:14px}
+.rank h4{font-size:.78rem;font-weight:700;margin-bottom:6px;color:var(--txt2)}
+.rk-row{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.rk-row:last-child{border-bottom:none}
+.rk-pos{width:24px;height:24px;border-radius:50%;background:var(--ibg);color:var(--txt2);font-weight:800;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rk-row.best .rk-pos{background:var(--succ-bg);color:var(--success)}
+.rk-main{flex:1;min-width:0}
+.rk-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+.rk-name{font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rk-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.rk-amt{font-size:.82rem;font-weight:800}
+.rk-barwrap{height:7px;background:var(--ibg);border-radius:4px;overflow:hidden}
+.rk-bar{height:100%;background:var(--acc);border-radius:4px;transition:width .4s}
+.rk-bar.best{background:var(--success)}
+.rk-chip{font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--dang-bg);color:var(--danger);white-space:nowrap}
+.rk-chip.best{background:var(--succ-bg);color:var(--success)}
+.chartbox{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px 14px;box-shadow:var(--sh);margin-bottom:14px}
+.chartbox h4{font-size:.78rem;font-weight:700;margin-bottom:9px;color:var(--txt2)}
+.chartwrap{position:relative;height:230px}
+.chartwrap.tall{height:280px}
+
+.dtbl{width:100%;border-collapse:collapse;font-size:.76rem}
+.dtbl th{font-size:.62rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;padding:6px 8px;text-align:left;border-bottom:1px solid var(--bdr)}
+.dtbl td{padding:6px 8px;border-bottom:1px solid var(--bdr);color:var(--txt)}
+.dtbl tr:last-child td{border-bottom:none}
+.dtbl td.num,.dtbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.dtbl tr.hl td{background:var(--succ-bg);font-weight:700}
+
+.tips{display:flex;flex-direction:column;gap:8px}
+.tip{display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;box-shadow:var(--sh)}
+.tip-ico{font-size:1.05rem;flex-shrink:0;margin-top:1px}
+.tip-b{flex:1;min-width:0}
+.tip-t{font-size:.8rem;font-weight:700;margin-bottom:2px}
+.tip-d{font-size:.73rem;color:var(--txt2);line-height:1.5}
+.tip-d b{color:var(--txt)}
+
+.notice{display:flex;gap:8px;align-items:flex-start;background:var(--gold-bg);border:1px solid rgba(217,119,6,.2);border-radius:var(--rs);padding:9px 11px;font-size:.7rem;color:var(--gold);margin-bottom:11px;line-height:1.55}
+.notice.info{background:var(--acc-bg);border-color:var(--acc-bdr);color:var(--acc)}
+.sec-h{font-size:.66rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin:18px 0 9px;display:flex;align-items:center;gap:8px}
+.sec-h::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.country-only{display:none}
+.intro{font-size:.74rem;color:var(--txt2);background:var(--ibg);border:1px solid var(--bdr);border-radius:var(--rs);padding:9px 11px;margin-bottom:11px;line-height:1.55}
+
+/* Playbook accordion */
+.pb-wrap{max-width:920px}
+.pb-cat{font-size:.95rem;font-weight:800;margin:20px 0 9px;display:flex;align-items:center;gap:9px}
+.faq{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:7px;box-shadow:var(--sh);overflow:hidden}
+.faq-q{display:flex;align-items:center;gap:9px;padding:11px 13px;cursor:pointer;font-size:.82rem;font-weight:700;user-select:none}
+.faq-q:hover{background:rgba(0,0,0,.02)}
+[data-theme="dark"] .faq-q:hover{background:rgba(255,255,255,.03)}
+.faq-q .fchev{margin-left:auto;color:var(--txt3);font-size:.6rem;transition:transform .3s}
+.faq.open .fchev{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:.76rem;color:var(--txt2);line-height:1.6}
+.faq.open .faq-a{max-height:1200px}
+.faq-a-in{padding:0 13px 13px;border-top:1px solid var(--bdr);padding-top:11px}
+.faq-a b{color:var(--txt)}
+.faq-a ul{margin:6px 0 0 4px;padding-left:16px}
+.faq-a li{margin-bottom:4px}
+
+@media (max-width:880px){
+  body{overflow:auto}
+  .tab-panel{height:auto}
+  .tab-panel.active{display:block}
+  .layout{grid-template-columns:1fr;height:auto}
+  .lp,.rp{overflow:visible;height:auto}
+  .lp{border-right:none;border-bottom:1px solid var(--bdr)}
+}
+</style>
+</head>
+<body data-app="dreamcar">
+<!-- Master PlanWise bar (app switcher + theme) is rendered here by the shared platform.js -->
+<div id="pw-bar"></div>
+
+<!-- ═══ SUB-NAV (Dream Car's own tabs + CA/IN country switch) ═════════════ -->
+<div class="hdr">
+  <span class="subnav-lbl">🚗 Dream Car</span>
+  <nav class="tabs" id="tabs">
+    <button class="tbtn active" data-tab="decide">🧭 Buy vs Lease</button>
+    <button class="tbtn" data-tab="loan">💰 Loan</button>
+    <button class="tbtn" data-tab="depr">📉 Depreciation</button>
+    <button class="tbtn" data-tab="tax">🧾 Tax</button>
+    <button class="tbtn" data-tab="ins">🛡️ Insurance</button>
+    <button class="tbtn" data-tab="sell">🏷️ Sell</button>
+    <button class="tbtn" data-tab="earn">💵 Earn</button>
+    <button class="tbtn" data-tab="play">📚 Playbook</button>
+  </nav>
+  <div class="car-ctry" id="car-ctry" role="group" aria-label="Country">
+    <button type="button" data-ctry="CA">🍁 Canada</button>
+    <button type="button" data-ctry="IN">🇮🇳 India</button>
+  </div>
+</div>
+<script>
+/* Dream Car — country state (CA/IN). Theme is owned by the shared PlanWise shell (platform.js).
+   Provides the window.CarSmart API the app expects, and emits 'pw-country-change' on switch. */
+(function(){
+  const KEY='cs_country';
+  let country = localStorage.getItem(KEY) || 'CA';
+  if(country!=='CA' && country!=='IN') country='CA';
+  const paint = () => document.querySelectorAll('#car-ctry button').forEach(b=>b.classList.toggle('active', b.dataset.ctry===country));
+  function setCountry(c){
+    if((c!=='CA' && c!=='IN') || c===country) return;
+    country=c; localStorage.setItem(KEY,c); paint();
+    window.dispatchEvent(new CustomEvent('pw-country-change',{detail:{country:c}}));
+  }
+  window.CarSmart = { country:()=>country, setCountry, isDark:()=>document.documentElement.getAttribute('data-theme')==='dark' };
+  const wire = () => { paint(); document.querySelectorAll('#car-ctry button').forEach(b=>b.addEventListener('click',()=>setCountry(b.dataset.ctry))); };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',wire); else wire();
+})();
+</script>
+
+<!-- ═══════════════════════ TAB: DECIDE ═══════════════════════════════════ -->
+<section class="tab-panel active" id="tab-decide">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro">Compare <b>buying new</b>, <b>buying a used car</b>, and <b>leasing</b> over the years you'll actually keep it. We total the real cost of ownership — depreciation, interest, maintenance and insurance — so you see the cheapest path, not the lowest sticker.</div>
+
+      <div class="slw">
+        <div class="slh"><span class="sll">How long will you keep it?</span><span class="slv"><span id="d-hold-v">6</span> yrs</span></div>
+        <input type="range" id="d-hold" min="1" max="12" step="1" value="6">
+      </div>
+      <div class="slw">
+        <div class="slh"><span class="sll">Driving / year</span><span class="slv"><span id="d-km-v">15,000</span> <span class="dist">km</span></span></div>
+        <input type="range" id="d-km" min="5000" max="40000" step="1000" value="15000">
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-t">🚗</div><div class="ctxt"><div class="ct">New car</div><div class="csum">Sticker price & financing</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>New car price (on-road)</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-newprice"></div></div>
+          <div class="g2">
+            <div class="f"><label>Down payment %</label><div class="inwrap hassuf"><input type="number" id="d-dp" value="20"><span class="suf">%</span></div></div>
+            <div class="f"><label>Loan rate</label><div class="inwrap hassuf"><input type="number" id="d-rate" step="0.1"><span class="suf">%</span></div></div>
+          </div>
+          <div class="f"><label>Loan term (months)</label><input type="number" id="d-term"></div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-g">🔑</div><div class="ctxt"><div class="ct">Used car</div><div class="csum">A pre-owned version of the same class</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="g2">
+            <div class="f"><label>Age when you buy</label><div class="inwrap hassuf"><input type="number" id="d-usedage" value="3"><span class="suf">yrs</span></div></div>
+            <div class="f"><label>Used price</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-usedprice"></div></div>
+          </div>
+          <div class="f"><label>Used loan rate <span class="hint" style="text-transform:none">(used loans cost a bit more)</span></label><div class="inwrap hassuf"><input type="number" id="d-usedrate" step="0.1"><span class="suf">%</span></div></div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-p">📄</div><div class="ctxt"><div class="ct">Lease</div><div class="csum">Monthly payment, you return it</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="g2">
+            <div class="f"><label>Monthly lease</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-lease"></div></div>
+            <div class="f"><label>Lease term (months)</label><input type="number" id="d-leaseterm" value="36"></div>
+          </div>
+          <div class="f"><label>Drive-off / down at signing</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-leasedown"></div></div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-b">📉</div><div class="ctxt"><div class="ct">Running cost & depreciation</div><div class="csum">Shared assumptions</div></div><div class="chev">▾</div></div>
+        <div class="cbody closed"><div class="cbody-in">
+          <div class="g2">
+            <div class="f"><label>Year-1 depreciation</label><div class="inwrap hassuf"><input type="number" id="d-dep1" value="20"><span class="suf">%</span></div></div>
+            <div class="f"><label>Each later year</label><div class="inwrap hassuf"><input type="number" id="d-dep2" value="14"><span class="suf">%</span></div></div>
+          </div>
+          <div class="g2">
+            <div class="f"><label>Maintenance yr 1</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-maint"></div></div>
+            <div class="f"><label>Maint. rises / yr</label><div class="inwrap hassuf"><input type="number" id="d-maintg" value="15"><span class="suf">%</span></div></div>
+          </div>
+          <div class="f"><label>Insurance / month</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-ins"></div></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-decide"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: LOAN ═════════════════════════════════════ -->
+<section class="tab-panel" id="tab-loan">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro">Find your EMI, then attack the two numbers a dealer's finance desk profits from: the <b>interest rate</b> and the <b>tenure</b>. See exactly how much a shorter term, a rate cut, or small extra payments save you.</div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-t">💰</div><div class="ctxt"><div class="ct">Your loan</div><div class="csum">The basics</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Loan amount (financed)</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="l-amt"></div></div>
+          <div class="g2">
+            <div class="f"><label>Interest rate</label><div class="inwrap hassuf"><input type="number" id="l-rate" step="0.1"><span class="suf">%</span></div></div>
+            <div class="f"><label>Tenure (months)</label><input type="number" id="l-term"></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-gr">⚡</div><div class="ctxt"><div class="ct">Pay it off faster</div><div class="csum">Extra payments shrink interest</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Extra every month</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="l-extra" value="0"></div></div>
+          <div class="g2">
+            <div class="f"><label>One-time lump sum</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="l-lump" value="0"></div></div>
+            <div class="f"><label>…paid in month #</label><input type="number" id="l-lumpm" value="12"></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-p">🏦</div><div class="ctxt"><div class="ct">Compare a better rate</div><div class="csum">Negotiate or balance-transfer</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Rate another lender offers</label><div class="inwrap hassuf"><input type="number" id="l-rate2" step="0.1"><span class="suf">%</span></div></div>
+          <div class="hint">Even a 1% lower rate on a big loan saves real money. Always get a pre-approval before you walk into the showroom.</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-loan"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: DEPRECIATION ═════════════════════════════ -->
+<section class="tab-panel" id="tab-depr">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro">Depreciation is the biggest cost of owning a car — bigger than fuel or interest. See how your car's value falls, find the <b>sweet-spot year</b> to sell (lowest cost per year of ownership), and learn the tricks that protect resale value.</div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-t">🚗</div><div class="ctxt"><div class="ct">The car</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Price when new</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="p-price"></div></div>
+          <div class="g2">
+            <div class="f"><label>Year-1 drop</label><div class="inwrap hassuf"><input type="number" id="p-dep1" value="20"><span class="suf">%</span></div></div>
+            <div class="f"><label>Each later year</label><div class="inwrap hassuf"><input type="number" id="p-dep2" value="14"><span class="suf">%</span></div></div>
+          </div>
+          <div class="g2">
+            <div class="f"><label>Maintenance yr 1</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="p-maint"></div></div>
+            <div class="f"><label>Maint. rises / yr</label><div class="inwrap hassuf"><input type="number" id="p-maintg" value="15"><span class="suf">%</span></div></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-depr"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: TAX ══════════════════════════════════════ -->
+<section class="tab-panel" id="tab-tax">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro" id="tax-intro"></div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-gr">🧾</div><div class="ctxt"><div class="ct">Your situation</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>How is the car used?</label>
+            <div class="seg" id="tax-use">
+              <button data-v="personal" class="active">Personal</button>
+              <button data-v="business">Business / self-employed</button>
+            </div>
+          </div>
+          <div class="f"><label>Powertrain</label>
+            <div class="seg" id="tax-ev">
+              <button data-v="ice" class="active">Petrol / Diesel</button>
+              <button data-v="ev">Electric (EV)</button>
+            </div>
+          </div>
+          <div class="f"><label>Vehicle price</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="t-price"></div></div>
+          <div class="slw" style="margin-top:4px">
+            <div class="slh"><span class="sll">Business use of the car</span><span class="slv"><span id="t-biz-v">60</span>%</span></div>
+            <input type="range" id="t-biz" min="0" max="100" step="5" value="60">
+          </div>
+          <div class="g2">
+            <div class="f"><label>Loan interest / year</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="t-int"></div></div>
+            <div class="f"><label>Running cost / year <span class="hint" style="text-transform:none">(fuel+maint+ins)</span></label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="t-run"></div></div>
+          </div>
+          <div class="f"><label>Your marginal tax rate</label><div class="inwrap hassuf"><input type="number" id="t-rate"><span class="suf">%</span></div></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-tax"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: INSURANCE ════════════════════════════════ -->
+<section class="tab-panel" id="tab-ins">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro">Insurance is a cost you can shrink every single year without changing your car. Estimate your premium, then stack the discounts below.</div>
+      <div class="card">
+        <div class="ch"><div class="ci ci-b">🛡️</div><div class="ctxt"><div class="ct">Your policy</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Current car value</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="i-value"></div></div>
+          <div class="slw" style="margin-top:4px">
+            <div class="slh"><span class="sll" id="i-ncb-lbl">Claim-free years (No-Claim Bonus)</span><span class="slv"><span id="i-ncb-v">3</span> yrs</span></div>
+            <input type="range" id="i-ncb" min="0" max="6" step="1" value="3">
+          </div>
+          <div class="f"><label>Voluntary / higher deductible</label>
+            <div class="seg" id="i-ded">
+              <button data-v="0" class="active">Standard</button>
+              <button data-v="1">Higher</button>
+              <button data-v="2">Highest</button>
+            </div>
+          </div>
+          <div class="f country-only ca-only"><label>Driving record</label>
+            <div class="seg" id="i-rec">
+              <button data-v="clean" class="active">Clean</button>
+              <button data-v="minor">1 minor claim</button>
+              <button data-v="atfault">At-fault / tickets</button>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-ins"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: SELL ═════════════════════════════════════ -->
+<section class="tab-panel" id="tab-sell">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro">Selling at the right time and through the right channel can mean thousands more in your pocket. Estimate what your car is worth today and compare your options.</div>
+      <div class="card">
+        <div class="ch"><div class="ci ci-g">🏷️</div><div class="ctxt"><div class="ct">Your car today</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Original price (new)</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="s-price"></div></div>
+          <div class="g2">
+            <div class="f"><label>Age now</label><div class="inwrap hassuf"><input type="number" id="s-age" value="4"><span class="suf">yrs</span></div></div>
+            <div class="f"><label>Odometer</label><div class="inwrap hassuf"><input type="number" id="s-odo"><span class="suf dist">km</span></div></div>
+          </div>
+          <div class="g2">
+            <div class="f"><label>Year-1 drop</label><div class="inwrap hassuf"><input type="number" id="s-dep1" value="20"><span class="suf">%</span></div></div>
+            <div class="f"><label>Each later year</label><div class="inwrap hassuf"><input type="number" id="s-dep2" value="14"><span class="suf">%</span></div></div>
+          </div>
+          <div class="f country-only ca-only"><label>Sales tax where you'll buy next <span class="hint" style="text-transform:none">(for trade-in tax credit)</span></label><div class="inwrap hassuf"><input type="number" id="s-tax" value="13" step="0.5"><span class="suf">%</span></div></div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-sell"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: EARN (rent it out as investment) ═════════ -->
+<section class="tab-panel" id="tab-earn">
+  <div class="layout">
+    <div class="lp">
+      <div class="intro">Treat a car as an <b>income asset</b>: buy it, rent it out (Turo / Getaround, a self-drive platform, or a fleet/Enterprise-style deal) and see what it actually returns. We work out monthly cash flow, payback, break-even days, and the <b>annualised ROI</b> — then tell you whether <b>new or used</b> is the smarter investment.</div>
+
+      <div class="f"><label>Buy new or used?</label>
+        <div class="seg" id="e-cond"><button data-v="new" class="active">New car</button><button data-v="used">Used car</button></div>
+      </div>
+
+      <div class="slw">
+        <div class="slh"><span class="sll">Days rented / month</span><span class="slv"><span id="e-util-v">12</span> days</span></div>
+        <input type="range" id="e-util" min="0" max="30" step="1" value="12">
+      </div>
+      <div class="slw">
+        <div class="slh"><span class="sll">Hold the car for</span><span class="slv"><span id="e-hold-v">4</span> yrs</span></div>
+        <input type="range" id="e-hold" min="1" max="8" step="1" value="4">
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-gr">🚗</div><div class="ctxt"><div class="ct">The asset & financing</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="f"><label>Purchase price</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="e-price"></div></div>
+          <div class="g3">
+            <div class="f"><label>Down %</label><div class="inwrap hassuf"><input type="number" id="e-dp" value="20"><span class="suf">%</span></div></div>
+            <div class="f"><label>Rate</label><div class="inwrap hassuf"><input type="number" id="e-rate" step="0.1"><span class="suf">%</span></div></div>
+            <div class="f"><label>Term mo</label><input type="number" id="e-term"></div>
+          </div>
+          <div class="hint">Set Down % to 100 to model buying with cash (no loan).</div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-t">💵</div><div class="ctxt"><div class="ct">Rental income</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="g2">
+            <div class="f"><label>Daily rate you charge</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="e-daily"></div></div>
+            <div class="f"><label>Platform commission</label><div class="inwrap hassuf"><input type="number" id="e-comm" value="25"><span class="suf">%</span></div></div>
+          </div>
+          <div class="hint">Turo/Getaround keep ~15–40%. A fleet/Enterprise lease-back pays a fixed amount — enter it as the daily rate with 0% commission.</div>
+        </div></div>
+      </div>
+
+      <div class="card">
+        <div class="ch"><div class="ci ci-d">🧾</div><div class="ctxt"><div class="ct">Running costs</div></div><div class="chev up">▾</div></div>
+        <div class="cbody"><div class="cbody-in">
+          <div class="g2">
+            <div class="f"><label>Insurance / month <span class="hint" style="text-transform:none">(commercial)</span></label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="e-ins"></div></div>
+            <div class="f"><label>Maintenance / year</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="e-maint"></div></div>
+          </div>
+          <div class="f"><label>Cleaning, tolls & misc / month</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="e-misc"></div></div>
+          <div class="g2">
+            <div class="f"><label>Year-1 depreciation</label><div class="inwrap hassuf"><input type="number" id="e-dep1" value="22"><span class="suf">%</span></div></div>
+            <div class="f"><label>Each later year</label><div class="inwrap hassuf"><input type="number" id="e-dep2" value="16"><span class="suf">%</span></div></div>
+          </div>
+          <div class="hint">Rental cars rack up km fast, so depreciation & maintenance run a little higher than a personal car.</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="rp" id="rp-earn"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ TAB: PLAYBOOK ═════════════════════════════════ -->
+<section class="tab-panel full-only" id="tab-play">
+  <div class="layout">
+    <div class="lp"></div>
+    <div class="rp full" id="rp-play"></div>
+  </div>
+</section>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   CarSmart — engines + UI
+   ══════════════════════════════════════════════════════════════════════════ */
+(function(){
+  const $ = id => document.getElementById(id);
+  const charts = {};
+
+  /* ── Country config: defaults, currency, tax rules ────────────────────── */
+  const CFG = {
+    CA:{
+      cur:'$', sym:'$', locale:'en-CA', dist:'km',
+      loanRate:7.5, usedRate:8.5, term:72,
+      newPrice:42000, usedPrice:24000, usedAge:3,
+      leaseMonthly:480, leaseDown:3000,
+      maint:900, ins:165, marginalRate:35,
+      taxName:'sales tax', defTax:13,
+      rentDaily:70, rentComm:25, rentIns:250, rentMaint:1500, rentMisc:120,
+    },
+    IN:{
+      cur:'₹', sym:'₹', locale:'en-IN', dist:'km',
+      loanRate:9.5, usedRate:12, term:60,
+      newPrice:1200000, usedPrice:650000, usedAge:3,
+      leaseMonthly:22000, leaseDown:50000,
+      maint:25000, ins:2200, marginalRate:30,
+      taxName:'GST', defTax:0,
+      rentDaily:2200, rentComm:20, rentIns:3500, rentMaint:40000, rentMisc:3000,
+    }
+  };
+  const C = () => CFG[window.CarSmart.country()];
+
+  /* ── Formatting ──────────────────────────────────────────────────────── */
+  function money(n){
+    if(!isFinite(n)) n=0;
+    return C().cur + Math.round(n).toLocaleString(C().locale);
+  }
+  function moneyK(n){ // compact for axes
+    const c=C();
+    if(c.locale==='en-IN'){
+      if(Math.abs(n)>=1e7) return c.cur+(n/1e7).toFixed(1)+'Cr';
+      if(Math.abs(n)>=1e5) return c.cur+(n/1e5).toFixed(1)+'L';
+      if(Math.abs(n)>=1e3) return c.cur+(n/1e3).toFixed(0)+'k';
+      return c.cur+Math.round(n);
+    }
+    if(Math.abs(n)>=1e6) return c.cur+(n/1e6).toFixed(1)+'M';
+    if(Math.abs(n)>=1e3) return c.cur+(n/1e3).toFixed(0)+'k';
+    return c.cur+Math.round(n);
+  }
+  const num = id => { const v=parseFloat($(id).value); return isFinite(v)?v:0; };
+  const months2ym = m => { const y=Math.floor(m/12), mm=Math.round(m%12); return (y?y+'y ':'')+(mm?mm+'m':(y?'':'0m')); };
+  const pct = (a,b) => (b>0 ? a/b*100 : 0);   // safe percentage (no NaN/Infinity on empty fields)
+
+  /* ── Core engines ────────────────────────────────────────────────────── */
+  function emi(P, annualRate, months){
+    if(months<=0) return 0;
+    const r=annualRate/100/12;
+    if(r===0) return P/months;
+    const f=Math.pow(1+r,months);
+    return P*r*f/(f-1);
+  }
+  // Interest paid over the first `cap` months of a normal loan
+  function interestOver(P, annualRate, months, cap){
+    const e=emi(P,annualRate,months), r=annualRate/100/12;
+    let bal=P, paid=0; const N=Math.min(cap,months);
+    for(let m=0;m<N && bal>0.01;m++){ const it=bal*r; paid+=it; bal-=(e-it); }
+    return paid;
+  }
+  function totalInterest(P, annualRate, months){ return interestOver(P,annualRate,months,months); }
+  // Outstanding balance after k payments of a normal loan
+  function balanceAfter(P, annualRate, term, k){
+    if(k>=term) return 0;
+    if(k<=0) return P;
+    const r=annualRate/100/12;
+    if(r===0) return P*(1-k/term);
+    const f=Math.pow(1+r,term), fk=Math.pow(1+r,k);
+    return P*(f-fk)/(f-1);
+  }
+  // Simulate payoff with extra monthly + one lump sum
+  function simulate(P, annualRate, baseEmi, extra, lump, lumpM){
+    let bal=P; const r=annualRate/100/12; let m=0, interest=0;
+    while(bal>0.01 && m<1200){
+      m++;
+      if(m===lumpM) bal-=lump;
+      if(bal<=0){ break; }
+      const it=bal*r; interest+=it;
+      let princ=(baseEmi+extra)-it;
+      if(princ<=0) return {months:9999, interest:Infinity, never:true};
+      if(princ>=bal){ bal=0; break; }
+      bal-=princ;
+    }
+    return {months:m, interest};
+  }
+  // Value retained factor at a given (possibly fractional) age
+  function depFactor(age, d1, d2){
+    d1/=100; d2/=100;
+    if(age<=0) return 1;
+    if(age<=1) return 1-d1*age;
+    let f=1-d1;
+    const whole=Math.floor(age);
+    for(let y=2;y<=whole;y++) f*=(1-d2);
+    const frac=age-whole;
+    if(frac>0) f*=(1-d2*frac);
+    return Math.max(f,0.04);
+  }
+  // Maintenance for the single year ending at car-age `y` (year index y)
+  function maintAt(base, growth, y){ return base*Math.pow(1+growth/100, y-1); }
+  function maintSum(base, growth, fromAge, toAge){
+    let s=0; for(let y=fromAge+1;y<=toAge;y++) s+=maintAt(base,growth,y); return s;
+  }
+
+  /* ── Chart helper ────────────────────────────────────────────────────── */
+  function gridColor(){ return window.CarSmart.isDark()?'rgba(255,255,255,.08)':'rgba(0,0,0,.06)'; }
+  function tickColor(){ return window.CarSmart.isDark()?'rgba(240,244,248,.55)':'#64748b'; }
+  function accent(){ return window.CarSmart.isDark()?'#00d4aa':'#0891b2'; }
+  function mkChart(id, cfg){
+    const el=$(id); if(!el) return;
+    if(charts[id]) charts[id].destroy();
+    charts[id]=new Chart(el, cfg);
+  }
+
+  /* ════════════════════ TAB 1 — DECIDE ═══════════════════════════════════ */
+  function calcDecide(){
+    const H=num('d-hold');
+    const newP=num('d-newprice'), dp=num('d-dp')/100, rate=num('d-rate'), term=num('d-term');
+    const usedAge=num('d-usedage'), usedP=num('d-usedprice'), usedRate=num('d-usedrate');
+    const lease=num('d-lease'), leaseTerm=num('d-leaseterm'), leaseDown=num('d-leasedown');
+    const dep1=num('d-dep1'), dep2=num('d-dep2');
+    const maint=num('d-maint'), maintg=num('d-maintg'), insM=num('d-ins');
+
+    // NEW
+    const newLoan=newP*(1-dp);
+    const newInt=interestOver(newLoan,rate,term,H*12);
+    const newResale=newP*depFactor(H,dep1,dep2);
+    const newDep=newP-newResale;
+    const newMaint=maintSum(maint,maintg,0,H);
+    const newIns=insM*12*H;
+    const newTotal=newDep+newInt+newMaint+newIns;
+
+    // USED — same model, valued off the original new price curve
+    const usedLoan=usedP*(1-dp);
+    const usedInt=interestOver(usedLoan,usedRate,term,H*12);
+    const usedResaleFromCurve=newP*depFactor(usedAge+H,dep1,dep2);
+    // anchor used resale to the user's used price (their car may differ from "same model")
+    const anchor=usedP/(newP*depFactor(usedAge,dep1,dep2)||1);
+    const usedResale=Math.min(usedP, usedResaleFromCurve*anchor);
+    const usedDep=usedP-usedResale;
+    const usedMaint=maintSum(maint,maintg,usedAge,usedAge+H);
+    const usedIns=insM*12*H*(usedP/newP);
+    const usedTotal=usedDep+usedInt+usedMaint+usedIns;
+
+    // LEASE — re-lease to cover the full horizon; you own nothing
+    const leaseYears=leaseTerm/12;
+    const leaseCycles=H/leaseYears;
+    const leasePay=lease*12*H + leaseDown*Math.ceil(leaseCycles);
+    // Routine maintenance: a leased car is always young & under warranty, so it only ever
+    // incurs the cheap early-year servicing — repeated each lease cycle, never the costly old-car repairs.
+    const leaseMaint=(leaseYears>0?maintSum(maint,maintg,0,leaseYears)/leaseYears:0)*H;
+    const leaseTotal=leasePay + newIns + leaseMaint;   // include insurance + servicing so it's comparable to buying
+
+    // Each opt carries:  total = NET cost (what it truly costs, resale already deducted),
+    //                    price = up-front vehicle cost,  gross = total spending (= total + resale).
+    const opts=[
+      {key:'new', name:'Buy New', ico:'🚗', total:newTotal, price:newP,  dep:newDep, int:newInt, maint:newMaint, ins:newIns, resale:newResale, own:true},
+      {key:'used',name:'Buy Used',ico:'🔑', total:usedTotal,price:usedP, dep:usedDep,int:usedInt,maint:usedMaint,ins:usedIns,resale:usedResale,own:true},
+      {key:'lease',name:'Lease',  ico:'📄', total:leaseTotal,price:0,    dep:leasePay,int:0,maint:leaseMaint,ins:newIns,resale:0,own:false},
+    ];
+    opts.forEach(o=>{ o.gross=o.total+o.resale; });   // total spending before getting resale back
+    return {H,opts,newTotal,usedTotal,leaseTotal};
+  }
+  function renderDecide(){
+    const d=calcDecide(), rp=$('rp-decide');
+    const best=d.opts.reduce((a,b)=>b.total<a.total?b:a);
+    const sorted=[...d.opts].sort((a,b)=>a.total-b.total);
+    const second=sorted[1];
+    const gap=second.total-best.total;
+    const gapPct=second.total? (gap/second.total*100):0;
+
+    // Smart-dealer reasoning
+    let reco, recoCls='';
+    if(best.key==='used'){
+      reco=`<b>Buying used wins by ${money(gap)}</b> over ${d.H} years. Someone else already ate the brutal first-year depreciation — you get most of the car for far less of the loss. Buy a <b>certified, single-owner</b> car with full service records and a clean history report to keep the reliability risk low.`;
+    } else if(best.key==='new'){
+      reco = gapPct<8
+        ? `<b>New is cheapest here — but only by ${money(gap)} (${gapPct.toFixed(0)}%).</b> That's close enough that a clean low-km used car is still smart if you'd rather keep cash free. New makes sense for the full warranty, latest safety, and if you keep cars 8+ years.`
+        : `<b>Buying new wins by ${money(gap)}</b> here — usually because the used premium is thin or you keep the car long enough to spread the depreciation. Negotiate the <b>out-the-door price</b>, not the monthly payment.`;
+    } else {
+      reco=`<b>Leasing shows the lowest out-of-pocket over ${d.H} years</b>, but remember: you own <b>nothing</b> at the end and start over. Leasing only truly wins if you (a) always want a new car, (b) can write it off as a business expense, or (c) drive within the km cap. Otherwise buying and keeping builds equity.`;
+      recoCls='warn';
+    }
+
+    const verdict=d.opts.map(o=>{
+      const spendRows = o.key==='lease'
+        ? `<div class="vc-row"><span>Lease payments</span><b>${money(o.dep)}</b></div>
+           <div class="vc-row"><span>Maintenance <span style="color:var(--txt3)">(routine)</span></span><b>${money(o.maint)}</b></div>
+           <div class="vc-row"><span>Insurance</span><b>${money(o.ins)}</b></div>`
+        : `<div class="vc-row"><span>Vehicle price</span><b>${money(o.price)}</b></div>
+           <div class="vc-row"><span>Loan interest</span><b>${money(o.int)}</b></div>
+           <div class="vc-row"><span>Maintenance</span><b>${money(o.maint)}</b></div>
+           <div class="vc-row"><span>Insurance</span><b>${money(o.ins)}</b></div>`;
+      const inHand = o.own
+        ? `<b style="color:var(--success)">−${money(o.resale)}</b>`
+        : `<b style="color:var(--danger)">Nothing</b>`;
+      return `<div class="vc ${o.key===best.key?'best':''}">
+        ${o.key===best.key?'<span class="vc-badge">LOWEST NET</span>':''}
+        <div class="vc-h"><span class="vc-ico">${o.ico}</span><span class="vc-name">${o.name}</span></div>
+        <div class="vc-cost">${money(o.total)}</div>
+        <div class="vc-costl">net spending · ${d.H} yrs &nbsp;•&nbsp; ${money(o.total/(d.H*12))}/mo</div>
+        <div class="vc-rows">
+          ${spendRows}
+          <div class="vc-row sub"><span>Total spending</span><b>${money(o.gross)}</b></div>
+          <div class="vc-row"><span>Worth at end (in hand)</span>${inHand}</div>
+          <div class="vc-row net"><span>Net spending</span><b>${money(o.total)}</b></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Ranking — lowest net spending first, with % difference vs the cheapest
+    const maxT=sorted[sorted.length-1].total;
+    const rankRows=sorted.map((o,i)=>{
+      const diffPct=best.total>0?(o.total/best.total-1)*100:0;
+      const extra=o.total-best.total;
+      const w=maxT>0?(o.total/maxT*100):0;
+      const chip=i===0
+        ? `<span class="rk-chip best">★ Cheapest</span>`
+        : `<span class="rk-chip">+${diffPct.toFixed(0)}% &nbsp;·&nbsp; ${money(extra)} more</span>`;
+      return `<div class="rk-row ${i===0?'best':''}">
+        <div class="rk-pos">${i+1}</div>
+        <div class="rk-main">
+          <div class="rk-top"><span class="rk-name">${o.ico} ${o.name}</span><span class="rk-right">${chip}<span class="rk-amt">${money(o.total)}</span></span></div>
+          <div class="rk-barwrap"><div class="rk-bar ${i===0?'best':''}" style="width:${w}%"></div></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    rp.innerHTML=`
+      <div class="rp-h">Your cheapest path</div>
+      <div class="rp-sub">Over ${d.H} years — ranked by <b>net spending</b> (total spending minus what the car is still worth at the end).</div>
+      <div class="reco ${recoCls}"><span class="reco-ico">${best.ico}</span><div><div class="reco-t">${best.name} — ${money(best.total)} net over ${d.H} years</div><div class="reco-m">${reco}</div></div></div>
+      <div class="verdict">${verdict}</div>
+      <div class="rank"><h4>Ranked by net spending — lowest first</h4>${rankRows}</div>
+      <div class="chartbox"><h4>Net spending breakdown by option</h4><div class="chartwrap"><canvas id="ch-decide"></canvas></div></div>
+      <div class="notice">🔧 On a lease <b>you still pay routine servicing</b> (oil, tyres, brakes) — but the car is always under warranty, so big repairs are covered and maintenance stays low. ⛽ Fuel is left out (similar across the same class). The big swing is <b>depreciation + interest</b>.</div>`;
+
+    const labels=d.opts.map(o=>o.name);
+    const ds=(k,c,lbl)=>({label:lbl,data:d.opts.map(o=>o[k]),backgroundColor:c});
+    mkChart('ch-decide',{type:'bar',data:{labels,datasets:[
+        ds('dep','rgba(220,38,38,.75)','Depreciation / lease'),
+        ds('int','rgba(8,145,178,.8)','Interest'),
+        ds('maint','rgba(217,119,6,.8)','Maintenance'),
+        ds('ins','rgba(124,58,237,.7)','Insurance'),
+      ]},options:{responsive:true,maintainAspectRatio:false,scales:{
+        x:{stacked:true,grid:{display:false},ticks:{color:tickColor()}},
+        y:{stacked:true,grid:{color:gridColor()},ticks:{color:tickColor(),callback:v=>moneyK(v)}}},
+        plugins:{legend:{labels:{color:tickColor(),boxWidth:12,font:{size:11}}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y)}}}}});
+  }
+
+  /* ════════════════════ TAB 2 — LOAN ═════════════════════════════════════ */
+  function renderLoan(){
+    const P=num('l-amt'), rate=num('l-rate'), term=num('l-term');
+    const extra=num('l-extra'), lump=num('l-lump'), lumpM=num('l-lumpm');
+    const rate2=num('l-rate2');
+    const rp=$('rp-loan');
+
+    const baseEmi=emi(P,rate,term);
+    const baseInt=totalInterest(P,rate,term);
+    const sim=simulate(P,rate,baseEmi,extra,lump,lumpM);
+    const intSaved=baseInt-sim.interest;
+    const monSaved=term-sim.months;
+
+    // rate compare
+    const emi2=emi(P,rate2,term), int2=totalInterest(P,rate2,term);
+    const rateSave=baseInt-int2;
+
+    // tenure ladder
+    const ladder=[36,48,60,72,84].map(t=>({t,emi:emi(P,rate,t),int:totalInterest(P,rate,t)}));
+    const ladderRows=ladder.map(r=>`<tr class="${r.t===term?'hl':''}"><td>${r.t} mo (${(r.t/12)}y)</td><td class="num">${money(r.emi)}</td><td class="num">${money(r.int)}</td><td class="num">${money(P+r.int)}</td></tr>`).join('');
+
+    rp.innerHTML=`
+      <div class="rp-h">Loan breakdown</div>
+      <div class="rp-sub">${money(P)} at ${rate}% over ${term} months</div>
+      <div class="kgrid">
+        <div class="kpi hl"><div class="kpi-l">Monthly payment (EMI)</div><div class="kpi-v acc">${money(baseEmi)}</div></div>
+        <div class="kpi"><div class="kpi-l">Total interest</div><div class="kpi-v neg">${money(baseInt)}</div><div class="kpi-s">${pct(baseInt,P).toFixed(0)}% of the loan</div></div>
+        <div class="kpi"><div class="kpi-l">Total you repay</div><div class="kpi-v">${money(P+baseInt)}</div></div>
+      </div>
+
+      ${(extra>0||lump>0)?`
+      <div class="sec-h">⚡ With your extra payments</div>
+      <div class="reco"><span class="reco-ico">⚡</span><div><div class="reco-t">Loan clears in ${months2ym(sim.months)} — ${monSaved>0?monSaved+' months early':'on time'}</div>
+      <div class="reco-m">You save <b>${money(intSaved>0?intSaved:0)}</b> in interest. ${extra>0?`Just <b>${money(extra)}/month extra</b> is the single easiest win — it goes 100% to principal.`:''} ${lump>0?`Your <b>${money(lump)}</b> lump sum in month ${lumpM} knocks out interest for the entire remaining term.`:''}</div></div></div>`:''}
+
+      <div class="sec-h">🏦 If you get a ${rate2}% rate instead</div>
+      ${rate2<rate
+        ? `<div class="reco"><span class="reco-ico">📉</span><div><div class="reco-t">Save ${money(rateSave)} in interest</div><div class="reco-m">A ${(rate-rate2).toFixed(1)}-point lower rate drops your EMI to <b>${money(emi2)}</b> (from ${money(baseEmi)}). Get a bank/credit-union pre-approval <b>before</b> the showroom — then let the dealer try to beat it. Never let them quote you only a monthly payment.</div></div></div>`
+        : `<div class="reco info"><span class="reco-ico">ℹ️</span><div><div class="reco-t">That rate isn't lower</div><div class="reco-m">Enter a rate below ${rate}% to see the savings from negotiating or refinancing.</div></div></div>`}
+
+      <div class="chartbox"><h4>Loan balance over time</h4><div class="chartwrap"><canvas id="ch-loan"></canvas></div></div>
+
+      <div class="sec-h">⏱️ Shorter tenure = far less interest</div>
+      <div class="chartbox" style="padding-top:8px">
+        <table class="dtbl"><thead><tr><th>Tenure</th><th class="num">EMI</th><th class="num">Total interest</th><th class="num">Total repaid</th></tr></thead><tbody>${ladderRows}</tbody></table>
+        <div class="hint" style="margin-top:8px">A longer tenure feels cheaper monthly but quietly costs you the most. Pick the <b>shortest EMI you can comfortably afford</b>.</div>
+      </div>
+
+      <div class="reco info"><span class="reco-ico">📐</span><div><div class="reco-t">The 20 / 4 / 10 rule</div><div class="reco-m">Put <b>20% down</b>, finance for <b>no more than 4 years</b>, and keep all car costs (EMI + insurance + fuel) under <b>10% of your income</b>. If a car only fits with a 7-year loan, it's too expensive for you.</div></div></div>
+      <div class="reco info"><span class="reco-ico">🤔</span><div><div class="reco-t">When does taking a loan even make sense?</div><div class="reco-m">Borrow if the loan rate is <b>low</b> and your money earns more elsewhere (or you simply don't have the cash). If you <b>can</b> pay cash and your investments won't beat the loan rate after tax, paying cash is the guaranteed return. Never stretch the tenure just to afford a pricier car.</div></div></div>`;
+
+    // balance chart
+    const r=rate/100/12, r2=rate2/100/12;
+    const labels=[], base=[], opt=[];
+    let bal=P, balO=P;
+    for(let m=0;m<=term;m++){
+      if(m%3===0||m===term){ labels.push(m); base.push(Math.max(bal,0)); opt.push(Math.max(balO,0)); }
+      const it=bal*r; bal-=(baseEmi-it);
+      if(m===lumpM) balO-=lump;
+      const itO=balO*r; let pr=(baseEmi+extra)-itO; if(pr>0) balO-=pr;
+    }
+    const ds=[{label:'Standard',data:base,borderColor:'rgba(148,163,184,.9)',backgroundColor:'transparent',tension:.25,pointRadius:0,borderWidth:2}];
+    if(extra>0||lump>0) ds.push({label:'With extra payments',data:opt,borderColor:accent(),backgroundColor:'transparent',tension:.25,pointRadius:0,borderWidth:2.5});
+    mkChart('ch-loan',{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{display:false},ticks:{color:tickColor(),maxTicksLimit:8,callback:v=>labels[v]+'m'}},
+      y:{grid:{color:gridColor()},ticks:{color:tickColor(),callback:v=>moneyK(v)}}},
+      plugins:{legend:{labels:{color:tickColor(),boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y)}}}}});
+  }
+
+  /* ════════════════════ TAB 3 — DEPRECIATION ════════════════════════════ */
+  function renderDepr(){
+    const P=num('p-price'), d1=num('p-dep1'), d2=num('p-dep2');
+    const maint=num('p-maint'), mg=num('p-maintg');
+    const rp=$('rp-depr');
+
+    const HORIZON=15;
+    const years=[], vals=[], cpy=[];
+    let bestYr=1, bestCost=Infinity;
+    for(let y=1;y<=HORIZON;y++){
+      const v=P*depFactor(y,d1,d2);
+      const dep=P-v;
+      const cumMaint=maintSum(maint,mg,0,y);
+      const costPerYear=(dep+cumMaint)/y;
+      years.push(y); vals.push(v); cpy.push(costPerYear);
+      if(costPerYear<bestCost){ bestCost=costPerYear; bestYr=y; }
+    }
+    const atBoundary = bestYr>=HORIZON; // cost/yr still falling — keeping longer is cheaper
+    const tblYears=[1,3,5,7,10,15];
+    const rows=tblYears.map(y=>{
+      const v=P*depFactor(y,d1,d2);
+      return `<tr class="${y===bestYr?'hl':''}"><td>Year ${y}</td><td class="num">${money(v)}</td><td class="num">${pct(v,P).toFixed(0)}%</td><td class="num">${money(P-v)}</td></tr>`;
+    }).join('');
+
+    rp.innerHTML=`
+      <div class="rp-h">Depreciation & the sweet spot</div>
+      <div class="rp-sub">A ${money(P)} car — how its value falls and when it's cheapest to let go.</div>
+      <div class="reco"><span class="reco-ico">🎯</span><div>${atBoundary
+        ? `<div class="reco-t">This car rewards keeping it — cost per year keeps falling</div><div class="reco-m">With these inputs, depreciation is the dominant cost and your <b>cost per year of ownership keeps dropping the longer you hold</b> (down to ~${money(bestCost)}/yr by year ${HORIZON}), because cheap maintenance never overtakes it. The smart play: <b>buy a 2–3 year-old example</b> (skip the steep first-year drop) and <b>run it for years</b>. If your real repair bills climb faster than assumed, raise "Maint. rises / yr" to see the sweet spot move earlier.</div>`
+        : `<div class="reco-t">Sweet spot: sell around year ${bestYr}</div><div class="reco-m">That's when your <b>cost per year of ownership</b> bottoms out at ~${money(bestCost)}/yr (depreciation + rising maintenance). Sell much earlier and depreciation dominates; hold much longer and climbing repair bills take over. <b>Buying a ${bestYr}-year-old car and selling a few years later</b> is the cheapest way to own this car.</div>`}</div></div>
+      <div class="kgrid">
+        <div class="kpi"><div class="kpi-l">Lost in year 1</div><div class="kpi-v neg">${money(P-vals[0])}</div><div class="kpi-s">${d1}% — gone the moment you drive off</div></div>
+        <div class="kpi"><div class="kpi-l">Worth at year 5</div><div class="kpi-v">${money(vals[4])}</div><div class="kpi-s">${pct(vals[4],P).toFixed(0)}% retained</div></div>
+        <div class="kpi hl"><div class="kpi-l">Cheapest to own</div><div class="kpi-v acc">Year ${bestYr}${atBoundary?'+':''}</div><div class="kpi-s">${money(bestCost)}/yr ${atBoundary?'and falling':''}</div></div>
+      </div>
+      <div class="chartbox"><h4>Value remaining (line) vs cost per year (bars)</h4><div class="chartwrap tall"><canvas id="ch-depr"></canvas></div></div>
+      <div class="chartbox" style="padding-top:8px"><table class="dtbl"><thead><tr><th>Age</th><th class="num">Value</th><th class="num">Retained</th><th class="num">Total lost</th></tr></thead><tbody>${rows}</tbody></table></div>
+
+      <div class="sec-h">🛡️ Tricks to beat depreciation</div>
+      <div class="tips">
+        <div class="tip"><span class="tip-ico">🔑</span><div class="tip-b"><div class="tip-t">Let someone else take the year-1 hit</div><div class="tip-d">Buy a <b>1–3 year-old</b> car. You skip the steepest ${d1}% first-year drop and still get a nearly-new car, often with warranty left.</div></div></div>
+        <div class="tip"><span class="tip-ico">🎨</span><div class="tip-b"><div class="tip-t">Boring colours resell best</div><div class="tip-d"><b>White, silver, grey, black</b> sell fastest and hold value. Wild colours and odd trims sit on the lot and get discounted.</div></div></div>
+        <div class="tip"><span class="tip-ico">📋</span><div class="tip-b"><div class="tip-t">Keep every service record</div><div class="tip-d">A full, stamped service history and a clean accident record can add several percent to resale. Buyers pay for peace of mind.</div></div></div>
+        <div class="tip"><span class="tip-ico">🛞</span><div class="tip-b"><div class="tip-t">Watch the odometer</div><div class="tip-d">High mileage kills value fast. Staying near the <b>average ~${C().locale==='en-IN'?'12,000':'18,000'} ${C().dist}/yr</b> protects your price.</div></div></div>
+        <div class="tip"><span class="tip-ico">🏆</span><div class="tip-b"><div class="tip-t">Buy brands/models known for resale</div><div class="tip-d">Some badges hold value far better. Reliable, popular, in-demand models depreciate slowest — research resale rankings before you buy, not after.</div></div></div>
+        <div class="tip"><span class="tip-ico">🚫</span><div class="tip-b"><div class="tip-t">Skip the loud modifications</div><div class="tip-d">Aftermarket mods rarely add resale value and often scare buyers off. Keep it stock and clean.</div></div></div>
+      </div>`;
+
+    mkChart('ch-depr',{data:{labels:years.map(y=>'Yr '+y),datasets:[
+      {type:'bar',label:'Cost / year to own',data:cpy,backgroundColor:'rgba(217,119,6,.55)',yAxisID:'y1',order:2},
+      {type:'line',label:'Value remaining',data:vals,borderColor:accent(),backgroundColor:'transparent',tension:.3,pointRadius:3,borderWidth:2.5,yAxisID:'y',order:1},
+    ]},options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{display:false},ticks:{color:tickColor()}},
+        y:{position:'left',grid:{color:gridColor()},ticks:{color:tickColor(),callback:v=>moneyK(v)},title:{display:true,text:'Value',color:tickColor(),font:{size:10}}},
+        y1:{position:'right',grid:{display:false},ticks:{color:tickColor(),callback:v=>moneyK(v)},title:{display:true,text:'Cost/yr',color:tickColor(),font:{size:10}}}},
+      plugins:{legend:{labels:{color:tickColor(),boxWidth:12,font:{size:11}}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y)}}}}});
+  }
+
+  /* ════════════════════ TAB 4 — TAX ═════════════════════════════════════ */
+  let taxUse='personal', taxEv='ice';
+  function renderTax(){
+    const ctry=window.CarSmart.country();
+    const P=num('t-price'), biz=num('t-biz')/100, mr=num('t-rate')/100;
+    const intr=num('t-int'), run=num('t-run');
+    const rp=$('rp-tax');
+    const isBiz=taxUse==='business', isEv=taxEv==='ev';
+
+    if(ctry==='CA') renderTaxCA(P,biz,mr,intr,run,isBiz,isEv,rp);
+    else renderTaxIN(P,biz,mr,intr,run,isBiz,isEv,rp);
+  }
+  function renderTaxCA(P,biz,mr,intr,run,isBiz,isEv,rp){
+    const INT_CAP=4200; // $350/mo
+    if(!isBiz){
+      rp.innerHTML=`<div class="rp-h">Tax — Canada</div><div class="rp-sub">Personal use</div>
+        <div class="reco warn"><span class="reco-ico">ℹ️</span><div><div class="reco-t">No deduction for a personal car</div><div class="reco-m">A car used purely for personal driving (incl. commuting to one regular workplace) gives you <b>no tax write-off</b> in Canada. The way to "save tax" on a personal car is simply to <b>spend less</b>: buy used, shorter loan, lower insurance.</div></div></div>
+        <div class="reco info"><span class="reco-ico">⚡</span><div><div class="reco-t">Going electric?</div><div class="reco-m">Federal/provincial EV rebates change often — check the current <b>iZEV</b> program and your province's incentives. EVs also dodge fuel cost entirely. Switch the toggle to <b>Business</b> to see CCA write-offs.</div></div></div>
+        <div class="notice">This is general education, not tax advice. Confirm with a CPA / CRA.</div>`;
+      return;
+    }
+    // Business: CCA + capped interest + running, all × business %
+    let cca, ccaNote, capNote;
+    if(isEv){
+      const cap=Math.min(P,61000);
+      cca=cap; // enhanced 100% first-year for ZEV (Class 54), capped
+      ccaNote=`Zero-emission vehicles (Class 54) qualify for <b>enhanced first-year write-off</b> on up to ${money(61000)} of cost.`;
+      capNote=P>61000?`Cost capped at ${money(61000)} for CCA.`:'';
+    } else {
+      const cap=Math.min(P,37000);
+      cca=cap*0.30*0.5; // Class 10.1, 30% declining, half-year rule year 1
+      ccaNote=`Passenger vehicles use <b>Class 10.1 — 30% declining balance</b>, half-year rule in year 1.`;
+      capNote=P>37000?`Cost capped at ${money(37000)} for CCA (the "luxury" limit).`:'';
+    }
+    const intDed=Math.min(intr,INT_CAP);
+    const totalDed=(cca+intDed+run)*biz;
+    const saving=totalDed*mr;
+    rp.innerHTML=`<div class="rp-h">Tax — Canada (business)</div><div class="rp-sub">${(biz*100).toFixed(0)}% business use · ${(mr*100).toFixed(0)}% marginal rate</div>
+      <div class="reco"><span class="reco-ico">🧾</span><div><div class="reco-t">Estimated tax saved this year: ${money(saving)}</div><div class="reco-m">From a deductible total of <b>${money(totalDed)}</b> (after your ${(biz*100).toFixed(0)}% business-use share). Keep a <b>kilometre logbook</b> — the CRA wants proof of the business portion.</div></div></div>
+      <div class="kgrid">
+        <div class="kpi"><div class="kpi-l">Depreciation (CCA) yr 1</div><div class="kpi-v">${money(cca)}</div></div>
+        <div class="kpi"><div class="kpi-l">Interest deductible</div><div class="kpi-v">${money(intDed)}</div><div class="kpi-s">capped at ${money(INT_CAP)}/yr</div></div>
+        <div class="kpi"><div class="kpi-l">Running costs</div><div class="kpi-v">${money(run)}</div></div>
+        <div class="kpi hl"><div class="kpi-l">Tax saved</div><div class="kpi-v acc">${money(saving)}</div></div>
+      </div>
+      <div class="tips">
+        <div class="tip"><span class="tip-ico">📐</span><div class="tip-b"><div class="tip-t">Capital Cost Allowance</div><div class="tip-d">${ccaNote} ${capNote}</div></div></div>
+        <div class="tip"><span class="tip-ico">💳</span><div class="tip-b"><div class="tip-t">Interest is capped at ${money(INT_CAP)}/yr</div><div class="tip-d">($350/month). Beyond that, extra interest isn't deductible — another reason to keep the loan small and short.</div></div></div>
+        <div class="tip"><span class="tip-ico">📄</span><div class="tip-b"><div class="tip-t">Leasing has its own cap</div><div class="tip-d">Deductible lease cost is also limited (around <b>$1,050/mo</b> + tax, indexed). For high business use, leasing can simplify the write-off.</div></div></div>
+        <div class="tip"><span class="tip-ico">🧮</span><div class="tip-b"><div class="tip-t">GST/HST input tax credit</div><div class="tip-d">GST/HST registrants can claim an ITC on the business-use portion (subject to the same cost ceilings).</div></div></div>
+        <div class="tip"><span class="tip-ico">⚡</span><div class="tip-b"><div class="tip-t">EVs get a bigger first-year write-off</div><div class="tip-d">Class 54 lets eligible zero-emission vehicles be largely written off in year 1 (up to ${money(61000)}). Big cash-flow win for a business.</div></div></div>
+      </div>
+      <div class="notice">Figures are indicative and limits change yearly. This is education, not tax advice — confirm with a CPA / CRA.</div>`;
+  }
+  function renderTaxIN(P,biz,mr,intr,run,isBiz,isEv,rp){
+    const EEB_CAP=150000;
+    if(!isBiz){
+      const eeb=isEv?Math.min(intr,EEB_CAP):0;
+      const eebSave=eeb*mr;
+      rp.innerHTML=`<div class="rp-h">Tax — India</div><div class="rp-sub">Salaried / personal use</div>
+        ${isEv?`<div class="reco"><span class="reco-ico">⚡</span><div><div class="reco-t">Section 80EEB: save up to ${money(eebSave)}</div><div class="reco-m">Individuals can deduct EV <b>loan interest up to ${money(EEB_CAP)}/yr</b> under Section 80EEB (only under the <b>old tax regime</b>, and the loan had to be sanctioned within the eligible window). On your interest of ${money(intr)} that's about <b>${money(eebSave)}</b> saved.</div></div></div>`
+        :`<div class="reco warn"><span class="reco-ico">ℹ️</span><div><div class="reco-t">No write-off for a personal petrol/diesel car</div><div class="reco-m">A salaried person gets <b>no tax benefit</b> on a personal car loan or depreciation. Switch the powertrain to <b>EV</b> to see the 80EEB interest deduction, or set use to <b>Business</b>.</div></div></div>`}
+        <div class="tips">
+          <div class="tip"><span class="tip-ico">🏢</span><div class="tip-b"><div class="tip-t">Salaried? Use a company car lease</div><div class="tip-d">If your employer offers a <b>car-lease / FBP scheme</b>, the EMI can come from pre-tax salary and slash your taxable income. Often the single biggest legal saving for employees.</div></div></div>
+          <div class="tip"><span class="tip-ico">⚡</span><div class="tip-b"><div class="tip-t">EVs also get lower GST & road tax</div><div class="tip-d">EVs are taxed at <b>5% GST</b> vs 28%+cess on ICE cars, and many states waive road tax/registration.</div></div></div>
+        </div>
+        <div class="notice">Education only, not tax advice. Rules differ between old and new regimes — confirm with a CA.</div>`;
+      return;
+    }
+    // Business
+    const depRate=0.15; // WDV passenger; commercial higher
+    const dep=P*depRate;
+    const eeb=isEv?Math.min(intr,EEB_CAP):0;
+    const totalDed=(dep+intr+run)*biz;
+    const saving=totalDed*mr + eeb*mr;
+    rp.innerHTML=`<div class="rp-h">Tax — India (business)</div><div class="rp-sub">${(biz*100).toFixed(0)}% business use · ${(mr*100).toFixed(0)}% slab</div>
+      <div class="reco"><span class="reco-ico">🧾</span><div><div class="reco-t">Estimated tax saved this year: ${money(saving)}</div><div class="reco-m">Self-employed / business owners can claim <b>depreciation, loan interest and running costs</b> in proportion to business use. Register the car in the <b>business / firm name</b> and keep a usage log.</div></div></div>
+      <div class="kgrid">
+        <div class="kpi"><div class="kpi-l">Depreciation (15% WDV)</div><div class="kpi-v">${money(dep)}</div></div>
+        <div class="kpi"><div class="kpi-l">Loan interest</div><div class="kpi-v">${money(intr)}</div></div>
+        <div class="kpi"><div class="kpi-l">Running costs</div><div class="kpi-v">${money(run)}</div></div>
+        <div class="kpi hl"><div class="kpi-l">Tax saved</div><div class="kpi-v acc">${money(saving)}</div></div>
+      </div>
+      <div class="tips">
+        <div class="tip"><span class="tip-ico">📐</span><div class="tip-b"><div class="tip-t">Depreciation @ 15% WDV</div><div class="tip-d">Passenger vehicles depreciate at <b>15%</b> on the written-down value. Commercial/transport use can claim <b>30%+</b>. Buy before year-end and you can claim a full or half-year.</div></div></div>
+        ${isEv?`<div class="tip"><span class="tip-ico">⚡</span><div class="tip-b"><div class="tip-t">EV interest bonus (80EEB)</div><div class="tip-d">Up to ${money(EEB_CAP)} of EV interest can also be claimed by individuals — on top of business deductions where eligible.</div></div></div>`:''}
+        <div class="tip"><span class="tip-ico">🧮</span><div class="tip-b"><div class="tip-t">GST input credit</div><div class="tip-d">Generally <b>blocked</b> for passenger cars, but available if you're in the business of <b>transport, leasing, or driving training</b>.</div></div></div>
+      </div>
+      <div class="notice">Education only, not tax advice — confirm with a Chartered Accountant.</div>`;
+  }
+
+  /* ════════════════════ TAB 5 — INSURANCE ═══════════════════════════════ */
+  let insDed=0, insRec='clean';
+  function renderIns(){
+    const ctry=window.CarSmart.country();
+    const val=num('i-value'), ncb=num('i-ncb');
+    const rp=$('rp-ins');
+    let premium, base, ncbPct=0, dedSaving=0;
+
+    if(ctry==='IN'){
+      const ncbLadder=[0,20,25,35,45,50];
+      ncbPct=ncbLadder[Math.min(ncb,5)];
+      const odRate=0.025;
+      const thirdParty=val>150000?7900:3400;
+      const dedDisc=[0,0.07,0.12][insDed];
+      base=val*odRate;
+      const odBase=base*(1-ncbPct/100);
+      premium=odBase*(1-dedDisc)+thirdParty;
+      dedSaving=odBase*dedDisc;            // real saving vs standard excess
+    } else {
+      base=Math.max(val*0.04,1200);
+      ncbPct=Math.min(ncb*5,30);
+      const dedDisc=[0,0.08,0.15][insDed];
+      const recMult={clean:1,minor:1.25,atfault:1.7}[insRec];
+      const odBase=base*(1-ncbPct/100)*recMult;
+      premium=odBase*(1-dedDisc);
+      dedSaving=odBase*dedDisc;            // real saving vs standard excess
+    }
+
+    const ncbLbl = ctry==='IN' ? 'No-Claim Bonus' : 'Claim-free discount';
+    const tips = ctry==='IN' ? [
+      ['🏆','Protect your No-Claim Bonus',`You're at <b>${ncbPct}% NCB</b>. Don't claim for small dents — paying ₹5–8k out of pocket can save a bigger NCB worth more over years. Add an <b>NCB-protection</b> add-on.`],
+      ['💸','Raise the voluntary deductible','Agreeing to pay a higher voluntary excess cuts your premium 7–12%. Worth it if you rarely claim.'],
+      ['🔁','Never let it lapse & always compare','Renew online and compare 3–4 insurers each year — same cover, very different price. A lapse resets your NCB to zero.'],
+      ['🚗','Drop high own-damage cover on old cars','Once the car is old and cheap, comprehensive own-damage premium may exceed the payout. Keep mandatory third-party, reconsider the rest.'],
+      ['🔌','Add only the add-ons you need','Zero-dep is worth it for new/expensive cars; engine protection for flood-prone areas. Skip the rest.'],
+    ] : [
+      ['🏆','Build a clean record',`Your biggest lever is no at-fault claims and no tickets. Each clean year lowers your rate; one at-fault claim can raise it for years.`],
+      ['💸','Raise your deductible','Going from a low to a high deductible can cut 8–15%. Keep that gap in savings for the rare claim.'],
+      ['🔗','Bundle home + auto','Bundling with the same insurer typically saves 10–20%. Ask every renewal.'],
+      ['📊','Try usage-based / telematics','Safe, low-mileage drivers can save 10–30% with a telematics program. Report your real (often lower) annual km.'],
+      ['🔁','Shop it every renewal','Loyalty rarely pays — re-quote with a broker and 2–3 insurers yearly. Winter tires earn a discount in some provinces.'],
+      ['🚗','Drop collision on an old car','When the car is worth little, collision/comprehensive premiums may exceed the payout — carry liability and bank the difference.'],
+    ];
+
+    rp.innerHTML=`<div class="rp-h">Insurance estimate</div><div class="rp-sub">Indicative annual premium — real quotes vary by insurer, location & driver.</div>
+      <div class="kgrid">
+        <div class="kpi hl"><div class="kpi-l">Estimated / year</div><div class="kpi-v acc">${money(premium)}</div><div class="kpi-s">${money(premium/12)}/mo</div></div>
+        <div class="kpi"><div class="kpi-l">${ncbLbl}</div><div class="kpi-v pos">${ncbPct}%</div><div class="kpi-s">saving ${money(base*ncbPct/100)} /yr</div></div>
+        <div class="kpi"><div class="kpi-l">Higher deductible saves</div><div class="kpi-v">${money(dedSaving)}</div><div class="kpi-s">${insDed===0?'pick Higher/Highest':'vs standard excess'}</div></div>
+      </div>
+      <div class="sec-h">💡 Stack these savings</div>
+      <div class="tips">${tips.map(t=>`<div class="tip"><span class="tip-ico">${t[0]}</span><div class="tip-b"><div class="tip-t">${t[1]}</div><div class="tip-d">${t[2]}</div></div></div>`).join('')}</div>
+      <div class="notice">Estimates use simplified rate models. Always get real quotes — premiums swing widely by postal code/PIN, age, and history.</div>`;
+  }
+
+  /* ════════════════════ TAB 6 — SELL ════════════════════════════════════ */
+  function renderSell(){
+    const ctry=window.CarSmart.country();
+    const P=num('s-price'), age=num('s-age'), d1=num('s-dep1'), d2=num('s-dep2');
+    const taxRate=num('s-tax');
+    const rp=$('rp-sell');
+
+    const fair=P*depFactor(age,d1,d2);
+    const privateP=fair;
+    const dealerP=fair*0.85;
+    const instantP=fair*0.80;
+
+    // Trade-in tax credit (Canada): you only pay sales tax on (new price - trade-in)
+    const tradeTaxSaving = ctry==='CA' ? dealerP*taxRate/100 : 0;
+    const dealerEffective = dealerP + tradeTaxSaving;
+
+    const nextYearVal=P*depFactor(age+1,d1,d2);
+    const dropNext=fair-nextYearVal;
+
+    rp.innerHTML=`<div class="rp-h">Sell smart</div><div class="rp-sub">A ${age}-year-old car that cost ${money(P)} new.</div>
+      <div class="reco"><span class="reco-ico">🏷️</span><div><div class="reco-t">Fair private-sale value ≈ ${money(privateP)}</div><div class="reco-m">Selling <b>privately</b> nets the most. A dealer trade-in is faster and lower (~${money(dealerP)}), and an instant online offer is lowest (~${money(instantP)}) but the easiest. ${ctry==='CA'?`In most provinces a trade-in also <b>saves you ${money(tradeTaxSaving)}</b> in sales tax on your next car — making the dealer's effective offer ~${money(dealerEffective)}.`:''}</div></div></div>
+      <div class="verdict">
+        <div class="vc best"><span class="vc-badge">MOST MONEY</span><div class="vc-h"><span class="vc-ico">🤝</span><span class="vc-name">Private sale</span></div><div class="vc-cost">${money(privateP)}</div><div class="vc-costl">most effort · best price</div></div>
+        <div class="vc"><div class="vc-h"><span class="vc-ico">🏢</span><span class="vc-name">Dealer trade-in</span></div><div class="vc-cost">${money(dealerP)}</div><div class="vc-costl">${ctry==='CA'?`+${money(tradeTaxSaving)} tax credit`:'fast & easy'}</div></div>
+        <div class="vc"><div class="vc-h"><span class="vc-ico">⚡</span><span class="vc-name">Instant offer</span></div><div class="vc-cost">${money(instantP)}</div><div class="vc-costl">fastest · lowest</div></div>
+      </div>
+      <div class="reco warn"><span class="reco-ico">⏳</span><div><div class="reco-t">Waiting a year costs about ${money(dropNext)}</div><div class="reco-m">Your car will shed roughly <b>${money(dropNext)}</b> more value in the next 12 months — plus another year of insurance and the risk of an expensive repair once warranty ends. If you're on the fence, sooner usually beats later.</div></div></div>
+
+      <div class="sec-h">⏰ When to sell</div>
+      <div class="tips">
+        <div class="tip"><span class="tip-ico">🛡️</span><div class="tip-b"><div class="tip-t">Just before the warranty ends</div><div class="tip-d">Selling while warranty remains is a strong selling point — and you avoid being the one stuck with the first big out-of-warranty repair.</div></div></div>
+        <div class="tip"><span class="tip-ico">🔧</span><div class="tip-b"><div class="tip-t">Before a major service is due</div><div class="tip-d">Big timing-belt / brake / battery jobs cost you but rarely raise the price. Sell ahead of them.</div></div></div>
+        <div class="tip"><span class="tip-ico">📅</span><div class="tip-b"><div class="tip-t">Mind the season & body type</div><div class="tip-d">${ctry==='CA'?'<b>AWD/SUVs & winter-ready cars</b> sell best in autumn; convertibles in spring. Avoid mid-winter for soft-tops.':'Sell <b>before a new model/facelift</b> launches and ahead of festival-season demand for the best price.'}</div></div></div>
+      </div>
+      <div class="sec-h">📸 Get top dollar</div>
+      <div class="tips">
+        <div class="tip"><span class="tip-ico">🧼</span><div class="tip-b"><div class="tip-t">Detail it & fix the cheap stuff</div><div class="tip-d">A professional clean and small fixes (bulbs, wipers, a scuff) pay back several times over in buyer confidence.</div></div></div>
+        <div class="tip"><span class="tip-ico">📂</span><div class="tip-b"><div class="tip-t">Have the paperwork ready</div><div class="tip-d">${ctry==='CA'?'Service records + a <b>Carfax</b> (and a UVIP in Ontario) remove buyer doubt.':'Full <b>service history, RC, insurance & PUC</b> ready, with a clean ownership transfer plan.'} Documented cars sell faster and higher.</div></div></div>
+        <div class="tip"><span class="tip-ico">📷</span><div class="tip-b"><div class="tip-t">Great photos, honest listing</div><div class="tip-d">Clean daylight photos from every angle, real odometer, and an honest description draw serious buyers and fewer lowballers.</div></div></div>
+        <div class="tip"><span class="tip-ico">💬</span><div class="tip-b"><div class="tip-t">Price slightly high, sell on value</div><div class="tip-d">List a little above your floor to leave negotiating room. Get multiple offers, ${ctry==='CA'?'and use the trade-in tax credit as your private-sale walk-away number.':'and let buyers compete.'}</div></div></div>
+      </div>`;
+  }
+
+  /* ════════════════════ TAB — EARN (car as investment) ══════════════════ */
+  let earnCond='new';
+  function analyzeRental(o){
+    const loan=o.price*(1-o.dp/100);
+    const emiM=emi(loan,o.rate,o.term);
+    const grossMo=o.daily*o.util;
+    const afterComm=grossMo*(1-o.comm/100);
+    const opexMo=o.ins + o.maint/12 + o.misc;
+    const noiMo=afterComm-opexMo;              // net operating income, before financing
+    const cashFlowMo=noiMo-emiM;               // after the loan payment
+    const cashInvested=Math.max(o.price*o.dp/100,0);
+    const noCash=cashInvested<1;                     // ~100% financed → ROI on near-zero is meaningless
+    const months=o.H*12;
+    const debtMonths=Math.min(o.term,months);
+    const cumCash=noiMo*months - emiM*debtMonths;   // cash collected over the hold
+    // resale: depreciate from the purchase point
+    const f0=depFactor(o.startAge,o.d1,o.d2)||1;
+    const resale=o.price*(depFactor(o.startAge+o.H,o.d1,o.d2)/f0);
+    const loanBalExit=balanceAfter(loan,o.rate,o.term,debtMonths);
+    const equityExit=resale-loanBalExit;
+    const totalProfit=cumCash + equityExit - cashInvested;
+    const roi=noCash?null:totalProfit/cashInvested;
+    let annROI = noCash?null:((1+roi)>0 ? Math.pow(1+roi,1/o.H)-1 : -1);
+    const cocYr1=noCash?null:(cashFlowMo*12)/cashInvested;
+    const denomDay=o.daily*(1-o.comm/100);
+    const breakevenDays=denomDay>0 ? (opexMo+emiM)/denomDay : Infinity;
+    const paybackMo=noCash?0:(cashFlowMo>0 ? cashInvested/cashFlowMo : Infinity);
+    return {loan,emiM,grossMo,afterComm,opexMo,noiMo,cashFlowMo,cashInvested,noCash,resale,
+            equityExit,cumCash,totalProfit,roi,annROI,cocYr1,breakevenDays,paybackMo,months};
+  }
+  function renderEarn(){
+    const c=C(), rp=$('rp-earn');
+    const op={ // shared operating plan from the inputs
+      dp:num('e-dp'), rate:num('e-rate'), term:num('e-term'),
+      daily:num('e-daily'), util:num('e-util'), comm:num('e-comm'),
+      ins:num('e-ins'), maint:num('e-maint'), misc:num('e-misc'),
+      H:num('e-hold'), d1:num('e-dep1'), d2:num('e-dep2'),
+    };
+    const main=analyzeRental(Object.assign({}, op, {price:num('e-price'), startAge:(earnCond==='used'?c.usedAge:0)}));
+
+    // Benchmark: a passive index investment of the same cash
+    const bench=9; // %/yr, illustrative
+    const annPct = a => a==null?'n/a':(a*100).toFixed(0)+'%';
+    const beatsBench = main.annROI!=null && main.annROI*100>=bench;
+    const profitable=main.cashFlowMo>0 && main.totalProfit>0;
+
+    let recoCls, recoIco, recoT, recoM;
+    if(!profitable){
+      recoCls='warn'; recoIco='⚠️';
+      recoT=`This doesn't pay as an investment — yet`;
+      recoM=`At ${op.util} rented days/month you ${main.cashFlowMo<0?`lose <b>${money(-main.cashFlowMo)}/month</b>`:`barely break even`}, and end ${main.totalProfit<0?`<b>${money(-main.totalProfit)} down</b> after ${op.H} years`:'roughly flat'}. You need about <b>${isFinite(main.breakevenDays)?Math.ceil(main.breakevenDays):'—'} rented days/month</b> just to cover costs. Raise utilisation or the daily rate, cut commission (rent direct), or buy cheaper.`;
+    } else if(main.noCash){
+      recoCls=''; recoIco='🚀';
+      recoT=`Cash-flow positive on (almost) no money down`;
+      recoM=`With ~100% financed you tie up almost no cash, so the percentage return is effectively enormous — but you carry <b>all</b> the loan and the risk if bookings dip. You'd clear about <b>${money(main.cashFlowMo)}/month</b> and <b>${money(main.totalProfit)}</b> over ${op.H} years. Make sure you can cover the payment in a slow month.`;
+    } else if(beatsBench){
+      recoCls=''; recoIco='🚀';
+      recoT=`Looks like a solid little business — ${annPct(main.annROI)} a year`;
+      recoM=`After all costs and the car's depreciation, you'd clear about <b>${money(main.cashFlowMo)}/month</b> in cash and <b>${money(main.totalProfit)} total</b> over ${op.H} years on ${money(main.cashInvested)} down — an annualised <b>${annPct(main.annROI)}</b>, ahead of a ~${bench}% index fund. Watch the risks: wear, downtime, accidents, and platform rule changes.`;
+    } else {
+      recoCls='info'; recoIco='🤔';
+      recoT=`Cash-flow positive, but a modest investment`;
+      recoM=`You'd pocket ~<b>${money(main.cashFlowMo)}/month</b> and <b>${money(main.totalProfit)}</b> over ${op.H} years — an annualised <b>${annPct(main.annROI)}</b>, below a passive ~${bench}%. It can still be worth it if you enjoy it or can boost utilisation, but it's real work for the return.`;
+    }
+
+    // New vs Used, same operating plan, country stock prices
+    const aNew=analyzeRental(Object.assign({},op,{price:c.newPrice,startAge:0}));
+    const aUsed=analyzeRental(Object.assign({},op,{price:c.usedPrice,startAge:c.usedAge}));
+    const betterUsed=(aUsed.annROI!=null && aNew.annROI!=null) ? aUsed.annROI>=aNew.annROI : aUsed.totalProfit>=aNew.totalProfit;
+
+    const occ=(op.util/30*100).toFixed(0);
+    rp.innerHTML=`
+      <div class="rp-h">Car as an investment</div>
+      <div class="rp-sub">${earnCond==='used'?'Used':'New'} car · ${op.util} rented days/month (${occ}% busy) · held ${op.H} years</div>
+      <div class="reco ${recoCls}"><span class="reco-ico">${recoIco}</span><div><div class="reco-t">${recoT}</div><div class="reco-m">${recoM}</div></div></div>
+
+      <div class="kgrid">
+        <div class="kpi hl"><div class="kpi-l">Monthly cash flow</div><div class="kpi-v ${main.cashFlowMo>=0?'pos':'neg'}">${money(main.cashFlowMo)}</div><div class="kpi-s">after loan & all costs</div></div>
+        <div class="kpi"><div class="kpi-l">Cash-on-cash (yr 1)</div><div class="kpi-v ${main.cocYr1==null?'':(main.cocYr1>=0?'pos':'neg')}">${annPct(main.cocYr1)}</div><div class="kpi-s">${main.noCash?'100% financed — no cash down':'on '+money(main.cashInvested)+' down'}</div></div>
+        <div class="kpi"><div class="kpi-l">Payback</div><div class="kpi-v">${main.noCash?'—':(isFinite(main.paybackMo)?months2ym(main.paybackMo):'never')}</div><div class="kpi-s">to recover your down payment</div></div>
+        <div class="kpi"><div class="kpi-l">Annualised ROI</div><div class="kpi-v ${main.annROI==null?'':(main.annROI>=0?'acc':'neg')}">${annPct(main.annROI)}</div><div class="kpi-s">incl. resale, over ${op.H} yrs</div></div>
+        <div class="kpi"><div class="kpi-l">Break-even use</div><div class="kpi-v">${isFinite(main.breakevenDays)?Math.ceil(main.breakevenDays):'—'} <span style="font-size:.8rem">days/mo</span></div><div class="kpi-s">to cover every cost</div></div>
+      </div>
+
+      <div class="chartbox"><h4>Money in & out over ${op.H} years</h4><div class="chartwrap"><canvas id="ch-earn"></canvas></div>
+        <div class="hint" style="margin-top:8px">The line is cash recovered (starts at your ${money(main.cashInvested)} down payment). Crossing zero = your cash is back; everything after is profit. The star adds the car's resale equity at the end.</div>
+      </div>
+
+      <div class="sec-h">📊 The monthly P&amp;L</div>
+      <div class="chartbox" style="padding-top:8px">
+        <table class="dtbl">
+          <tr><td>Gross rental income</td><td class="num">${money(main.grossMo)}</td></tr>
+          <tr><td>− Platform commission (${op.comm}%)</td><td class="num">−${money(main.grossMo-main.afterComm)}</td></tr>
+          <tr><td>− Insurance / maintenance / misc</td><td class="num">−${money(main.opexMo)}</td></tr>
+          <tr><td><b>= Operating profit</b></td><td class="num"><b>${money(main.noiMo)}</b></td></tr>
+          <tr><td>− Loan payment</td><td class="num">−${money(main.emiM)}</td></tr>
+          <tr class="hl"><td><b>= Cash in your pocket</b></td><td class="num"><b>${money(main.cashFlowMo)}</b></td></tr>
+        </table>
+      </div>
+
+      <div class="sec-h">⚖️ New vs Used as an investment</div>
+      <div class="verdict">
+        <div class="vc ${!betterUsed?'best':''}">${!betterUsed?'<span class="vc-badge">BETTER ROI</span>':''}
+          <div class="vc-h"><span class="vc-ico">🚗</span><span class="vc-name">New car</span></div>
+          <div class="vc-cost" style="${(aNew.annROI!=null&&aNew.annROI<0)?'color:var(--danger)':''}">${annPct(aNew.annROI)}</div>
+          <div class="vc-costl">annualised ROI</div>
+          <div class="vc-rows">
+            <div class="vc-row"><span>Cash invested</span><b>${money(aNew.cashInvested)}</b></div>
+            <div class="vc-row"><span>Cash flow / mo</span><b>${money(aNew.cashFlowMo)}</b></div>
+            <div class="vc-row"><span>Total profit (${op.H}y)</span><b>${money(aNew.totalProfit)}</b></div>
+          </div></div>
+        <div class="vc ${betterUsed?'best':''}">${betterUsed?'<span class="vc-badge">BETTER ROI</span>':''}
+          <div class="vc-h"><span class="vc-ico">🔑</span><span class="vc-name">Used car</span></div>
+          <div class="vc-cost" style="${(aUsed.annROI!=null&&aUsed.annROI<0)?'color:var(--danger)':''}">${annPct(aUsed.annROI)}</div>
+          <div class="vc-costl">annualised ROI</div>
+          <div class="vc-rows">
+            <div class="vc-row"><span>Cash invested</span><b>${money(aUsed.cashInvested)}</b></div>
+            <div class="vc-row"><span>Cash flow / mo</span><b>${money(aUsed.cashFlowMo)}</b></div>
+            <div class="vc-row"><span>Total profit (${op.H}y)</span><b>${money(aUsed.totalProfit)}</b></div>
+          </div></div>
+      </div>
+      <div class="reco info"><span class="reco-ico">${betterUsed?'🔑':'🚗'}</span><div><div class="reco-t">${betterUsed?'A used car is usually the smarter rental investment':'A new car edges it here'}</div><div class="reco-m">${betterUsed
+        ? `It ties up far less cash (${money(aUsed.cashInvested)} vs ${money(aNew.cashInvested)}) for a similar daily rate, so each dollar works harder and the brutal first-year depreciation is already behind it. The trade-off: more downtime for repairs and no factory warranty.`
+        : `With these numbers the new car wins — usually because the daily rate or low downtime outweighs its bigger capital and depreciation. New also means warranty cover and fewer cancellations. Still, check the used case: it needs far less cash up front.`}</div></div></div>
+
+      <div class="sec-h">🧠 Run it like a real business</div>
+      <div class="tips">
+        <div class="tip"><span class="tip-ico">🛡️</span><div class="tip-b"><div class="tip-t">Get the right insurance</div><div class="tip-d">A personal policy <b>won't cover</b> renting your car out and a claim can be denied. Use the platform's commercial cover or a dedicated car-sharing/commercial policy.</div></div></div>
+        <div class="tip"><span class="tip-ico">📈</span><div class="tip-b"><div class="tip-t">Utilisation is everything</div><div class="tip-d">The gap between 8 and 16 rented days a month is the gap between a hobby and a real return. Competitive pricing, fast replies, great photos and 5-star reviews drive bookings.</div></div></div>
+        <div class="tip"><span class="tip-ico">🔧</span><div class="tip-b"><div class="tip-t">Pick a cheap-to-run, in-demand car</div><div class="tip-d">Reliable, fuel-efficient, popular models with cheap parts win. Downtime for repairs is lost income, not just a repair bill.</div></div></div>
+        <div class="tip"><span class="tip-ico">🧾</span><div class="tip-b"><div class="tip-t">It's a business — so is the tax</div><div class="tip-d">Rental income is taxable, but you can deduct depreciation, interest, insurance and running costs against it. See the <b>Tax</b> tab and keep clean records.</div></div></div>
+        <div class="tip"><span class="tip-ico">⚠️</span><div class="tip-b"><div class="tip-t">Mind the real risks</div><div class="tip-d">Accidents, theft, fines, hard wear, deposits/chargebacks, and platforms changing payout rules. Build a buffer and don't count on perfect months.</div></div></div>
+      </div>
+      <div class="notice">Illustrative model. Real returns swing hugely with location, platform, season and how actively you manage it. Not investment advice.</div>`;
+
+    // Cumulative cash chart
+    const labels=[], cash=[];
+    for(let y=0;y<=op.H;y++){
+      labels.push('Yr '+y);
+      const dm=Math.min(op.term,y*12);
+      cash.push(main.noiMo*y*12 - main.emiM*dm - main.cashInvested);
+    }
+    const finalWithEquity=cash[cash.length-1]+main.equityExit;
+    mkChart('ch-earn',{data:{labels,datasets:[
+        {type:'line',label:'Cash recovered',data:cash,borderColor:accent(),backgroundColor:'transparent',tension:.2,pointRadius:3,borderWidth:2.5},
+        {type:'scatter',label:'+ resale equity at exit',data:labels.map((_,i)=>i===labels.length-1?finalWithEquity:null),backgroundColor:'#d97706',pointRadius:7,pointStyle:'star'},
+      ]},options:{responsive:true,maintainAspectRatio:false,
+      scales:{x:{grid:{display:false},ticks:{color:tickColor()}},
+        y:{grid:{color:gridColor()},ticks:{color:tickColor(),callback:v=>moneyK(v)}}},
+      plugins:{legend:{labels:{color:tickColor(),boxWidth:12,font:{size:11}}},
+        tooltip:{callbacks:{label:c2=>c2.dataset.label+': '+money(c2.parsed.y)}}}}});
+  }
+
+  /* ════════════════════ TAB 7 — PLAYBOOK ════════════════════════════════ */
+  const PLAY=[
+    {cat:'🧮 Financing like a pro',items:[
+      ['The 20 / 4 / 10 rule','<b>20% down, max 4-year loan, total car costs under 10% of income.</b> If a car only fits with a 6–7 year loan, it is simply too expensive for you. Long loans are where dealers hide an unaffordable car inside a "comfortable" monthly payment.'],
+      ['Negotiate the price, never the monthly payment','Dealers love the question "what payment do you want?" because they can hit any payment by stretching the term and burying the cost. <b>Always negotiate the out-the-door price</b>, then talk financing separately.'],
+      ['Bring your own financing','Get a <b>pre-approval from a bank or credit union</b> before you visit. Then let the dealer try to beat it. Dealer finance often adds a markup ("rate participation") of 1–2% that is pure profit.'],
+      ['When a loan makes sense','Borrow when the rate is low and your cash earns more elsewhere — or you simply can\'t pay cash. If you can pay cash and your after-tax returns won\'t beat the loan rate, paying cash is a guaranteed return. Either way, keep the term short.'],
+      ['Round up your EMI','Paying even a little extra every month goes <b>100% to principal</b> and can cut months — sometimes years — off the loan. A lump sum early in the loan saves the most interest.'],
+    ]},
+    {cat:'🚗 New vs Used vs Lease',items:[
+      ['Buy used to skip the cliff','A new car can lose ~20% the first year. <b>A 1–3 year-old car</b> lets someone else absorb that, often with warranty left. Best value for most buyers.'],
+      ['Buy new when…','You keep cars 8+ years, want the latest safety/tech, need the full warranty, or the used premium is thin. Spreading depreciation over many years makes new competitive.'],
+      ['Consider Certified Pre-Owned (CPO)','CPO cars cost more than private used but add inspection + manufacturer warranty — a middle path that lowers risk.'],
+      ['Lease only if…','You always want a new car every 2–4 years, can <b>write it off for business</b>, and stay within the mileage cap. Otherwise you pay to use a car and own nothing at the end.'],
+      ['Watch the mileage cap on leases','Going over the per-km limit triggers steep penalties at lease-end. Wear-and-tear charges add up too.'],
+    ]},
+    {cat:'📉 Beating depreciation',items:[
+      ['It\'s your biggest cost','Depreciation usually dwarfs fuel and interest. Choosing a slow-depreciating car matters more than haggling a few hundred off the price.'],
+      ['Pick colours & trims that resell','White/silver/grey/black and popular trims sell faster and higher. Niche colours and loud options get discounted later.'],
+      ['Keep records & avoid mods','Full service history + clean accident record + stock condition = top resale. Modifications usually subtract value.'],
+      ['Mind the odometer','Lower-than-average mileage protects value. High km drags price down fast.'],
+    ]},
+    {cat:'🛡️ Insurance savings',items:[
+      ['Protect your no-claim/clean-record discount','Don\'t claim for small damage — a few hundred out of pocket can preserve a discount worth far more over years.'],
+      ['Raise the deductible','A higher deductible/voluntary excess lowers premium 8–15%. Keep that money set aside for a rare claim.'],
+      ['Bundle & shop yearly','Bundle home+auto, and re-quote with 3–4 insurers every renewal. Loyalty rarely pays. Report your real (often lower) annual mileage.'],
+      ['Right-size cover for old cars','When the car is worth little, comprehensive/collision premiums can exceed the payout — keep mandatory cover and bank the rest.'],
+    ]},
+    {cat:'🏷️ Selling for more',items:[
+      ['Private sale nets the most','Dealer trade-in and instant offers are easy but pay less. In Canada, a trade-in also earns a <b>sales-tax credit</b> on your next car — factor that into the comparison.'],
+      ['Time it right','Sell before warranty ends, before a big service is due, and with the season (SUVs in autumn, convertibles in spring).'],
+      ['Detail, document, photograph','A clean car, full paperwork, and honest daylight photos sell faster and higher.'],
+    ]},
+    {cat:'🛑 Dealer add-ons to question',items:[
+      ['Refuse the padding','Fabric/paint protection, nitrogen tires, VIN etching, and "market adjustment" fees are high-margin extras you can usually decline or get cheaper elsewhere.'],
+      ['Extended warranties','Sometimes useful, often overpriced at the desk. You can buy them later or from third parties — never feel rushed.'],
+      ['Shop at the right time','End of month/quarter/year, when dealers chase targets, and on outgoing model years can mean real discounts.'],
+      ['Verify the car (used)','Run a history report (Carfax in Canada), check for liens, and get an independent inspection before you buy used.'],
+    ]},
+  ];
+  function renderPlay(){
+    const rp=$('rp-play');
+    rp.innerHTML=`<div class="pb-wrap">
+      <div class="rp-h">The dealer's playbook</div>
+      <div class="rp-sub">The things a smart car dealer knows — now on your side of the table. Tap any item.</div>
+      ${PLAY.map(c=>`<div class="pb-cat">${c.cat}</div>${c.items.map(it=>`
+        <div class="faq"><div class="faq-q">${it[0]}<span class="fchev">▾</span></div><div class="faq-a"><div class="faq-a-in">${it[1]}</div></div></div>`).join('')}`).join('')}
+      <div class="notice" style="margin-top:18px">CarSmart is an educational planning tool. Figures are estimates and tax/insurance rules change — confirm specifics with a qualified professional.</div>
+    </div>`;
+    rp.querySelectorAll('.faq-q').forEach(q=>q.addEventListener('click',()=>q.parentElement.classList.toggle('open')));
+  }
+
+  /* ── Country defaults → fill inputs & labels ──────────────────────────── */
+  function applyCountry(){
+    const c=C();
+    document.querySelectorAll('.cursym').forEach(e=>e.textContent=c.sym);
+    document.querySelectorAll('.dist').forEach(e=>e.textContent=c.dist);
+    document.querySelectorAll('.ca-only').forEach(e=>e.style.display = (window.CarSmart.country()==='CA')?'':'none');
+
+    const set=(id,v)=>{ if($(id)) $(id).value=v; };
+    // Decide
+    set('d-newprice',c.newPrice); set('d-rate',c.loanRate); set('d-term',c.term);
+    set('d-usedprice',c.usedPrice); set('d-usedage',c.usedAge); set('d-usedrate',c.usedRate);
+    set('d-lease',c.leaseMonthly); set('d-leasedown',c.leaseDown);
+    set('d-maint',c.maint); set('d-ins',c.ins);
+    // Loan
+    set('l-amt',Math.round(c.newPrice*0.8)); set('l-rate',c.loanRate); set('l-term',c.term);
+    set('l-rate2',Math.max(c.loanRate-1.5,1)); set('l-lumpm',12);
+    // Depr
+    set('p-price',c.newPrice); set('p-maint',c.maint);
+    // Tax
+    set('t-price',c.newPrice); set('t-rate',c.marginalRate);
+    set('t-int',Math.round(c.newPrice*0.8*c.loanRate/100)); set('t-run',Math.round(c.maint+c.ins*12+ (c.locale==='en-IN'?80000:2400)));
+    $('tax-intro').innerHTML = window.CarSmart.country()==='CA'
+      ? `In Canada there's <b>no tax break on a personal car</b> — but a <b>business / self-employed</b> car unlocks depreciation (CCA), capped interest, and running-cost deductions on the business-use share. EVs get an extra-large first-year write-off.`
+      : `In India a <b>salaried</b> person gets no write-off on a personal petrol/diesel car — but <b>business use</b> unlocks depreciation + interest + running costs, EVs get the <b>80EEB</b> interest deduction, and a company car-lease scheme can pay the EMI from pre-tax salary.`;
+    // Insurance
+    set('i-value',Math.round(c.newPrice*0.6));
+    $('i-ncb-lbl').textContent = window.CarSmart.country()==='IN' ? 'Claim-free years (No-Claim Bonus)' : 'Claim-free years';
+    // Sell
+    set('s-price',c.newPrice); set('s-odo', c.locale==='en-IN'?48000:72000); set('s-tax',c.defTax);
+    // Earn — price follows the new/used toggle
+    set('e-price', earnCond==='used'?c.usedPrice:c.newPrice);
+    set('e-rate',c.loanRate); set('e-term',c.term);
+    set('e-daily',c.rentDaily); set('e-comm',c.rentComm);
+    set('e-ins',c.rentIns); set('e-maint',c.rentMaint); set('e-misc',c.rentMisc);
+  }
+
+  /* ── Tab switching ───────────────────────────────────────────────────── */
+  let active='decide';
+  const RENDER={decide:renderDecide,loan:renderLoan,depr:renderDepr,tax:renderTax,ins:renderIns,sell:renderSell,earn:renderEarn,play:renderPlay};
+  function show(tab){
+    active=tab;
+    document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+tab));
+    RENDER[tab]();
+  }
+
+  /* ── Collapsible cards ───────────────────────────────────────────────── */
+  function wireCards(){
+    document.querySelectorAll('.ch').forEach(h=>h.addEventListener('click',()=>{
+      const body=h.nextElementSibling, chev=h.querySelector('.chev');
+      body.classList.toggle('closed'); chev.classList.toggle('up');
+    }));
+  }
+  /* ── Sliders + segmented controls ────────────────────────────────────── */
+  function wireControls(){
+    const link=(id,vid,fmt)=>{ const s=$(id); if(!s) return; s.addEventListener('input',()=>{ $(vid).textContent=fmt?fmt(s.value):s.value; RENDER[active](); }); };
+    link('d-hold','d-hold-v');
+    link('d-km','d-km-v',v=>(+v).toLocaleString(C().locale));
+    link('t-biz','t-biz-v');
+    link('i-ncb','i-ncb-v');
+    link('e-util','e-util-v');
+    link('e-hold','e-hold-v');
+    // segmented
+    function seg(id,cb){ const w=$(id); if(!w) return; w.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ w.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); cb(b.dataset.v); RENDER[active](); })); }
+    seg('tax-use',v=>taxUse=v); seg('tax-ev',v=>taxEv=v);
+    seg('i-ded',v=>insDed=+v); seg('i-rec',v=>insRec=v);
+    seg('e-cond',v=>{ earnCond=v; const c=C(); if($('e-price')) $('e-price').value = v==='used'?c.usedPrice:c.newPrice; });
+  }
+
+  /* ── Init ────────────────────────────────────────────────────────────── */
+  function init(){
+    applyCountry();
+    wireCards(); wireControls();
+    document.getElementById('tabs').querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
+    // recompute active tab on any input change
+    document.addEventListener('input',e=>{ if(e.target.matches('input,select')) RENDER[active](); });
+    show('decide');
+
+    window.addEventListener('pw-theme-change',()=>RENDER[active]());
+    window.addEventListener('pw-country-change',()=>{ applyCountry(); RENDER[active](); });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
+</body>
+</html>

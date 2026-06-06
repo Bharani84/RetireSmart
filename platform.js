@@ -18,7 +18,7 @@
     { id: 'retiresmart',     name: 'RetireSmart',    icon: '💼', href: 'index.html' },
     { id: 'happyhome',       name: 'India Home',     icon: '🏡', href: 'mortgage.html' },
     { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
-    { id: 'carsmart',        name: 'CarSmart',       icon: '🚗', href: '#', soon: true },
+    { id: 'dreamcar',        name: 'Dream Car',      icon: '🚗', href: 'dreamcar.html' },
   ];
 
   const THEME_KEY = 'pw_theme';
