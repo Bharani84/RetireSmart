@@ -254,8 +254,11 @@ const DEFAULTS = {
 };
 let S = load();
 function load(){
-  try { const v = JSON.parse(localStorage.getItem('mm_state')); return Object.assign({}, DEFAULTS, v||{}); }
-  catch(e){ return Object.assign({}, DEFAULTS); }
+  let s;
+  try { const v = JSON.parse(localStorage.getItem('mm_state')); s = Object.assign({}, DEFAULTS, v||{}); }
+  catch(e){ s = Object.assign({}, DEFAULTS); }
+  if(!(+s.amort > 0)) s.amort = DEFAULTS.amort;   // guard against stale/invalid amortization
+  return s;
 }
 function save(){ localStorage.setItem('mm_state', JSON.stringify(S)); }
 
@@ -282,6 +285,7 @@ const FREQ = {
 
 /* Standard level payment for a given principal, nominal rate, payments/yr, n periods */
 function levelPayment(principal, nom, p, n){
+  if(!(n > 0)) return 0;          // no periods (blank/0 amortization) → guard against Infinity/NaN
   const i = periodicRate(nom, p);
   if(i === 0) return principal / n;
   return principal * i / (1 - Math.pow(1+i, -n));
@@ -396,16 +400,17 @@ function model(){
   const price = +S.price || 0;
   let dpAmt, dpPct;
   if(S.dpMode==='pct'){ dpPct = +S.dpPct||0; dpAmt = price*dpPct/100; }
-  else { dpAmt = +S.dpAmt||0; dpPct = price? dpAmt/price*100 : 0; }
+  else { dpAmt = Math.min(+S.dpAmt||0, price); dpPct = price? dpAmt/price*100 : 0; } // down payment can't exceed price
   const nom = (+S.rate||0)/100;
+  const amortYears = Math.max(1, +S.amort||25); // guard: blank/0 amortization → Infinity payments
   const ci = cmhc(price, dpPct);
-  const baseLoan = price - dpAmt;
+  const baseLoan = Math.max(0, price - dpAmt);
   const loan = baseLoan + (ci.insured ? ci.premium : 0); // premium added to mortgage
-  const f = paymentFor(loan, nom, +S.amort, S.freq);
+  const f = paymentFor(loan, nom, amortYears, S.freq);
   const sched = amortize(loan, nom, f.p, f.pay);
-  const monthlyPay = levelPayment(loan, nom, 12, S.amort*12);
+  const monthlyPay = levelPayment(loan, nom, 12, amortYears*12);
   const propTaxMo = price*0.01/12; // ~1%/yr estimate
-  const st = stressTest(loan, nom, +S.amort, +S.income||1, 0, propTaxMo);
+  const st = stressTest(loan, nom, amortYears, +S.income||1, 0, propTaxMo);
   const transfer = ltt(price, S.province, S.city, S.firstTime);
   return { price, dpAmt, dpPct, nom, cmhc:ci, baseLoan, loan, freq:f, sched, monthlyPay, propTaxMo, st, transfer };
 }
@@ -565,7 +570,9 @@ function wireInputs(){
   // Continuous inputs: update state + labels in place, then commit outputs (no panel rebuild).
   const cont = (id,key)=>on(id,'input',e=>{ S[key]=parseFloat(e.target.value)||0; save(); syncInputs(); commit(); });
   cont('i-price','price'); cont('i-dppct','dpPct'); cont('i-dpamt','dpAmt');
-  cont('i-amort','amort'); cont('i-income','income'); cont('i-marg','marginal');
+  cont('i-income','income'); cont('i-marg','marginal');
+  // Amortization: clamp to ≥1 so a blank/0 field never produces Infinity/NaN payments.
+  on('i-amort','input',e=>{ S.amort = Math.max(1, parseFloat(e.target.value)||0); save(); syncInputs(); commit(); });
   // Rate slider & number field mirror each other without tearing down the panel.
   on('i-rate','input',e=>{ S.rate=parseFloat(e.target.value)||0; const n=document.getElementById('i-rate-n'); if(n) n.value=S.rate; save(); syncInputs(); commit(); });
   on('i-rate-n','input',e=>{ S.rate=parseFloat(e.target.value)||0; const r=document.getElementById('i-rate'); if(r) r.value=S.rate; save(); syncInputs(); commit(); });
@@ -862,7 +869,7 @@ RENDERERS.rate = function(){
 };
 
 /* ════════════════ TAB 4 · TAX STRATEGY ═════════════════════════════════ */
-const TAX = { fhsaYears: 4, fhsaPerYear: 8000, rentMonthly: 3000, opex: 25 };
+const TAX = { fhsaYears: 4, fhsaPerYear: 8000, rentMonthly: 3000, opex: 25, activeSub: 'buy' };
 RENDERERS.tax = function(){
   const m = model();
   const mr = S.marginal/100;
@@ -986,15 +993,19 @@ RENDERERS.tax = function(){
         <div class="note warn"><b>Capital gains on a rental are taxable</b> (50% inclusion up to $250k of gains/yr, then 66.7% per the proposed 2024 rules). Hold it in the right name and time the sale.</div>
       </div>`,
   };
-  const setTax = k => { document.getElementById('taxBody').innerHTML = bodies[k];
-    const w=(id,fmt,fn)=>liveRange(id,fmt,v=>{ fn(v); RENDERERS.tax(); document.querySelectorAll('#taxSub button').forEach(b=>b.classList.toggle('on',b.dataset.tx===k)); setTax(k); });
+  const setTax = k => {
+    TAX.activeSub = k;                                   // remember the open sub-tab across re-renders
+    document.getElementById('taxBody').innerHTML = bodies[k];
+    document.querySelectorAll('#taxSub button').forEach(b=>b.classList.toggle('on',b.dataset.tx===k));
+    // On commit just update state + re-render from FRESH values (no stale HTML re-inject).
+    const w=(id,fmt,fn)=>liveRange(id,fmt,v=>{ fn(v); RENDERERS.tax(); });
     w('tx-fhsa-amt', v=>CAD(v),         v=>TAX.fhsaPerYear=v);
     w('tx-fhsa-yrs', v=>String(v),      v=>TAX.fhsaYears=v);
     w('tx-rent',     v=>CAD(v),         v=>TAX.rentMonthly=v);
     w('tx-opex',     v=>PCT(v,0)+' of rent', v=>TAX.opex=v);
   };
-  document.getElementById('taxSub').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; document.querySelectorAll('#taxSub button').forEach(x=>x.classList.toggle('on',x===b)); setTax(b.dataset.tx); });
-  setTax('buy');
+  document.getElementById('taxSub').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; setTax(b.dataset.tx); });
+  setTax(TAX.activeSub || 'buy');
 };
 
 /* ════════════════ TAB 5 · LEVERAGE LAB ═════════════════════════════════ */
