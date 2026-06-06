@@ -1290,9 +1290,10 @@ function renderPrepay(){
   const tIntNew = totalInt(m);
   const tEmiNew = totalEmi(m);
   const intSaved = s.baseInt - tIntNew;
-  const yrsCut = S.ten - newTen;
+  const newTenR = +newTen.toFixed(1);            // round once, so tenure + years-cut sum to the original
+  const yrsCut = S.ten - newTenR;
 
-  document.getElementById('ppTen').textContent = newTen.toFixed(1) + ' yr';
+  document.getElementById('ppTen').textContent = newTenR.toFixed(1) + ' yr';
   document.getElementById('ppTenSub').textContent = 'vs original ' + S.ten + ' yr';
   document.getElementById('ppInt').textContent = fmtINR(intSaved);
   document.getElementById('ppYrs').textContent = yrsCut.toFixed(1) + ' yr';
@@ -1329,9 +1330,10 @@ function renderPrepay(){
   ];
   const tb = document.querySelector('#ppCmp tbody');
   tb.innerHTML = stratList.map(st => {
-    const t = (st.m.length/12).toFixed(1);
+    const tR = +(st.m.length/12).toFixed(1);
+    const t = tR.toFixed(1);
     const i = totalInt(st.m);
-    const cut = (S.ten - st.m.length/12).toFixed(1);
+    const cut = (S.ten - tR).toFixed(1);
     const saved = s.baseInt - i;
     return `<tr>
       <td><b>${st.nm}</b></td>
@@ -1399,6 +1401,15 @@ function renderBT(){
   const monthIdx = btYr * 12 - 1;
   const balAtSwitch = baseM[monthIdx] ? baseM[monthIdx].close : 0;
   const remainingTen = S.ten - btYr;
+
+  // Guard: if the switch year is at/after the loan ends, there's nothing left to transfer.
+  if (remainingTen <= 0 || balAtSwitch < 1){
+    document.getElementById('btResult').innerHTML = `
+      <div class="row"><span class="lbl">Balance at switch (Y${btYr})</span><span class="val">${fmtINR(balAtSwitch)}</span></div>
+      <div class="tip warn" style="margin-top:8px"><b>ℹ️ Nothing to transfer.</b> Your ${S.ten}-year loan is already paid off by year ${btYr}. Choose a switch year before the loan ends to see the comparison.</div>
+    `;
+    return;
+  }
 
   // Old continuation
   const oldContM = baseM.slice(monthIdx + 1);
