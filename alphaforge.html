@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AlphaForge — Smart Investing Lab (India)</title>
+<meta name="description" content="A smart-investor's lab for the Indian market: beat-the-index rotation math, goal CAGR planning, leverage, factor ETFs, strategy screening and tax optimisation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<!-- PlanWise shared platform shell (master nav + theme) -->
+<link rel="stylesheet" href="platform.css">
+<script src="platform.js"></script>
+<style>
+/* ═══ TOKENS ═══════════════════════════════════════════════════════════ */
+:root{
+  --bg:#eef2f7; --lp:#f5f7fc; --card:#fff;
+  --bdr:rgba(0,0,0,.07); --bdr2:rgba(0,0,0,.13);
+  --acc:#0891b2; --acc-bg:rgba(8,145,178,.09); --acc-bdr:rgba(8,145,178,.22);
+  --gold:#d97706; --gold-bg:rgba(217,119,6,.09);
+  --danger:#dc2626; --dang-bg:rgba(220,38,38,.08);
+  --success:#16a34a; --succ-bg:rgba(22,163,74,.1);
+  --warn:#ca8a04; --warn-bg:rgba(202,138,4,.09);
+  --purple:#7c3aed; --purple-bg:rgba(124,58,237,.1);
+  --txt:#1e293b; --txt2:#64748b; --txt3:#94a3b8;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --ibg:#f8fafc; --r:14px; --rs:9px;
+}
+[data-theme="dark"]{
+  --bg:#07101f; --lp:rgba(0,0,0,.22); --card:rgba(255,255,255,.04);
+  --bdr:rgba(255,255,255,.07); --bdr2:rgba(255,255,255,.13);
+  --acc:#22d3ee; --acc-bg:rgba(34,211,238,.1); --acc-bdr:rgba(34,211,238,.22);
+  --gold:#f4a261; --gold-bg:rgba(244,162,97,.1);
+  --danger:#ff6b6b; --dang-bg:rgba(255,107,107,.1);
+  --success:#51cf66; --succ-bg:rgba(81,207,102,.1);
+  --warn:#ffd43b; --warn-bg:rgba(255,212,59,.1);
+  --purple:#a78bfa; --purple-bg:rgba(167,139,250,.12);
+  --txt:#f0f4f8; --txt2:rgba(240,244,248,.6); --txt3:rgba(240,244,248,.32);
+  --sh:none; --ibg:rgba(255,255,255,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.55;font-size:14px;transition:background .3s,color .3s}
+
+/* ═══ TOP BAR ═══════════════════════════════════════════════════════════ */
+.bar{background:var(--card);border-bottom:1px solid var(--bdr);box-shadow:var(--sh);position:sticky;top:0;z-index:200}
+.bar-in{display:flex;align-items:center;gap:14px;padding:0 18px;height:56px;max-width:1280px;margin:0 auto}
+.logo{font-size:1.15rem;font-weight:800;white-space:nowrap;display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--acc),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tag{font-size:.66rem;font-weight:600;color:var(--txt3);letter-spacing:.04em;white-space:nowrap}
+.spacer{flex:1}
+.theme{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:6px 13px;border-radius:20px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.74rem;font-weight:600;cursor:pointer;transition:all .18s}
+.theme:hover{border-color:var(--acc-bdr);color:var(--acc)}
+
+/* ═══ TABS ══════════════════════════════════════════════════════════════ */
+.tabbar{background:var(--card);border-bottom:1px solid var(--bdr);position:sticky;top:52px;z-index:190}
+.tabbar-in{display:flex;align-items:center;gap:2px;padding:0 14px;max-width:1280px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+.subnav-lbl{font-size:.82rem;font-weight:800;color:var(--txt);white-space:nowrap;flex-shrink:0;margin-right:8px}
+.subnav-sub{font-size:.66rem;font-weight:500;color:var(--txt3)}
+.tabbar-in::-webkit-scrollbar{display:none}
+.tbtn{padding:11px 14px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.82rem;font-weight:600;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .18s}
+.tbtn:hover:not(.active){color:var(--txt)}
+.tbtn.active{color:var(--acc);border-bottom-color:var(--acc)}
+
+/* ═══ LAYOUT ════════════════════════════════════════════════════════════ */
+.wrap{max-width:1280px;margin:0 auto;padding:20px 18px 60px}
+.panel{display:none;animation:fade .25s ease}
+.panel.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.intro{margin-bottom:18px}
+.intro h1{font-size:1.5rem;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.intro p{color:var(--txt2);font-size:.9rem;margin-top:4px;max-width:760px}
+
+.grid{display:grid;gap:16px}
+.g-2{grid-template-columns:380px 1fr}
+@media(max-width:880px){.g-2{grid-template-columns:1fr}}
+
+/* ═══ CARDS ═════════════════════════════════════════════════════════════ */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.card+.card{margin-top:16px}
+.ch{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--bdr)}
+.ci{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;background:var(--acc-bg)}
+.ci.g{background:var(--gold-bg)}.ci.p{background:var(--purple-bg)}.ci.r{background:var(--dang-bg)}.ci.s{background:var(--succ-bg)}
+.ct{font-size:.95rem;font-weight:700}
+.csub{font-size:.7rem;color:var(--txt2);margin-top:1px}
+.cbody{padding:16px}
+
+/* ═══ FORM ══════════════════════════════════════════════════════════════ */
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:13px}
+.f:last-child{margin-bottom:0}
+.f label{font-size:.66rem;font-weight:700;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.f label .v{color:var(--acc);font-weight:800}
+.hint{font-size:.68rem;color:var(--txt3);line-height:1.45}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+input,select{background:var(--ibg);border:1px solid var(--bdr2);border-radius:var(--rs);color:var(--txt);font-family:inherit;font-size:.86rem;padding:8px 10px;width:100%;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none}
+input:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc-bg)}
+input[type=range]{padding:0;height:6px;background:var(--bdr2);border-radius:3px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--acc);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.25);border:2px solid #fff}
+select option{background:var(--card);color:var(--txt)}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg button{flex:1;min-width:54px;padding:7px 6px;border:1px solid var(--bdr2);border-radius:8px;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer;transition:all .15s}
+.seg button.active{background:var(--acc-bg);border-color:var(--acc);color:var(--acc)}
+
+/* ═══ RESULT TILES ══════════════════════════════════════════════════════ */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+.tile{background:var(--ibg);border:1px solid var(--bdr);border-radius:var(--rs);padding:13px 14px}
+.tile .l{font-size:.66rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em}
+.tile .n{font-size:1.5rem;font-weight:800;margin-top:3px;letter-spacing:-.02em}
+.tile .s{font-size:.7rem;color:var(--txt3);margin-top:1px}
+.tile.hot{background:var(--dang-bg);border-color:var(--danger)}
+.tile.hot .n{color:var(--danger)}
+.tile.good{background:var(--succ-bg);border-color:var(--success)}
+.tile.good .n{color:var(--success)}
+.tile.acc{background:var(--acc-bg);border-color:var(--acc-bdr)}
+.tile.acc .n{color:var(--acc)}
+.tile.gold{background:var(--gold-bg);border-color:var(--gold)}
+.tile.gold .n{color:var(--gold)}
+
+/* ═══ CALLOUT ═══════════════════════════════════════════════════════════ */
+.callout{border-radius:var(--rs);padding:13px 15px;font-size:.84rem;line-height:1.55;border:1px solid}
+.callout.v{background:var(--succ-bg);border-color:var(--success);color:var(--txt)}
+.callout.w{background:var(--gold-bg);border-color:var(--gold)}
+.callout.d{background:var(--dang-bg);border-color:var(--danger)}
+.callout.i{background:var(--acc-bg);border-color:var(--acc-bdr)}
+.callout b{font-weight:800}
+.callout .big{font-size:1.05rem;font-weight:800;display:block;margin-bottom:3px}
+
+/* ═══ TABLES ════════════════════════════════════════════════════════════ */
+.tbl{width:100%;border-collapse:collapse;font-size:.82rem}
+.tbl th{font-size:.64rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;text-align:left;padding:8px 10px;border-bottom:1px solid var(--bdr2)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--bdr)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tr.hl td{background:var(--acc-bg);font-weight:700}
+.pill{display:inline-block;font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:20px}
+.pill.g{background:var(--succ-bg);color:var(--success)}
+.pill.r{background:var(--dang-bg);color:var(--danger)}
+.pill.y{background:var(--gold-bg);color:var(--gold)}
+.pill.b{background:var(--acc-bg);color:var(--acc)}
+
+/* ═══ FACTOR / STRATEGY CARDS ═══════════════════════════════════════════ */
+.fcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.fcard{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:15px;box-shadow:var(--sh);transition:all .2s}
+.fcard.spot{border-color:var(--success);box-shadow:0 0 0 2px var(--succ-bg),var(--sh)}
+.fcard.dim{opacity:.5}
+.fcard h3{font-size:.95rem;font-weight:800;display:flex;align-items:center;gap:7px}
+.fcard .erow{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.fcard p{font-size:.8rem;color:var(--txt2);margin-top:7px;line-height:1.5}
+.fcard .when{font-size:.76rem;margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr)}
+.fcard .when b{color:var(--success)}
+.fcard .when .bad b{color:var(--danger)}
+
+/* ═══ CHECKLIST ═════════════════════════════════════════════════════════ */
+.chk{display:flex;align-items:flex-start;gap:9px;padding:7px 0;font-size:.84rem;border-bottom:1px dashed var(--bdr)}
+.chk:last-child{border-bottom:none}
+.chk .mk{flex-shrink:0;font-size:.95rem;margin-top:1px}
+.chk .desc{color:var(--txt2);font-size:.74rem}
+
+/* ═══ ACCORDION (playbook) ══════════════════════════════════════════════ */
+.acc-item{border:1px solid var(--bdr);border-radius:var(--rs);margin-bottom:10px;overflow:hidden;background:var(--card)}
+.acc-h{display:flex;align-items:center;gap:10px;padding:13px 15px;cursor:pointer;user-select:none;font-weight:700;font-size:.9rem}
+.acc-h:hover{background:var(--ibg)}
+.acc-h .em{font-size:1.1rem}
+.acc-h .ar{margin-left:auto;color:var(--txt3);transition:transform .25s;font-size:.7rem}
+.acc-item.open .acc-h .ar{transform:rotate(180deg)}
+.acc-b{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.acc-item.open .acc-b{max-height:600px}
+.acc-b-in{padding:0 15px 15px;font-size:.85rem;color:var(--txt2);line-height:1.6}
+.acc-b-in ul{margin:6px 0 0 18px}
+.acc-b-in li{margin-bottom:5px}
+.acc-b-in b{color:var(--txt)}
+
+.note{font-size:.72rem;color:var(--txt3);margin-top:14px;line-height:1.5;padding:11px 13px;background:var(--ibg);border-radius:var(--rs);border:1px solid var(--bdr)}
+.sec-h{font-size:.72rem;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin:22px 0 12px}
+</style>
+</head>
+<body data-app="alphaforge">
+<!-- ═══ PLATFORM BAR (shared, rendered by platform.js) ═══════════════════ -->
+<div id="pw-bar"></div>
+
+<div class="tabbar"><div class="tabbar-in" id="tabbar">
+  <span class="subnav-lbl">⚒️ AlphaForge <span class="subnav-sub">· Smart Investing Lab · 🇮🇳 India · FY 2025‑26</span></span>
+  <button class="tbtn active" data-tab="beat">🏁 Beat the Index</button>
+  <button class="tbtn" data-tab="goal">🎯 Goal CAGR</button>
+  <button class="tbtn" data-tab="lev">⚡ Leverage Lab</button>
+  <button class="tbtn" data-tab="factor">🧬 Factor ETFs</button>
+  <button class="tbtn" data-tab="bonds">🏦 Bonds</button>
+  <button class="tbtn" data-tab="screen">🔬 Strategy Screener</button>
+  <button class="tbtn" data-tab="multi">🚀 Multibagger Lab</button>
+  <button class="tbtn" data-tab="tax">🧾 Tax & Costs</button>
+  <button class="tbtn" data-tab="play">📈 Boost CAGR Playbook</button>
+</div></div>
+
+<div class="wrap">
+
+<!-- ══════════════════ TAB 1: BEAT THE INDEX ══════════════════ -->
+<section class="panel active" id="tab-beat">
+  <div class="intro">
+    <h1>🏁 Beat‑the‑Index Reality Check</h1>
+    <p>An index quietly compounds <b>pre‑tax</b> and you pay tax only once, years later. The moment you start <b>rotating</b> (6 / 3 / 1‑month churn) every realised gain is taxed at <b>20% STCG</b> and bleeds brokerage + STT + slippage. This tells you the <b>gross CAGR you must actually generate</b> just to match a lazy buy‑and‑hold index.</p>
+  </div>
+  <div class="grid g-2">
+    <div>
+      <div class="card"><div class="ch"><div class="ci"></div><div><div class="ct">Your assumptions</div><div class="csub">Tune everything — it's all editable</div></div></div>
+      <div class="cbody">
+        <div class="f"><label>Index CAGR (buy & hold) <span class="v" id="bIdxV">12%</span></label>
+          <input type="range" id="bIdx" min="6" max="50" step="0.5" value="12"></div>
+        <div class="f"><label>Your strategy expected return <span class="v" id="bStratV">25%</span></label>
+          <input type="range" id="bStrat" min="6" max="60" step="0.5" value="25">
+          <div class="hint">The gross CAGR you expect your strategy to make <b>before</b> tax & costs. The <b>Net @ …</b> column shows what each holding pattern actually leaves you after the bite.</div></div>
+        <div class="g2">
+          <div class="f"><label>STCG tax %</label><input type="number" id="bStcg" value="20" step="0.5"></div>
+          <div class="f"><label>LTCG tax %</label><input type="number" id="bLtcg" value="12.5" step="0.5"></div>
+        </div>
+        <div class="g2">
+          <div class="f"><label>Horizon (yrs)</label><input type="number" id="bYrs" value="10" min="1" max="40"></div>
+          <div class="f"><label>Capital ₹</label><input type="number" id="bCap" value="1000000" step="50000"></div>
+        </div>
+        <div class="f"><label># Holdings (stocks / ETFs) <span class="v" id="bHoldV">10</span></label>
+          <input type="range" id="bHold" min="1" max="50" step="1" value="10">
+          <div class="seg" style="margin-top:8px" id="bHoldPreset">
+            <button data-h="5">5</button><button data-h="10" class="active">10</button>
+            <button data-h="20">20</button><button data-h="30">30</button>
+          </div>
+          <div class="hint">Each rotation you buy <b>and</b> sell every name. Flat fees (brokerage/order + DP/scrip) multiply by the count — and the more you split, the smaller each position, so flat fees eat a bigger % of it.</div></div>
+        <div class="card" style="box-shadow:none;border:1px dashed var(--bdr2);margin-top:6px">
+          <div class="ch" style="padding:10px 12px;border-bottom:1px dashed var(--bdr)"><div class="ct" style="font-size:.84rem">🧮 Round‑trip cost builder</div></div>
+          <div class="cbody" style="padding:12px">
+            <div class="g2">
+              <div class="f"><label>STT / tax — BUY %</label><input type="number" id="cSttB" value="0.10" step="0.01"></div>
+              <div class="f"><label>STT / tax — SELL %</label><input type="number" id="cSttS" value="0.10" step="0.01"></div>
+            </div>
+            <div class="g2">
+              <div class="f"><label>Stamp duty — BUY %</label><input type="number" id="cStamp" value="0.015" step="0.005"></div>
+              <div class="f"><label>Exch + SEBI % / side</label><input type="number" id="cExch" value="0.003" step="0.001"></div>
+            </div>
+            <div class="g2">
+              <div class="f"><label>Slippage / impact % / side</label><input type="number" id="cSlip" value="0.05" step="0.01"></div>
+              <div class="f"><label>Brokerage ₹ / order</label><input type="number" id="cBrok" value="20" step="5"></div>
+            </div>
+            <div class="f"><label>DP charge ₹ / sell scrip</label><input type="number" id="cDp" value="15.93" step="1"></div>
+            <div class="callout i" id="bCostOut" style="padding:10px 12px;font-size:.8rem;margin-top:2px"></div>
+            <div class="hint" style="margin-top:7px">GST (18%) on brokerage + exchange is added automatically. Edit any field — it all sums into the round‑trip cost used by the calc above.</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px"><div class="ch"><div class="ci p">🔁</div><div><div class="ct">All rotation frequencies — side by side</div><div class="csub">Same index, tax & costs. Tap a row to highlight it on the chart below.</div></div></div>
+      <div class="cbody" style="overflow-x:auto"><table class="tbl" id="bCompare"></table></div></div>
+      <div class="card"><div class="ch"><div class="ci g">📊</div><div><div class="ct">After‑tax corpus: rotate vs hold</div><div class="csub">Same gross return — the gap is pure tax + cost drag</div></div></div>
+      <div class="cbody"><canvas id="bChart" height="150"></canvas></div></div>
+      <div class="note" id="bMath"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ TAB 2: GOAL CAGR ══════════════════ -->
+<section class="panel" id="tab-goal">
+  <div class="intro">
+    <h1>🎯 Goal‑CAGR Planner</h1>
+    <p>Pick a target — 20%, 30%, 40% — and see the <b>monthly consistency</b> it really demands, how one bad month sets you back, the corpus it builds, and how <b>step‑up SIP + scaling capital</b> bends the curve. The honesty meter keeps you grounded.</p>
+  </div>
+  <div class="grid g-2">
+    <div>
+      <div class="card"><div class="ch"><div class="ci p">🎯</div><div><div class="ct">Your goal</div></div></div>
+      <div class="cbody">
+        <div class="f"><label>Target CAGR <span class="v" id="gCagrV">25%</span></label>
+          <input type="range" id="gCagr" min="10" max="50" step="1" value="25">
+          <div class="seg" style="margin-top:8px" id="gPreset">
+            <button data-c="12">Index 12%</button><button data-c="20">20%</button>
+            <button data-c="30" class="active">30%</button><button data-c="40">40%</button>
+          </div></div>
+        <div class="g2">
+          <div class="f"><label>Horizon (yrs)</label><input type="number" id="gYrs" value="15" min="1" max="40"></div>
+          <div class="f"><label>Start capital ₹</label><input type="number" id="gCap" value="500000" step="50000"></div>
+        </div>
+        <div class="g2">
+          <div class="f"><label>Monthly SIP ₹</label><input type="number" id="gSip" value="25000" step="1000"></div>
+          <div class="f"><label>SIP step‑up %/yr</label><input type="number" id="gStep" value="10" step="1"></div>
+        </div>
+        <div class="hint">Step‑up = you raise the SIP every year as income grows. This is the single biggest lever most people ignore.</div>
+      </div></div>
+    </div>
+    <div>
+      <div class="tiles" id="gTiles"></div>
+      <div class="callout i" id="gReal" style="margin-bottom:14px"></div>
+      <div class="card"><div class="ch"><div class="ci">📈</div><div><div class="ct">Corpus growth</div><div class="csub">SIP + step‑up, compounded at target CAGR</div></div></div>
+      <div class="cbody"><canvas id="gChart" height="150"></canvas></div></div>
+      <div class="card"><div class="ch"><div class="ci g">🔁</div><div><div class="ct">Consistency map</div><div class="csub">What each timeframe must average — and the cost of one bad stretch</div></div></div>
+      <div class="cbody" style="overflow-x:auto"><table class="tbl" id="gConsist"></table></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ TAB 3: LEVERAGE LAB ══════════════════ -->
+<section class="panel" id="tab-lev">
+  <div class="intro">
+    <h1>⚡ Leverage Lab</h1>
+    <p>Leverage multiplies <b>both</b> directions. Used at the right time (cheap money, market on sale) it supercharges returns; used wrong it triggers margin calls at the bottom. Size it with <b>Kelly</b>, know your <b>margin‑call price</b>, and only borrow when expected return clears the borrowing cost with a wide margin.</p>
+  </div>
+  <div class="grid g-2">
+    <div>
+      <div class="card"><div class="ch"><div class="ci g">⚡</div><div><div class="ct">Leverage inputs</div></div></div>
+      <div class="cbody">
+        <div class="f"><label>Expected gross return %/yr <span class="v" id="lRetV">18%</span></label>
+          <input type="range" id="lRet" min="5" max="100" step="1" value="18"></div>
+        <div class="f"><label>Leverage (×) <span class="v" id="lLevV">1.5×</span></label>
+          <input type="range" id="lLev" min="1" max="4" step="0.1" value="1.5"></div>
+        <div class="f"><label>Cost of borrow %/yr <span class="v" id="lCostV">10%</span></label>
+          <input type="range" id="lCost" min="0" max="20" step="0.5" value="10">
+          <div class="hint">MTF / margin ≈ 9–18%, Loan‑against‑securities ≈ 9–11%, futures ≈ implied ~7–8%.</div></div>
+        <div class="f"><label>Worst‑case drawdown of asset %</label><input type="number" id="lDD" value="35" step="5">
+          <div class="hint">Nifty has fallen ~38–60% in past crashes. Be honest.</div></div>
+        <div class="sec-h" style="margin-top:16px">Kelly position sizing</div>
+        <div class="g2">
+          <div class="f"><label>Win rate %</label><input type="number" id="lWin" value="55" step="1"></div>
+          <div class="f"><label>Win/Loss payoff</label><input type="number" id="lPay" value="1.8" step="0.1"></div>
+        </div>
+      </div></div>
+    </div>
+    <div>
+      <div class="tiles" id="lTiles"></div>
+      <div class="callout w" id="lVerdict" style="margin-bottom:14px"></div>
+      <div class="card"><div class="ch"><div class="ci r">⚠️</div><div><div class="ct">Margin‑call & survival</div><div class="csub">How far the asset can fall before you're forced to sell</div></div></div>
+      <div class="cbody"><div id="lRisk"></div></div></div>
+      <div class="card" style="margin-top:14px"><div class="ch"><div class="ci">📉</div><div><div class="ct">Equity over 3 years</div><div class="csub">Your leverage played out — expected vs flat vs worst‑case</div></div></div>
+      <div class="cbody"><canvas id="lChart" height="150"></canvas></div></div>
+      <div class="sec-h">How to take leverage in India — ranked by safety</div>
+      <div class="fcards" id="lModes"></div>
+    </div>
+  </div>
+
+  <!-- Crash-buying leverage guide -->
+  <div class="card" style="margin-top:16px"><div class="ch"><div class="ci r">🩸</div><div><div class="ct">Crash‑buying guide — how much leverage when the market is bleeding</div><div class="csub">2008/2020‑style. The smart time to borrow is into fear — sized so a <i>further</i> leg down can't force you out.</div></div></div>
+    <div class="cbody">
+      <div class="grid g-2">
+        <div>
+          <div class="f"><label>Market already fallen from peak <span class="v" id="cbFallV">40%</span></label>
+            <input type="range" id="cbFall" min="10" max="65" step="5" value="40">
+            <div class="hint">2020 ≈ −38%, 2008 ≈ −60%. The deeper the fall, the better the odds &amp; the less room left to drop.</div></div>
+          <div class="f"><label>Rebound you expect from here <span class="v" id="cbReboundV">60%</span></label>
+            <input type="range" id="cbRebound" min="20" max="120" step="5" value="60"></div>
+          <div class="f"><label>Worst further fall you must survive <span class="v" id="cbWorstV">20%</span></label>
+            <input type="range" id="cbWorst" min="5" max="50" step="5" value="20">
+            <div class="hint">Even after a crash it can drop more before recovering. Size for THIS, not the bounce.</div></div>
+          <div class="f"><label>Cost of borrow %/yr</label><input type="number" id="cbCost" value="10" step="0.5"></div>
+        </div>
+        <div>
+          <div class="tiles" id="cbTiles"></div>
+          <div style="font-size:.84rem;font-weight:700;margin:2px 0 8px">📉 Your equity over 3 years — what if it <i>doesn't</i> bounce?</div>
+          <canvas id="cbChart" height="150"></canvas>
+          <div class="callout d" id="cbWorstSummary" style="margin-top:12px"></div>
+          <div class="callout w" id="cbVerdict" style="margin-top:12px;margin-bottom:12px"></div>
+          <button id="cbLoad" style="padding:8px 14px;border:1px solid var(--acc);border-radius:8px;background:var(--acc-bg);color:var(--acc);font-family:inherit;font-size:.8rem;font-weight:700;cursor:pointer">↑ Load this leverage into the calculator above</button>
+          <div class="note" id="cbNote" style="margin-top:12px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ TAB 4: FACTOR ETFs ══════════════════ -->
+<section class="panel" id="tab-factor">
+  <div class="intro">
+    <h1>🧬 Nifty Factor ETF Picker</h1>
+    <p>Alpha, Momentum, Quality, Low‑Vol, Value, Equal‑Weight — <b>no single factor wins forever.</b> They take turns by market regime. Pick the regime you believe we're in and AlphaForge highlights the factors that historically lead, and dims the laggards.</p>
+  </div>
+  <!-- Scorecard / ranking -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="ch"><div class="ci g">🏆</div><div><div class="ct">Factor scorecard — rank them your way</div><div class="csub">Which gives the highest run? The deepest falls? The smoothest ride? Tap to re‑rank.</div></div></div>
+    <div class="cbody">
+      <div class="seg" id="factorSort" style="max-width:560px;margin-bottom:14px">
+        <button data-s="ret" class="active">🚀 Highest return</button>
+        <button data-s="vol">🌊 Lowest volatility</button>
+        <button data-s="dd">🛡️ Smallest drawdown</button>
+        <button data-s="ra">⚖️ Best risk‑adjusted</button>
+      </div>
+      <div style="overflow-x:auto"><table class="tbl" id="factorTbl"></table></div>
+      <div class="hint" style="margin-top:10px">Figures are <b>illustrative long‑run history</b> of the NSE factor indices (total‑return). They show the <i>character</i> of each factor — not a promise. Past performance ≠ future returns.</div>
+    </div>
+  </div>
+
+  <!-- Build your mix -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="ch"><div class="ci p">🧩</div><div><div class="ct">Build your mix — what matters most to you?</div><div class="csub">Pick a priority and AlphaForge suggests a combination + its blended return / volatility / drawdown.</div></div></div>
+    <div class="cbody">
+      <div class="seg" id="mixGoal" style="margin-bottom:16px;flex-wrap:wrap">
+        <button data-g="growth">🚀 Maximum growth</button>
+        <button data-g="balanced" class="active">⚖️ Balanced</button>
+        <button data-g="lowvol">🛡️ Low volatility</button>
+        <button data-g="forget">💤 Buy & forget</button>
+        <button data-g="custom">🎛️ Custom mix</button>
+      </div>
+      <div id="mixOut"></div>
+    </div>
+  </div>
+
+  <!-- Regime + factor cards -->
+  <div class="card" style="margin-bottom:16px"><div class="cbody">
+    <div class="f" style="max-width:520px;margin:0"><label>Which market regime are we in?</label>
+      <select id="regime">
+        <option value="earlybull">📈 Early bull / recovery off a bottom</option>
+        <option value="latebull" selected>🚀 Strong / late bull — momentum running</option>
+        <option value="bear">🐻 Bear / correction</option>
+        <option value="sideways">😴 Sideways / range‑bound choppy</option>
+        <option value="highvol">🌪️ High volatility / uncertainty</option>
+        <option value="expensive">💸 Expensive market — froth, high valuations</option>
+      </select>
+      <div class="hint" id="regimeHint"></div>
+    </div>
+  </div></div>
+  <div class="fcards" id="factorCards" style="margin-bottom:16px"></div>
+
+  <!-- Market cycle + correlation -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;margin-bottom:16px">
+    <div class="card" style="margin:0"><div class="ch"><div class="ci">🔄</div><div><div class="ct">The market cycle — who leads in each phase</div><div class="csub">Hover a phase to see the winning factors · click to load it above</div></div></div>
+      <div class="cbody">
+        <div id="cycleChart"></div>
+        <div class="callout i" id="cycleInfo" style="margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="card" style="margin:0"><div class="ch"><div class="ci p">🔗</div><div><div class="ct">Factor correlations — find your diversifiers</div><div class="csub">Greener = move independently (good to pair) · redder = redundant</div></div></div>
+      <div class="cbody" style="overflow-x:auto"><div id="corrMatrix"></div></div>
+    </div>
+  </div>
+
+  <!-- Operating manual -->
+  <div class="sec-h">When & how to act — the operating manual</div>
+  <div id="factorGuide"></div>
+</section>
+
+<!-- ══════════════════ TAB: BONDS ══════════════════ -->
+<section class="panel" id="tab-bonds">
+  <div class="intro">
+    <h1>🏦 Bonds & Debt Lab</h1>
+    <p>Bonds are your portfolio's <b>ballast</b> — stability, income and dry powder, not the growth engine. The whole game is two dials: <b>rate risk</b> (duration) and <b>credit risk</b> (safety). Master when each debt type wins across the <b>interest‑rate cycle</b>, and you'll park, earn and protect like a pro.</p>
+  </div>
+
+  <!-- Scorecard -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="ch"><div class="ci g">🏆</div><div><div class="ct">Debt scorecard — rank them your way</div><div class="csub">Highest yield? Safest? Least rate‑sensitive? Most liquid? Tap to re‑rank.</div></div></div>
+    <div class="cbody">
+      <div class="seg" id="bondSortSeg" style="max-width:600px;margin-bottom:14px">
+        <button data-s="yld" class="active">💰 Highest yield</button>
+        <button data-s="safe">🛡️ Safest</button>
+        <button data-s="dur">🌊 Least rate risk</button>
+        <button data-s="liq">⚡ Most liquid</button>
+      </div>
+      <div style="overflow-x:auto"><table class="tbl" id="bondTbl"></table></div>
+      <div class="hint" style="margin-top:10px">Yields are <b>indicative</b> for the current rate environment (repo ~6–6.5%); they move with RBI policy. <b>Tax (post 1‑Apr‑2023):</b> gains on most debt funds are taxed at your <b>income‑tax slab</b> — no special LTCG rate. Plan post‑tax accordingly.</div>
+    </div>
+  </div>
+
+  <!-- Build your mix -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="ch"><div class="ci p">🧩</div><div><div class="ct">Build your debt mix — what's the job?</div><div class="csub">Pick the goal; AlphaForge suggests an allocation, its blended yield and rate risk.</div></div></div>
+    <div class="cbody">
+      <div class="seg" id="bondMixSeg" style="margin-bottom:16px;flex-wrap:wrap">
+        <button data-g="income">💵 Regular income</button>
+        <button data-g="safety" class="active">🛡️ Maximum safety</button>
+        <button data-g="park">🅿️ Park cash</button>
+        <button data-g="ratecut">📉 Bet on rate cuts</button>
+      </div>
+      <div id="bondMixOut"></div>
+    </div>
+  </div>
+
+  <!-- Rate regime -->
+  <div class="card" style="margin-bottom:16px"><div class="cbody">
+    <div class="f" style="max-width:520px;margin:0"><label>Where are we in the interest‑rate cycle?</label>
+      <select id="brate">
+        <option value="rising">📈 Rates rising — RBI hiking</option>
+        <option value="peaking" selected>⛰️ Rates peaking — cuts on the horizon</option>
+        <option value="falling">📉 Rates falling — RBI cutting</option>
+        <option value="stable">😌 Low / range‑bound</option>
+      </select>
+      <div class="hint" id="brateHint"></div>
+    </div>
+  </div></div>
+  <div class="fcards" id="bondCards" style="margin-bottom:16px"></div>
+
+  <!-- Rate cycle curve -->
+  <div class="card" style="margin-bottom:16px"><div class="ch"><div class="ci">🔄</div><div><div class="ct">The interest‑rate cycle — what wins in each phase</div><div class="csub">Hover a phase to see the winning debt types · click to load it above</div></div></div>
+    <div class="cbody">
+      <div id="rateCycleChart"></div>
+      <div class="callout i" id="rateCycleInfo" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- Operating manual -->
+  <div class="sec-h">When & how to act — the bond operating manual</div>
+  <div id="bondGuide"></div>
+</section>
+
+<!-- ══════════════════ TAB 5: STRATEGY SCREENER ══════════════════ -->
+<section class="panel" id="tab-screen">
+  <div class="intro">
+    <h1>🔬 Strategy Screener & Library</h1>
+    <p>Your thesis — <b>forward P/E compressing below a target while EPS compounds 25%+</b> — is a classic re‑rating + earnings double‑engine. Model it below, then borrow from a library of battle‑tested frameworks so you're not betting on a single idea.</p>
+  </div>
+  <div class="grid g-2">
+    <div>
+      <div class="card"><div class="ch"><div class="ci p">🔭</div><div><div class="ct">Forward‑PE / EPS engine</div><div class="csub">Your strategy, made numerical</div></div></div>
+      <div class="cbody">
+        <div class="g2">
+          <div class="f"><label>Current price ₹</label><input type="number" id="sPrice" value="1000" step="10"></div>
+          <div class="f"><label>Current EPS ₹</label><input type="number" id="sEps" value="40" step="1"></div>
+        </div>
+        <div class="g2">
+          <div class="f"><label>EPS growth %/yr</label><input type="number" id="sGrow" value="25" step="1"></div>
+          <div class="f"><label>Years out</label><input type="number" id="sN" value="3" min="1" max="10"></div>
+        </div>
+        <div class="f"><label>Target forward P/E you'd pay</label><input type="number" id="sTgtPe" value="20" step="1">
+          <div class="hint">If the market still gives it this P/E on future earnings, that's your exit re‑rating.</div></div>
+        <div class="f"><label>"Cheap" forward P/E trigger (your &lt; 5 idea)</label><input type="number" id="sCheap" value="5" step="0.5"></div>
+      </div></div>
+    </div>
+    <div>
+      <div class="tiles" id="sTiles"></div>
+      <div class="callout i" id="sVerdict" style="margin-bottom:14px"></div>
+      <div class="card"><div class="ch"><div class="ci">🧮</div><div><div class="ct">Year‑by‑year projection</div></div></div>
+      <div class="cbody" style="overflow-x:auto"><table class="tbl" id="sTbl"></table></div></div>
+    </div>
+  </div>
+  <div class="sec-h">Strategy library — diversify your edge, don't bet on one idea</div>
+  <div class="fcards" id="stratLib"></div>
+</section>
+
+<!-- ══════════════════ TAB: MULTIBAGGER LAB ══════════════════ -->
+<section class="panel" id="tab-multi">
+  <div class="intro">
+    <h1>🚀 Multibagger Lab — finding the next 100×</h1>
+    <p>Every big winner obeys one equation: <b>stock return = EPS growth × P/E re‑rating.</b> A 100× can be 30× earnings × 3× re‑rating, or 40× earnings × flat P/E, or a cheap unloved stock that simply gets re‑rated. The biggest winners (post‑2020 names like BSE, Gravita) fired <b>both engines at once</b>. This lab shows you the maths and the parameters to hunt for.</p>
+  </div>
+
+  <!-- The equation -->
+  <div class="grid g-2">
+    <div>
+      <div class="card"><div class="ch"><div class="ci p">🧮</div><div><div class="ct">The multibagger equation</div><div class="csub">Two engines: earnings × re‑rating</div></div></div>
+      <div class="cbody">
+        <div class="seg" id="mPreset" style="margin-bottom:14px;flex-wrap:wrap">
+          <button data-p="double" class="active">🚀 Double engine (100×)</button>
+          <button data-p="compound">💰 Pure compounder</button>
+          <button data-p="rerate">🔄 Re‑rating play</button>
+        </div>
+        <div class="g2">
+          <div class="f"><label>Entry P/E</label><input type="number" id="mEntryPE" value="12" step="1"></div>
+          <div class="f"><label>Exit P/E</label><input type="number" id="mExitPE" value="40" step="1"></div>
+        </div>
+        <div class="f"><label>How do you know the EPS path?</label>
+          <div class="seg" id="mEpsMode">
+            <button data-m="growth" class="active">Growth %/yr</button>
+            <button data-m="abs">EPS today → future</button>
+            <button data-m="order">Order book</button>
+          </div></div>
+        <div id="mOrderRow" style="display:none">
+          <div class="g3">
+            <div class="f"><label>Sales/yr ₹cr</label><input type="number" id="mSales" value="500" step="10"></div>
+            <div class="f"><label>Order book ₹cr</label><input type="number" id="mOrderbook" value="3500" step="50"></div>
+            <div class="f"><label>Execution (yrs)</label><input type="number" id="mExec" value="4" min="1" max="15"></div>
+          </div>
+          <div class="g2">
+            <div class="f"><label>Net margin now %</label><input type="number" id="mMargNow" value="8" step="0.5"></div>
+            <div class="f"><label>Net margin at maturity %</label><input type="number" id="mMargFut" value="8" step="0.5"></div>
+          </div>
+          <div class="cmpd" id="mDerivedOrder" style="margin-top:2px"></div>
+          <div class="hint" style="margin-top:5px">Order book ÷ execution years = future revenue run‑rate. Raise the <b>maturity margin</b> above the current one to model <b>operating leverage</b> (profit growing faster than sales).</div>
+        </div>
+        <div class="g2" id="mGrowthRow">
+          <div class="f"><label>EPS growth %/yr</label><input type="number" id="mEps" value="40" step="1"></div>
+          <div class="f"><label>Years held</label><input type="number" id="mYrs" value="10" min="1" max="25"></div>
+        </div>
+        <div id="mAbsRow" style="display:none">
+          <div class="g3">
+            <div class="f"><label>EPS today ₹</label><input type="number" id="mEpsNow" value="14" step="1"></div>
+            <div class="f"><label>EPS in N yrs ₹</label><input type="number" id="mEpsFut" value="45" step="1"></div>
+            <div class="f"><label>Years (N)</label><input type="number" id="mYrs2" value="3" min="1" max="25"></div>
+          </div>
+          <div class="cmpd" id="mDerivedG" style="margin-top:2px"></div>
+        </div>
+        <div class="hint" style="margin-top:9px">Got a broker target (e.g. EPS ₹14 → ₹45 in 3y)? Switch to <b>EPS today → future</b> and we compute the growth. Either way: a <b>low entry P/E + high EPS growth</b> captures both engines.</div>
+      </div></div>
+    </div>
+    <div>
+      <div class="tiles" id="mTiles"></div>
+      <div style="font-size:.72rem;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;margin:2px 0 6px">What drove the return</div>
+      <div style="display:flex;height:26px;border-radius:7px;overflow:hidden;margin-bottom:6px;font-size:.72rem;font-weight:700" id="mBar"></div>
+      <div class="callout i" id="mVerdict" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- Watchlist -->
+  <div class="card" style="margin-top:16px"><div class="ch"><div class="ci">📌</div><div><div class="ct">My watchlist — companies with potential</div><div class="csub">Saved in this browser (localStorage). Add the names you're tracking; auto‑ranked by upside.</div></div></div>
+    <div class="cbody">
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div class="f" style="flex:1;min-width:200px;margin:0"><label>Company / ticker</label><input id="wlName" placeholder="e.g. Gravita India"></div>
+        <button id="wlAdd" style="padding:8px 15px;border:1px solid var(--acc);border-radius:8px;background:var(--acc);color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer">➕ Add from equation</button>
+        <button id="wlCancel" style="padding:8px 12px;border:1px solid var(--bdr2);border-radius:8px;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;display:none">✕ Cancel edit</button>
+        <button id="wlExport" style="padding:8px 12px;border:1px solid var(--bdr2);border-radius:8px;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer">⤓ Export / Import</button>
+        <button id="wlClear" style="padding:8px 12px;border:1px solid var(--bdr2);border-radius:8px;background:var(--ibg);color:var(--danger);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer">Clear all</button>
+      </div>
+      <div class="hint" style="margin-top:9px">Model the stock in <b>The multibagger equation</b> above (P/E + EPS path), type its name here and <b>Add</b> — it saves those exact assumptions. Hit ✏️ on any row to pull it back into the equation, tweak, and re‑save.</div>
+      <div id="wlIO" style="display:none;margin-top:11px">
+        <textarea id="wlJSON" spellcheck="false" style="width:100%;height:96px;background:var(--ibg);border:1px solid var(--bdr2);border-radius:8px;color:var(--txt);font-family:monospace;font-size:.72rem;padding:8px;outline:none" placeholder='Copy this to back up, or paste a saved list and hit Apply'></textarea>
+        <button id="wlApply" style="margin-top:6px;padding:6px 12px;border:1px solid var(--acc);border-radius:8px;background:var(--acc-bg);color:var(--acc);font-family:inherit;font-size:.76rem;font-weight:700;cursor:pointer">Apply imported JSON</button>
+      </div>
+      <div style="overflow-x:auto;margin-top:14px"><table class="tbl" id="wlTbl"></table></div>
+    </div>
+  </div>
+
+  <!-- Scorecard -->
+  <div class="card" style="margin-top:16px"><div class="ch"><div class="ci g">📋</div><div><div class="ct">Multibagger scorecard — rate a stock</div><div class="csub">Score the 8 traits that separate 100‑baggers from value traps</div></div></div>
+    <div class="cbody">
+      <div class="grid g-2" style="align-items:start">
+        <div id="mScoreRows"></div>
+        <div><div class="tiles" id="mScoreOut"></div><div class="callout i" id="mScoreVerdict" style="margin-top:6px"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Archetypes -->
+  <div class="sec-h">Three ways a stock multiplies</div>
+  <div class="fcards" id="mArche"></div>
+
+  <!-- Insights -->
+  <div class="sec-h">Key insights — what to look for</div>
+  <div id="multiGuide"></div>
+</section>
+
+<!-- ══════════════════ TAB 6: TAX & COSTS ══════════════════ -->
+<section class="panel" id="tab-tax">
+  <div class="intro">
+    <h1>🧾 Tax & Cost Optimiser (India)</h1>
+    <p>The cheapest alpha there is: <b>not paying tax you don't have to.</b> Hold past 12 months to convert 20% STCG into 12.5% LTCG, harvest your free <b>₹1.25 lakh LTCG exemption</b> every year, and book paper losses to offset gains. Below: live numbers, not theory.</p>
+  </div>
+  <div class="grid g-2">
+    <div>
+      <div class="card"><div class="ch"><div class="ci g">🧾</div><div><div class="ct">Your trade</div></div></div>
+      <div class="cbody">
+        <div class="g2">
+          <div class="f"><label>Buy value ₹</label><input type="number" id="tBuy" value="1000000" step="50000"></div>
+          <div class="f"><label>Gain so far %</label><input type="number" id="tGain" value="30" step="1"></div>
+        </div>
+        <div class="f"><label>Holding so far (months)</label><input type="number" id="tHold" value="10" min="0" max="60"></div>
+        <div class="f"><label>Other realised LTCG this year ₹</label><input type="number" id="tOther" value="0" step="10000">
+          <div class="hint">Used to figure how much of your ₹1.25L exemption is left.</div></div>
+      </div></div>
+    </div>
+    <div>
+      <div class="tiles" id="tTiles"></div>
+      <div class="callout v" id="tVerdict" style="margin-bottom:14px"></div>
+      <div class="card"><div class="ch"><div class="ci">📋</div><div><div class="ct">Brokerage & charges on this trade</div><div class="csub">Discount‑broker delivery estimate, round trip</div></div></div>
+      <div class="cbody" style="overflow-x:auto"><table class="tbl" id="tCost"></table></div></div>
+    </div>
+  </div>
+  <div class="sec-h">Tax‑saving playbook</div>
+  <div class="fcards" id="taxTips"></div>
+</section>
+
+<!-- ══════════════════ TAB 7: PLAYBOOK ══════════════════ -->
+<section class="panel" id="tab-play">
+  <div class="intro">
+    <h1>📈 Boost‑CAGR Playbook</h1>
+    <p>Returns come from a handful of repeatable habits, not magic stock tips. Here's how a smart investor compounds capital, scales consistently, and adds turbo when the odds tilt in their favour — without blowing up.</p>
+  </div>
+  <div class="grid g-2" style="grid-template-columns:1fr 1fr">
+    <div id="playLeft"></div>
+    <div id="playRight"></div>
+  </div>
+  <div class="card" style="margin-top:16px"><div class="ch"><div class="ci s">🪜</div><div><div class="ct">The Rule of 72 — how fast money doubles</div><div class="csub">Years to double ≈ 72 ÷ CAGR. This is why a few extra points matter so much.</div></div></div>
+    <div class="cbody" style="overflow-x:auto"><table class="tbl" id="ruleTbl"></table></div></div>
+</section>
+
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════════
+   AlphaForge — standalone India investing lab. No external state, no deps
+   beyond Chart.js. Everything recomputes live.
+   ════════════════════════════════════════════════════════════════════════ */
+const $=id=>document.getElementById(id);
+const fmt=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const fmtC=n=>{n=Math.round(n);if(Math.abs(n)>=1e7)return '₹'+(n/1e7).toFixed(2)+' Cr';if(Math.abs(n)>=1e5)return '₹'+(n/1e5).toFixed(2)+' L';return '₹'+n.toLocaleString('en-IN');};
+const pct=n=>n.toFixed(n>=10?1:2)+'%';
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+/* ── Theme ── owned by the shared platform shell (platform.js). Re-render on change. */
+window.addEventListener('pw-theme-change',()=>renderAll());
+
+/* ── Tabs ───────────────────────────────────────────────────────────── */
+$('tabbar').addEventListener('click',e=>{const b=e.target.closest('.tbtn');if(!b)return;
+  document.querySelectorAll('.tbtn').forEach(x=>x.classList.toggle('active',x===b));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+b.dataset.tab));
+  window.scrollTo({top:0,behavior:'smooth'});});
+
+/* ════════════════ TAB 1: BEAT THE INDEX ════════════════ */
+let bChart;
+const EXEMPT=125000; // ₹1.25L LTCG exemption per financial year (India, FY25-26)
+// Net corpus from BUY & HOLD for the whole horizon: one round-trip cost, taxed once at exit.
+// A >12-month hold is LTCG; tax is deferred to the very end (its quiet edge).
+function holdNetCorpus(g,p){
+  const gross=p.cap*Math.pow(1+g,p.yrs);
+  const afterCost=gross-p.cap*p.cost;                  // buy once + sell once over the horizon
+  const taxRate=p.yrs>=1?p.ltcg:p.stcg;               // held >12mo => LTCG
+  return afterCost-taxRate*Math.max(0,(afterCost-p.cap)-EXEMPT);
+}
+// Net corpus from ROTATING every n months at gross CAGR g.
+// n>=12 → each cycle is held ~12mo+ = LTCG (with a fresh yearly exemption); else STCG (no exemption).
+// Either way you realise & pay tax EVERY year (no deferral) and pay k round-trips of cost annually.
+function rotNetCorpus(g,p,n){
+  const k=12/n, long=n>=12, taxRate=long?p.ltcg:p.stcg, exYr=long?EXEMPT:0;
+  let bal=p.cap;
+  for(let y=0;y<p.yrs;y++){
+    const start=bal, grossEnd=start*(1+g), cost=start*k*p.cost;
+    const profit=grossEnd-start-cost;
+    bal=grossEnd-cost-taxRate*Math.max(0,profit-exYr);
+  }
+  return bal;
+}
+// Yearly balance path (for the chart), same model as rotNetCorpus.
+function rotPath(g,p,n){
+  const k=12/n, long=n>=12, taxRate=long?p.ltcg:p.stcg, exYr=long?EXEMPT:0;
+  const arr=[p.cap]; let bal=p.cap;
+  for(let y=1;y<=p.yrs;y++){
+    const start=bal, grossEnd=start*(1+g), cost=start*k*p.cost;
+    bal=grossEnd-cost-taxRate*Math.max(0,grossEnd-start-cost-exYr);
+    arr.push(bal);
+  }
+  return arr;
+}
+// For a rotation every n months: what gross CAGR ties the index's after-tax result?
+function calcBeat(n,p){
+  const k=12/n;
+  const bhNet=holdNetCorpus(p.idx,p);
+  const bhCagr=Math.pow(bhNet/p.cap,1/p.yrs)-1;
+  let lo=0,hi=3;for(let i=0;i<90;i++){const m=(lo+hi)/2;if(rotNetCorpus(m,p,n)<bhNet){lo=m;}else{hi=m;}}
+  const reqR=(lo+hi)/2;
+  const naiveNet=rotNetCorpus(p.idx,p,n);              // what you net churning at the index's own gross
+  return {k,bhNet,bhCagr,reqR,hurdle:reqR-p.idx,long:n>=12,
+          perTrade:Math.pow(1+reqR,1/k)-1,
+          naiveCagr:Math.pow(Math.max(naiveNet,1)/p.cap,1/p.yrs)-1};
+}
+// Display order: index first, then slowest→fastest churn (Yearly, 6-month, Quarterly, Monthly)
+const FREQS=[[12,'Yearly'],[6,'6‑month'],[3,'Quarterly'],[1,'Monthly']];
+// Build the round-trip cost (fraction of capital) from its parts, for a basket of N names.
+// Percentage charges are constant; flat charges (brokerage/order, DP/scrip) scale with N
+// and bite harder when each position is small.
+function roundTripCost(cap,N){
+  const posVal=cap/Math.max(1,N);
+  const sttB=+$('cSttB').value/100, sttS=+$('cSttS').value/100, stamp=+$('cStamp').value/100,
+        exch=+$('cExch').value/100, slip=+$('cSlip').value/100,
+        brok=+$('cBrok').value, dp=+$('cDp').value;
+  const pctFrac=sttB+sttS+stamp+exch*2+slip*2+0.18*exch*2;   // proportional to position value
+  const flatFrac=(brok*2*1.18+dp)/posVal;                    // flat ₹ as a share of one position
+  return {frac:pctFrac+flatFrac,pctFrac,flatFrac,posVal};
+}
+let selN=3; // which rotation frequency (months) is loaded into the tiles/verdict
+function beat(){
+  const n=selN, k=12/n;
+  const N=+$('bHold').value, cap=+$('bCap').value;
+  const rt=roundTripCost(cap,N);
+  const p={idx:+$('bIdx').value/100,stcg:+$('bStcg').value/100,ltcg:+$('bLtcg').value/100,
+           cost:rt.frac,yrs:+$('bYrs').value,cap};
+  const strat=+$('bStrat').value/100;                  // gross CAGR you think your strategy delivers
+  $('bIdxV').textContent=pct(p.idx*100); $('bStratV').textContent=pct(strat*100); $('bHoldV').textContent=N;
+  document.querySelectorAll('#bHoldPreset button').forEach(b=>b.classList.toggle('active',+b.dataset.h===N));
+  $('bCostOut').innerHTML=`<b>Round‑trip cost ≈ ${(rt.frac*100).toFixed(3)}%</b> &nbsp;·&nbsp; ${(rt.pctFrac*100).toFixed(3)}% fees + <b>${(rt.flatFrac*100).toFixed(3)}% flat</b> on ${N} name${N>1?'s':''} × ${fmtC(rt.posVal)} each. Annual drag at this churn: <b>${(k*rt.frac*100).toFixed(2)}%/yr</b>.`;
+  const cb=calcBeat(n,p), bhCagr=cb.bhCagr, bhNet=cb.bhNet;
+  const idx=p.idx, stcg=p.stcg, ltcg=p.ltcg, cost=p.cost, yrs=p.yrs;
+  // Comparison table — all four frequencies at once, active row highlighted
+  // Net CAGR (after tax+cost) if you actually deliver your strategy's gross return, per holding pattern
+  const idxStratNet=holdNetCorpus(strat,p), idxStratCagr=Math.pow(Math.max(idxStratNet,1)/cap,1/yrs)-1;
+  const idxRow=`<tr style="background:var(--succ-bg)"><td><b>📊 Index — buy &amp; hold</b></td><td class="num">1× exit</td><td class="num">${pct(idx*100)}</td><td class="num">—</td><td class="num"><span class="pill g">${pct(bhCagr*100)}</span><div style="font-size:.6rem;color:var(--txt3);margin-top:2px">${fmtC(bhNet)} net</div></td><td class="num">—</td></tr>`;
+  $('bCompare').innerHTML=`<thead><tr><th>Hold / rotate</th><th class="num">Trades/yr</th><th class="num">Must earn (gross)</th><th class="num">Extra vs index</th><th class="num">You keep /yr</th><th class="num">Against strategy return ${pct(strat*100)}</th></tr></thead><tbody>${idxRow}${
+    FREQS.map(([fn,lbl])=>{const c=calcBeat(fn,p);const pen=c.naiveCagr-bhCagr;const near=Math.abs(pen)<0.0008;
+      const sNet=rotNetCorpus(strat,p,fn), sCagr=Math.pow(Math.max(sNet,1)/cap,1/yrs)-1;
+      return `<tr data-n="${fn}" style="cursor:pointer" class="${fn===n?'hl':''}"><td><b>${lbl}</b>${fn===n?' ◀':''}</td><td class="num">${c.k}</td><td class="num">${pct(c.reqR*100)}</td><td class="num">${c.hurdle<0.0005?'≈ 0':'+'+pct(c.hurdle*100)}</td><td class="num"><span class="pill ${near?'g':pen<0?'r':'g'}">${pct(c.naiveCagr*100)}</span><div style="font-size:.6rem;color:var(--txt3);margin-top:2px">${near?'≈ same as index':(pen>=0?'+':'−')+pct(Math.abs(pen)*100)+' vs index'}</div></td><td class="num"><span class="pill ${sCagr>=idxStratCagr-0.0008?'g':sCagr>bhCagr?'y':'r'}">${pct(sCagr*100)}</span><div style="font-size:.6rem;color:var(--txt3);margin-top:2px">${fmtC(sNet)}</div></td></tr>`;}).join('')
+  }</tbody>`;
+  // Chart: index buy & hold (pre-tax compounding ceiling) vs the realistic after-tax net path
+  // for each rotation frequency — so you see the tax + cost drag widen over time.
+  const labels=[];for(let y=0;y<=yrs;y++)labels.push('Y'+y);
+  const hold=labels.map((_,y)=>cap*Math.pow(1+idx,y));
+  const freqDefs=[[12,'Yearly',css('--acc')],[6,'6‑month',css('--purple')],
+                  [3,'Quarterly','#f59e0b'],[1,'Monthly','#ef4444']];
+  const ds=[{label:'Index buy & hold (pre‑tax)',data:hold,borderColor:css('--success'),
+             backgroundColor:'transparent',tension:.3,borderWidth:3,pointRadius:0}];
+  freqDefs.forEach(([fn,lbl,col])=>ds.push({
+    label:'Rotate '+lbl+(fn===selN?' ◀':''),
+    data:rotPath(idx,p,fn),
+    borderColor:col,backgroundColor:'transparent',tension:.3,
+    borderWidth:fn===selN?3:1.6,pointRadius:0}));
+  if(bChart)bChart.destroy();
+  bChart=new Chart($('bChart'),{type:'line',data:{labels,datasets:ds},
+    options:{responsive:true,plugins:{legend:{labels:{color:css('--txt2'),font:{size:11},boxWidth:12}},
+      tooltip:{callbacks:{label:c=>c.dataset.label.replace(' ◀','')+': '+fmtC(c.parsed.y)}}},
+      scales:{x:{ticks:{color:css('--txt3')},grid:{display:false}},y:{ticks:{color:css('--txt3'),callback:v=>fmtC(v)},grid:{color:css('--bdr')}}}}});
+  const longSel=selN>=12;
+  $('bMath').innerHTML=`<b>The maths (selected: ${selN===1?'Monthly':selN===3?'Quarterly':selN===6?'6‑month':'Yearly'}):</b> Buy‑&‑hold compounds pre‑tax and is taxed once at exit — <b>${pct(ltcg*100)} LTCG</b> (one ₹1.25L exemption, plus the hidden edge of <b>deferring</b> tax for years). ${longSel
+    ? `Yearly rotation also holds 12 months+, so it's <b>${pct(ltcg*100)} LTCG too</b> — and you bank a fresh ₹1.25L exemption every year. The only cost vs buy‑&‑hold is losing the deferral and paying ${(cost*100).toFixed(3)}% round‑trip every year. That's why <b>Yearly ≈ Index</b>.`
+    : `Rotating every ${selN} months is short‑term → <b>${pct(stcg*100)} STCG, no exemption</b>, paid every year, plus ≈ <b>${pct(k*cost*100)}/yr</b> from ${k} round‑trips × ${(cost*100).toFixed(3)}% cost. Compounding that after‑tax stub over ${yrs} years is what creates the gap.`}`;
+}
+
+/* ════════════════ TAB 2: GOAL CAGR ════════════════ */
+let gChart;
+function goal(){
+  const cagr=+$('gCagr').value/100, yrs=+$('gYrs').value, cap=+$('gCap').value,
+        sip=+$('gSip').value, step=+$('gStep').value/100;
+  $('gCagrV').textContent=pct(cagr*100);
+  document.querySelectorAll('#gPreset button').forEach(b=>b.classList.toggle('active',+b.dataset.c===Math.round(cagr*100)));
+  const mRet=Math.pow(1+cagr,1/12)-1;          // required monthly compounded
+  const qRet=Math.pow(1+cagr,1/4)-1;
+  // Project corpus: monthly compounding, SIP added monthly, step-up yearly
+  const labels=[],corpus=[],invested=[];
+  let bal=cap,inv=cap,curSip=sip;
+  for(let y=0;y<=yrs;y++){
+    if(y>0){for(let m=0;m<12;m++){bal=bal*(1+mRet)+curSip;inv+=curSip;}curSip*=(1+step);}
+    labels.push('Y'+y);corpus.push(bal);invested.push(inv);}
+  const fin=bal, totalInv=inv, gain=fin-totalInv;
+  // Realism
+  let realLbl,realCls;
+  if(cagr<=0.12){realLbl='✅ Realistic — this is roughly the long‑run index. Very achievable with discipline.';realCls='v';}
+  else if(cagr<=0.18){realLbl='🟡 Ambitious — top quartile. Doable with a real edge (good factor tilts, SIP in drawdowns), but expect dry spells.';realCls='w';}
+  else if(cagr<=0.25){realLbl='🟠 Elite — sustained 20–25% over 10y+ puts you with the best fund managers alive. Possible, rarely sustained.';realCls='w';}
+  else{realLbl='🔴 Extremely rare — &gt;25% CAGR for a decade is Buffett/Lynch territory. Treat as a stretch dream, not a base plan. Higher targets usually mean higher blow‑up risk.';realCls='d';}
+  $('gTiles').innerHTML=`
+    <div class="tile acc"><div class="l">Must average / month</div><div class="n">${pct(mRet*100)}</div><div class="s">compounded, every month</div></div>
+    <div class="tile acc"><div class="l">Must average / quarter</div><div class="n">${pct(qRet*100)}</div><div class="s">~${(qRet*100).toFixed(1)}% a quarter</div></div>
+    <div class="tile good"><div class="l">Corpus in ${yrs}y</div><div class="n">${fmtC(fin)}</div><div class="s">from ${fmtC(totalInv)} invested</div></div>
+    <div class="tile gold"><div class="l">Wealth created</div><div class="n">${fmtC(gain)}</div><div class="s">${(fin/totalInv).toFixed(1)}× your money in</div></div>`;
+  $('gReal').className='callout '+realCls;
+  $('gReal').innerHTML=`<span class="big">Target ${pct(cagr*100)} CAGR → you must compound ${pct(mRet*100)} a month.</span>${realLbl}`;
+  // Consistency map
+  const oneBad=Math.pow(1+mRet,11)-1; // 11 good months product extra needed... show recovery
+  const need12=Math.pow(1+cagr,1),need3=Math.pow(1+cagr,1/4),catchup=Math.pow(need12/( (1)*(1) ),1);
+  const rows=[
+    ['Monthly',pct(mRet*100),'12 in a row',pct((Math.pow(1+mRet,12)-1)*100)],
+    ['Quarterly',pct(qRet*100),'4 in a row',pct((Math.pow(1+qRet,4)-1)*100)],
+    ['Half‑yearly',pct((Math.pow(1+cagr,1/2)-1)*100),'2 in a row',pct(cagr*100)],
+    ['Yearly',pct(cagr*100),'every year',pct(cagr*100)]];
+  // cost of one flat (0%) month: next 11 must do more
+  const flatRecover=Math.pow(1+cagr,1/11)-1;
+  $('gConsist').innerHTML=`<thead><tr><th>Timeframe</th><th class="num">Avg you need</th><th>Streak to hit goal</th><th class="num">Compounds to</th></tr></thead><tbody>${
+    rows.map(r=>`<tr><td><b>${r[0]}</b></td><td class="num">${r[1]}</td><td>${r[2]}</td><td class="num">${r[3]}</td></tr>`).join('')
+  }<tr class="hl"><td colspan="2">One flat (0%) month means…</td><td colspan="2">the other 11 must each do ${pct(flatRecover*100)} to stay on track</td></tr></tbody>`;
+  if(gChart)gChart.destroy();
+  gChart=new Chart($('gChart'),{type:'line',data:{labels,datasets:[
+    {label:'Corpus',data:corpus,borderColor:css('--acc'),backgroundColor:css('--acc-bg'),fill:true,tension:.3,borderWidth:2.5,pointRadius:0},
+    {label:'Invested',data:invested,borderColor:css('--txt3'),backgroundColor:'transparent',borderDash:[5,4],tension:.3,borderWidth:1.5,pointRadius:0}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:css('--txt2'),font:{size:11},boxWidth:12}}},
+      scales:{x:{ticks:{color:css('--txt3')},grid:{display:false}},y:{ticks:{color:css('--txt3'),callback:v=>fmtC(v)},grid:{color:css('--bdr')}}}}});
+}
+
+/* ════════════════ TAB 3: LEVERAGE LAB ════════════════ */
+let lChart;
+function lev(){
+  const ret=+$('lRet').value/100, L=+$('lLev').value, cost=+$('lCost').value/100,
+        dd=+$('lDD').value/100, win=+$('lWin').value/100, pay=+$('lPay').value;
+  $('lRetV').textContent=pct(ret*100);$('lLevV').textContent=L.toFixed(1)+'×';$('lCostV').textContent=pct(cost*100);
+  // Levered return on equity = ret + (L-1)*(ret - cost)
+  const borrowed=L-1;
+  const levRet=ret+borrowed*(ret-cost);
+  const unlev=ret;
+  const boost=levRet-unlev;
+  const breakeven=cost; // need asset return > cost to make borrowing pay
+  // Kelly: f* = W - (1-W)/R   (R=payoff)
+  const kelly=win-(1-win)/pay;
+  const kellyPct=kelly*100;
+  // Margin call: if maintenance margin m, asset can fall until equity exhausted.
+  // Equity per ₹1 asset = 1/L. A drawdown d wipes equity when d >= 1/L (full wipe).
+  // Practical margin call near maintenance ~ when loss eats most of equity. Use buffer to 1/L.
+  const wipe=1/L; // fractional fall that fully wipes your equity
+  const levDD=Math.min(1,dd*L); // your equity drawdown in the worst case
+  $('lTiles').innerHTML=`
+    <div class="tile ${levRet>unlev?'good':'hot'}"><div class="l">Return on YOUR equity</div><div class="n">${pct(levRet*100)}</div><div class="s">vs ${pct(unlev*100)} unlevered</div></div>
+    <div class="tile ${boost>0?'acc':'hot'}"><div class="l">Leverage boost</div><div class="n">${boost>=0?'+':''}${pct(boost*100)}</div><div class="s">added by ${L.toFixed(1)}× borrowing</div></div>
+    <div class="tile ${levDD>=1?'hot':'gold'}"><div class="l">Worst‑case equity hit</div><div class="n">−${pct(levDD*100)}</div><div class="s">if asset falls ${pct(dd*100)}</div></div>
+    <div class="tile ${kelly>0?'acc':'hot'}"><div class="l">Kelly says bet</div><div class="n">${kellyPct<=0?'0%':pct(kellyPct)}</div><div class="s">${kelly>0?'half‑Kelly = '+pct(kellyPct/2):'no edge — don\'t'}</div></div>`;
+  let vCls,vMsg;
+  if(ret<=cost){vCls='d';vMsg=`Your expected return (${pct(ret*100)}) does <b>not</b> clear the ${pct(cost*100)} borrow cost. Leverage here is paying to lose — <b>don't</b>.`;}
+  else if(boost<0.03){vCls='w';vMsg=`Thin margin: borrowing only adds ${pct(boost*100)}/yr while exposing you to a ${pct(levDD*100)} equity drawdown. Not worth the stress.`;}
+  else if(levDD>=1){vCls='d';vMsg=`At ${L.toFixed(1)}× a ${pct(dd*100)} market fall <b>wipes your equity and triggers a margin call</b> — you'd be forced to sell at the bottom. Cut leverage or raise your cash buffer.`;}
+  else{vCls='w';vMsg=`Reasonable: +${pct(boost*100)}/yr boost. But a ${pct(dd*100)} crash still cuts your equity ${pct(levDD*100)}. Keep leverage ≤ what you can hold through a margin call <b>without</b> selling.`;}
+  $('lVerdict').className='callout '+vCls;$('lVerdict').innerHTML=vMsg;
+  $('lRisk').innerHTML=`<table class="tbl"><tbody>
+    <tr><td>Asset fall that fully wipes your equity</td><td class="num"><span class="pill ${wipe<0.3?'r':wipe<0.5?'y':'g'}">−${pct(wipe*100)}</span></td></tr>
+    <tr><td>Your equity drawdown if asset falls ${pct(dd*100)}</td><td class="num"><span class="pill ${levDD>=1?'r':levDD>0.5?'y':'g'}">−${pct(levDD*100)}</span></td></tr>
+    <tr><td>Asset return needed just to cover borrow cost</td><td class="num"><span class="pill b">${pct(breakeven*100)}</span></td></tr>
+    <tr><td>Safe full‑Kelly leverage from your edge</td><td class="num"><span class="pill ${kelly>0?'g':'r'}">${kelly>0?(1+kelly).toFixed(2)+'×':'1.0×'}</span></td></tr>
+  </tbody></table>
+  <div class="hint" style="margin-top:10px">Rule of thumb from the pros: <b>use half‑Kelly</b> (smoother ride, ~75% of the growth) and never lever an asset that can gap‑down past your margin. Leverage is a tool for <b>conviction + cheap money + a beaten‑down market</b>, not a permanent setting.</div>`;
+  $('lModes').innerHTML=LEV_MODES.map(m=>`<div class="fcard"><h3>${m.i} ${m.n}</h3>
+    <div class="erow"><span class="pill ${m.safe}">${m.tag}</span><span class="pill b">${m.cost}</span></div>
+    <p>${m.d}</p><div class="when"><b>Best when:</b> ${m.best}</div></div>`).join('');
+  // Equity-over-3-years at this leverage: expected return vs flat vs worst-case drawdown
+  const eqL=(m,yr)=>Math.max(0,100*(L*m-(L-1)*Math.pow(1+cost,yr)));
+  const ll=[],dExp=[],dFlat=[],dW=[];
+  for(let t=0;t<=36;t++){const yr=t/12;
+    const mExp=Math.pow(1+ret,yr);              // asset compounds at expected return
+    const mW  =t<=3?1-dd*(t/3):1-dd;            // worst case: drops dd over 3 months then flat
+    ll.push(t===0?'now':t===12?'1y':t===24?'2y':t===36?'3y':'');
+    dExp.push(eqL(mExp,yr));dFlat.push(eqL(1,yr));dW.push(eqL(mW,yr));}
+  if(lChart)lChart.destroy();
+  lChart=new Chart($('lChart'),{type:'line',data:{labels:ll,datasets:[
+    {label:'✅ Expected '+pct(ret*100)+'/yr',data:dExp,borderColor:css('--success'),backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0},
+    {label:'⏸️ Flat — no move',data:dFlat,borderColor:css('--gold'),backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0},
+    {label:'🔻 Worst‑case −'+pct(dd*100),data:dW,borderColor:css('--danger'),backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:css('--txt2'),font:{size:11},boxWidth:12}},
+      tooltip:{callbacks:{label:cx=>cx.dataset.label+': '+cx.parsed.y.toFixed(0)+'% of capital'}}},
+      scales:{x:{ticks:{color:css('--txt3')},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{color:css('--txt3'),callback:v=>v+'%'},grid:{color:css('--bdr')},title:{display:true,text:'% of your capital left',color:css('--txt3')}}}}});
+  crashBuy();
+}
+// ── Crash-buying leverage guide ────────────────────────────────────────
+let cbSuggested=1.5, cbChart;
+function crashBuy(){
+  const fall=+$('cbFall').value/100, reb=+$('cbRebound').value/100,
+        worst=+$('cbWorst').value/100, cost=+$('cbCost').value/100;
+  $('cbFallV').textContent=pct(fall*100);$('cbReboundV').textContent=pct(reb*100);$('cbWorstV').textContent=pct(worst*100);
+  const ceil=0.75/worst;                                   // keep ~25% equity buffer through the worst fall
+  // Suggested: survival-driven, capped at ~2× (the "max conviction" ceiling pros rarely cross)
+  cbSuggested = reb<=cost ? 1.0 : Math.max(1, Math.min(ceil, 2));
+  cbSuggested = Math.round(cbSuggested*10)/10;
+  const gain = cbSuggested*reb - (cbSuggested-1)*cost;     // equity gain if the rebound plays out (~1-period cost)
+  const hit  = Math.min(1, cbSuggested*worst);             // equity loss if it falls `worst` more
+  $('cbTiles').innerHTML=`
+    <div class="tile acc"><div class="l">Suggested leverage</div><div class="n">${cbSuggested.toFixed(1)}×</div><div class="s">conviction cap ≈ 2×</div></div>
+    <div class="tile good"><div class="l">If it rebounds ${pct(reb*100)}</div><div class="n">+${pct(gain*100)}</div><div class="s">on your equity</div></div>
+    <div class="tile hot"><div class="l">If it drops ${pct(worst*100)} more</div><div class="n">−${pct(hit*100)}</div><div class="s">${hit>=0.7?'margin‑call zone':'survivable'}</div></div>
+    <div class="tile gold"><div class="l">Survival ceiling</div><div class="n">${ceil.toFixed(1)}×</div><div class="s">max before forced selling</div></div>`;
+  let cls,msg;
+  if(reb<=cost){cls='d';msg=`<span class="big">Don't lever here.</span> Your expected rebound (${pct(reb*100)}) doesn't beat the ${pct(cost*100)} borrow cost — just buy unlevered and let it recover.`;}
+  else{cls=cbSuggested>=2?'w':'v';msg=`<span class="big">At a ${pct(fall*100)} drawdown, a sensible play is ≈ ${cbSuggested.toFixed(1)}×.</span> That survives a <b>further ${pct(worst*100)} fall</b> with a cushion, and turns a ${pct(reb*100)} bounce into <b>+${pct(gain*100)}</b> on your equity. Going past <b>${ceil.toFixed(1)}×</b> risks a margin call if it drops more — and you'd be forced to sell at the bottom.`;}
+  $('cbVerdict').className='callout '+cls;$('cbVerdict').innerHTML=msg;
+  $('cbNote').innerHTML=`<b>Why so modest?</b> You can't call the exact bottom — 2008 fell in <i>waves</i> over a year, 2020 in weeks. Leverage that survives the <b>next</b> leg keeps you in for the rebound; leverage that doesn't forces a sale at the worst moment. Even maximum‑conviction pros rarely exceed ~1.5–2×. Prefer <b>defined‑risk</b> leverage (deep‑ITM LEAPS, loss capped) or cheap <b>loan‑against‑securities</b> over high‑interest intraday/MTF. <i>Educational, not financial advice.</i>`;
+  // Equity-over-3-years chart at the suggested leverage. Loan accrues interest; equity = position − loan.
+  const L=cbSuggested, eqOf=(m,yr)=>Math.max(0,100*(L*m-(L-1)*Math.pow(1+cost,yr)));
+  const labels=[],dReb=[],dFlat=[],dCrash=[];
+  for(let t=0;t<=36;t++){const yr=t/12;
+    const mReb=t<=24?1+reb*(t/24):1+reb;          // recovers over ~2y then holds
+    const mCr =t<=3?1-worst*(t/3):1-worst;        // drops `worst` more over 3 months, then flat
+    labels.push(t===0?'now':t===12?'1y':t===24?'2y':t===36?'3y':'');
+    dReb.push(eqOf(mReb,yr));dFlat.push(eqOf(1,yr));dCrash.push(eqOf(mCr,yr));}
+  if(cbChart)cbChart.destroy();
+  cbChart=new Chart($('cbChart'),{type:'line',data:{labels,datasets:[
+    {label:'✅ Rebounds '+pct(reb*100),data:dReb,borderColor:css('--success'),backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0},
+    {label:'⏸️ Flat — no bounce',data:dFlat,borderColor:css('--gold'),backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0},
+    {label:'🔻 Falls '+pct(worst*100)+' more, stays down',data:dCrash,borderColor:css('--danger'),backgroundColor:'transparent',tension:.3,borderWidth:2.5,pointRadius:0}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:css('--txt2'),font:{size:11},boxWidth:12}},
+      tooltip:{callbacks:{label:cx=>cx.dataset.label+': '+cx.parsed.y.toFixed(0)+'% of capital'}}},
+      scales:{x:{ticks:{color:css('--txt3')},grid:{display:false}},
+        y:{beginAtZero:true,ticks:{color:css('--txt3'),callback:v=>v+'%'},grid:{color:css('--bdr')},title:{display:true,text:'% of your capital left',color:css('--txt3')}}}}});
+  const flat3=eqOf(1,3), crash3=eqOf(1-worst,3);
+  $('cbWorstSummary').innerHTML=`<span class="big">Worst case at ${L.toFixed(1)}×: it falls ${pct(worst*100)} more and <b>doesn't bounce for 3 years.</b></span>
+    You'd be left with <b>~${crash3.toFixed(0)}% of your capital — a ${pct(100-crash3)} loss${crash3<=0?' (full wipeout / forced sale)':''}.</b> And even if it just stays <b>flat</b> for 3 years, the ${pct(cost*100)} interest alone drains you to ~${flat3.toFixed(0)}% (−${pct(100-flat3)}). That slow bleed while waiting for a late bounce is leverage's real killer — unlevered, a flat market costs you nothing.`;
+}
+const LEV_MODES=[
+  {i:'🏦',n:'Loan Against Securities',tag:'Lower risk',safe:'g',cost:'~9–11%/yr',d:'Pledge your MF/shares, borrow a slice (~50% LTV) as an overdraft. You keep ownership & dividends; no forced churn.',best:'You want cash flexibility or to add in a dip without selling holdings.'},
+  {i:'📊',n:'MTF / Margin (delivery)',tag:'Medium',safe:'y',cost:'~9–18%/yr',d:'Broker funds part of a delivery buy. Carry positions longer than intraday. Watch daily interest and pledge haircuts.',best:'High‑conviction delivery bet in an oversold market, held weeks–months.'},
+  {i:'📈',n:'Index Futures',tag:'Medium‑high',safe:'y',cost:'implied ~7–8%',d:'~5–6× notional on margin, cheapest implied leverage, very liquid on Nifty/Bank Nifty. Marked‑to‑market daily — needs active management.',best:'Short, tactical, well‑hedged exposure by experienced traders.'},
+  {i:'🎟️',n:'Long‑dated Options (LEAPS‑style)',tag:'Defined risk',safe:'g',cost:'premium = max loss',d:'A deep‑ITM call gives leveraged upside with loss capped at the premium — no margin call. Time decay is the cost.',best:'Bullish with a hard cap on how much you can lose. Long expiries only.'},
+  {i:'⚠️',n:'Intraday / F&O speculation',tag:'High risk',safe:'r',cost:'very high churn',d:'10–20× intraday margins. SEBI data: ~9 in 10 retail F&O traders lose money. This is the graveyard of leverage.',best:'Almost never for wealth‑building. Avoid as a core strategy.'},
+];
+
+/* ════════════════ TAB 4: FACTOR ETFs ════════════════ */
+// ret/vol/dd = illustrative long-run history of NSE factor indices (TRI). Character, not a promise.
+const FACTORS=[
+  {k:'nifty50',i:'🏛️',n:'Nifty 50',er:'~0.03%',ret:12,vol:17,dd:38,desc:'The 50 largest, most‑liquid bluechips — the default core everyone is measured against.',good:['sideways','highvol'],bad:[],when:'Always a fine core; leads in flight‑to‑safety, large‑cap‑led phases.',avoid:'Rarely the top performer in a broad small/mid rally.'},
+  {k:'next50',i:'🌱',n:'Nifty Next 50',er:'~0.1%',ret:15,vol:21,dd:60,desc:'Stocks 51–100 — tomorrow’s bluechips. Higher growth, but stomach‑churning falls.',good:['earlybull','latebull'],bad:['bear','highvol'],when:'Risk‑on bull markets; horizons that can ride out crashes.',avoid:'If you can’t hold through a 50%+ drawdown.'},
+  {k:'momentum',i:'🚀',n:'Momentum (Nifty200 Momentum 30)',er:'~0.3%',ret:17,vol:19,dd:45,desc:'Buys what’s already rising — winners keep winning, until they don’t.',good:['latebull','earlybull'],bad:['bear','highvol'],when:'Trending bull markets; sharp recoveries.',avoid:'Whipsaw/sideways and sudden crashes — it reverses hard at turns.'},
+  {k:'alpha',i:'⭐',n:'Alpha (Nifty Alpha 50)',er:'~0.4%',ret:19,vol:24,dd:62,desc:'The most aggressive — highest historical return AND the deepest falls.',good:['latebull','earlybull'],bad:['bear','highvol','expensive'],when:'Strong bull runs with clear leadership.',avoid:'Late‑cycle froth and bear markets — it draws down the most.'},
+  {k:'quality',i:'💎',n:'Quality (Nifty200 Quality 30)',er:'~0.3%',ret:14.5,vol:15,dd:32,desc:'High ROE, low debt, stable earnings — the sleep‑well compounders.',good:['expensive','highvol','sideways','bear'],bad:[],when:'Late‑cycle, uncertain or falling markets — defends capital well.',avoid:'Rarely the top performer in a junk‑led early bull rally.'},
+  {k:'lowvol',i:'🛡️',n:'Low Volatility (Nifty100 Low Vol 30)',er:'~0.3%',ret:13.5,vol:13,dd:28,desc:'The steadiest ride — smallest swings and shallowest drawdowns.',good:['bear','highvol','sideways'],bad:['earlybull'],when:'Corrections, high‑vol regimes, capital‑preservation mode.',avoid:'Roaring bull markets — it lags the upside.'},
+  {k:'value',i:'🏷️',n:'Value (Nifty500 Value 50)',er:'~0.4%',ret:15.5,vol:20,dd:52,desc:'Cheap on P/E, P/B, dividend yield — buys the unloved before they re‑rate.',good:['earlybull','expensive'],bad:['latebull'],when:'Recoveries off a bottom; when growth gets too expensive.',avoid:'Can stay cheap for years (“value traps”) in momentum‑led markets.'},
+  {k:'equal',i:'⚖️',n:'Equal Weight (Nifty50 Equal Weight)',er:'~0.3%',ret:13,vol:18,dd:42,desc:'Every stock weighted equally — more mid‑cap tilt, less mega‑cap concentration.',good:['earlybull','sideways'],bad:['expensive'],when:'Broad‑based rallies where small/mid join in.',avoid:'Narrow markets led by a few mega‑caps.'},
+];
+const FMAP=Object.fromEntries(FACTORS.map(f=>[f.k,f]));
+const REGIME_TXT={
+  earlybull:'Money rotating into cheap, beaten‑down, broad names — Value, Equal‑Weight, Next 50 and early Momentum tend to lead.',
+  latebull:'Trends are strong and leadership is clear — Momentum & Alpha shine; keep some Quality as a parachute.',
+  bear:'Capital preservation mode — Low‑Vol and Quality fall the least; Alpha/Next 50 get hurt the most.',
+  sideways:'Choppy and directionless — Quality and Low‑Vol grind out returns; Momentum whipsaws.',
+  highvol:'Big swings, low conviction — defensives (Quality, Low‑Vol) protect; avoid aggressive factors.',
+  expensive:'Valuations stretched — lean to Quality (earns its multiple) and Value (the cheap pocket); trim Alpha/Momentum froth.'
+};
+// ── Market-cycle curve (hoverable) ─────────────────────────────────────
+const CYCLE=[
+  {r:'sideways', i:'😴', n:'Accumulation / Sideways', mv:31},
+  {r:'earlybull',i:'📈', n:'Recovery / Early Bull',   mv:46},
+  {r:'latebull', i:'🚀', n:'Late Bull / Momentum',    mv:73},
+  {r:'expensive',i:'💸', n:'Euphoria / Expensive',    mv:93},
+  {r:'bear',     i:'🐻', n:'Distribution / Bear',     mv:80},
+  {r:'highvol',  i:'🌪️', n:'Capitulation / High‑Vol', mv:43},
+];
+const CY_PTS=[[0,28],[100,34],[200,58],[300,88],[400,98],[500,60],[600,26]];
+const CY_TOP=15, CY_H=130;
+const cyY=v=>CY_TOP+(100-v)/100*CY_H;
+function cySmooth(pts){let d=`M${pts[0][0]},${cyY(pts[0][1])}`;
+  for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||pts[i+1];
+    const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=cyY(p1[1])+(cyY(p2[1])-cyY(p0[1]))/6,
+          c2x=p2[0]-(p3[0]-p1[0])/6,c2y=cyY(p2[1])-(cyY(p3[1])-cyY(p1[1]))/6;
+    d+=` C${c1x},${c1y} ${c2x},${c2y} ${p2[0]},${cyY(p2[1])}`;}return d;}
+function renderCycleOnce(){
+  if($('cycleChart').dataset.done)return;
+  const path=cySmooth(CY_PTS), baseH=CY_TOP+CY_H, totalH=baseH+34;
+  let divs='';for(let i=1;i<6;i++)divs+=`<line x1="${i*100}" y1="${CY_TOP}" x2="${i*100}" y2="${baseH}" style="stroke:var(--bdr)" stroke-dasharray="3 3"/>`;
+  let labels='',bands='';
+  CYCLE.forEach((p,i)=>{
+    labels+=`<text x="${i*100+50}" y="${baseH+15}" text-anchor="middle" font-size="11" style="fill:var(--txt2)">${p.i}</text>
+             <text x="${i*100+50}" y="${baseH+28}" text-anchor="middle" font-size="8" style="fill:var(--txt3)">${p.n.split(' / ')[0]}</text>`;
+    bands+=`<rect id="cyband-${i}" x="${i*100}" y="0" width="100" height="${baseH}" fill="transparent" style="cursor:pointer"/>`;
+  });
+  $('cycleChart').innerHTML=`<svg viewBox="0 0 600 ${totalH}" width="100%" style="display:block">
+    <rect id="cyhi" x="0" y="${CY_TOP}" width="100" height="${CY_H}" style="fill:var(--acc-bg)" opacity="0"/>
+    ${divs}
+    <path d="${path}" style="fill:none;stroke:var(--acc);stroke-width:2.5"/>
+    <circle id="cycdot" r="6" style="fill:var(--acc);stroke:var(--card);stroke-width:2.5"/>
+    ${labels}${bands}
+  </svg>`;
+  CYCLE.forEach((p,i)=>{const b=$('cyband-'+i);
+    b.addEventListener('mouseenter',()=>highlightCycle(p.r,true));
+    b.addEventListener('click',()=>{$('regime').value=p.r;factor();});});
+  $('cycleChart').querySelector('svg').addEventListener('mouseleave',()=>highlightCycle($('regime').value,false));
+  $('cycleChart').dataset.done='1';
+}
+function highlightCycle(r,hover){
+  const idx=CYCLE.findIndex(p=>p.r===r);if(idx<0)return;
+  const hi=$('cyhi');if(hi){hi.setAttribute('x',idx*100);hi.setAttribute('opacity','1');}
+  const dot=$('cycdot');if(dot){dot.setAttribute('cx',idx*100+50);dot.setAttribute('cy',cyY(CYCLE[idx].mv));}
+  const p=CYCLE[idx];
+  const lead=FACTORS.filter(f=>f.good.includes(r)).map(f=>f.i+' '+f.n.replace(/ \(.*/,''));
+  const lag =FACTORS.filter(f=>f.bad.includes(r)).map(f=>f.n.replace(/ \(.*/,''));
+  $('cycleInfo').innerHTML=`<span class="big">${p.i} ${p.n}${hover?'':' · you are here'}</span>${REGIME_TXT[r]}
+    <div style="margin-top:7px"><b style="color:var(--success)">✅ Leaders:</b> ${lead.length?lead.join(', '):'—'}<br>
+    <b style="color:var(--danger)">⚠️ Laggards:</b> ${lag.length?lag.join(', '):'none stand out'}</div>`;
+}
+// ── Factor correlation matrix (illustrative) ───────────────────────────
+const CORR={
+  nifty50:{next50:.85,momentum:.82,alpha:.75,quality:.85,lowvol:.82,value:.80,equal:.93},
+  next50:{momentum:.80,alpha:.82,quality:.75,lowvol:.70,value:.78,equal:.88},
+  momentum:{alpha:.90,quality:.72,lowvol:.62,value:.65,equal:.80},
+  alpha:{quality:.68,lowvol:.58,value:.66,equal:.78},
+  quality:{lowvol:.85,value:.62,equal:.78},
+  lowvol:{value:.60,equal:.74},
+  value:{equal:.82},
+};
+const corrV=(a,b)=>a===b?1:(CORR[a]&&CORR[a][b])??(CORR[b]&&CORR[b][a])??null;
+function corrBg(c){
+  if(c>=0.88)return 'rgba(220,38,38,.32)';
+  if(c>=0.80)return 'rgba(220,38,38,.16)';
+  if(c>=0.72)return 'rgba(217,119,6,.18)';
+  if(c>=0.65)return 'rgba(22,163,74,.16)';
+  return 'rgba(22,163,74,.32)';
+}
+function renderCorr(){
+  const ks=FACTORS.map(f=>f.k);
+  const head='<th></th>'+ks.map(k=>`<th class="num" style="padding:4px 5px" title="${FMAP[k].n}">${FMAP[k].i}</th>`).join('');
+  const body=ks.map(rk=>{
+    const cells=ks.map(ck=>{const c=corrV(rk,ck), diag=rk===ck;
+      return `<td style="text-align:center;padding:5px;background:${diag?'var(--ibg)':corrBg(c)};${diag?'color:var(--txt3)':'font-weight:600'}">${diag?'—':c.toFixed(2)}</td>`;}).join('');
+    return `<tr><td style="white-space:nowrap;padding:5px 7px"><span style="font-size:.62rem;color:var(--txt2)">${FMAP[rk].i} ${FMAP[rk].n.split(' (')[0]}</span></td>${cells}</tr>`;
+  }).join('');
+  $('corrMatrix').innerHTML=`<table class="tbl" style="font-size:.72rem"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>
+    <div class="hint" style="margin-top:9px"><b>Lower = better diversifier.</b> Best low‑correlation pairs: <b>Alpha/Momentum × Low‑Vol</b> (~0.58–0.62) and <b>Momentum × Value</b> (~0.65). Quality & Low‑Vol move together (~0.85), so owning both adds little. Illustrative figures.</div>`;
+}
+let factorSort='ret';
+function bar(val,max,col){const w=Math.round(val/max*100);return `<div style="background:var(--ibg);border-radius:4px;height:7px;overflow:hidden;margin-top:3px"><div style="width:${w}%;height:100%;background:${col}"></div></div>`;}
+function renderFactorTbl(){
+  const maxR=Math.max(...FACTORS.map(f=>f.ret)), maxV=Math.max(...FACTORS.map(f=>f.vol)), maxD=Math.max(...FACTORS.map(f=>f.dd));
+  const rows=[...FACTORS].sort((a,b)=>{
+    if(factorSort==='ret')return b.ret-a.ret;
+    if(factorSort==='vol')return a.vol-b.vol;
+    if(factorSort==='dd')return a.dd-b.dd;
+    return (b.ret/b.vol)-(a.ret/a.vol);
+  });
+  $('factorTbl').innerHTML=`<thead><tr><th>Factor / index</th><th class="num">Long‑run return</th><th class="num">Volatility</th><th class="num">Max drawdown</th><th class="num">Risk‑adj (ret/vol)</th></tr></thead><tbody>${
+    rows.map((f,i)=>`<tr class="${i===0?'hl':''}"><td><b>${f.i} ${f.n}</b><div style="font-size:.6rem;color:var(--txt3)">expense ${f.er}</div></td>
+      <td class="num">${f.ret}%${bar(f.ret,maxR,css('--success'))}</td>
+      <td class="num">${f.vol}%${bar(f.vol,maxV,css('--gold'))}</td>
+      <td class="num">−${f.dd}%${bar(f.dd,maxD,css('--danger'))}</td>
+      <td class="num">${(f.ret/f.vol).toFixed(2)}</td></tr>`).join('')
+  }</tbody>`;
+}
+// ── Build-your-mix ─────────────────────────────────────────────────────
+const MIXES={
+  growth:{t:'🚀 Maximum growth',sub:'For 7–10yr+ horizons & a strong stomach',legs:[['momentum',35],['alpha',20],['next50',20],['quality',25]],
+    note:'Momentum + Alpha + Next 50 drive the engine; <b>Quality 25%</b> is the parachute so a crash doesn’t wipe you out. Expect a wild ride — only worth it if you can sit through a 45%+ fall without selling.'},
+  balanced:{t:'⚖️ Balanced — best risk‑adjusted',sub:'The all‑weather default for most people',legs:[['nifty50',40],['momentum',30],['quality',30]],
+    note:'A low‑cost core + one offensive factor (Momentum) + one defensive (Quality). Historically a strong, <b>low‑correlation pair</b> — good upside capture with cushioned falls. Rebalance once a year.'},
+  lowvol:{t:'🛡️ Low volatility — protect capital',sub:'Smoother nights, shallower crashes',legs:[['lowvol',40],['quality',35],['nifty50',25]],
+    note:'Defensive tilt for money you’ll need soon, or for nervous investors. You give up some bull‑market upside in exchange for far smaller drawdowns and an easier hold.'},
+  forget:{t:'💤 Buy & forget — set once',sub:'Minimal maintenance, maximal discipline',legs:[['nifty50',50],['quality',30],['momentum',20]],
+    note:'Three funds, one yearly rebalance, ignore the noise for a decade. The core does the heavy lifting; Quality + a dash of Momentum add a tilt <b>without needing babysitting</b>. The most reliable way real people actually compound.'},
+};
+const MIXPAL=['#0891b2','#7c3aed','#d97706','#16a34a','#dc2626','#0ea5e9','#db2777','#65a30d'];
+const divDiscount=n=>n<=1?1:n<=3?0.93:0.90;   // more low-correlation holdings → lower blended vol
+// Shared renderer: takes normalised legs [[k,w%]...] summing to 100 + a title/sub/note
+function paintMix(legs,title,sub,note){
+  const wRet=legs.reduce((s,[k,w])=>s+FMAP[k].ret*w,0)/100;
+  const wVol=legs.reduce((s,[k,w])=>s+FMAP[k].vol*w,0)/100*divDiscount(legs.length);
+  const wDd =legs.reduce((s,[k,w])=>s+FMAP[k].dd *w,0)/100*divDiscount(legs.length);
+  const stack=legs.map(([k,w],i)=>`<div title="${FMAP[k].n} ${w.toFixed(0)}%" style="width:${w}%;background:${MIXPAL[i%MIXPAL.length]}"></div>`).join('');
+  const legend=legs.map(([k,w],i)=>`<div style="display:flex;align-items:center;gap:7px;font-size:.82rem;padding:3px 0"><span style="width:11px;height:11px;border-radius:3px;background:${MIXPAL[i%MIXPAL.length]};flex-shrink:0"></span><b>${w.toFixed(0)}%</b> ${FMAP[k].i} ${FMAP[k].n.replace(/ \(.*/,'')}</div>`).join('');
+  return `${title?`<div style="font-weight:800;font-size:1rem;margin-bottom:2px">${title}</div>`:''}
+    ${sub?`<div style="font-size:.78rem;color:var(--txt2);margin-bottom:12px">${sub}</div>`:''}
+    <div style="display:flex;height:16px;border-radius:6px;overflow:hidden;margin-bottom:12px">${stack}</div>
+    <div style="margin-bottom:14px">${legend}</div>
+    <div class="tiles" style="margin-bottom:12px">
+      <div class="tile good"><div class="l">Blended return</div><div class="n">~${wRet.toFixed(1)}%</div><div class="s">long‑run, illustrative</div></div>
+      <div class="tile gold"><div class="l">Volatility</div><div class="n">~${wVol.toFixed(0)}%</div><div class="s">${wVol<15?'calm':wVol<19?'moderate':'jumpy'}</div></div>
+      <div class="tile hot"><div class="l">Likely worst drop</div><div class="n">~−${wDd.toFixed(0)}%</div><div class="s">be ready to hold through it</div></div>
+    </div>
+    ${note?`<div class="callout i">${note}</div>`:''}`;
+}
+let mixGoal='balanced';
+const customW={momentum:50,lowvol:50};          // user's custom weights, keyed by factor
+function renderMix(){
+  if(mixGoal==='custom'){renderCustomMix();return;}
+  delete $('mixOut').dataset.custom;
+  const m=MIXES[mixGoal];
+  $('mixOut').innerHTML=paintMix(m.legs.map(([k,w])=>[k,w]),m.t,m.sub,m.note);
+}
+function renderCustomMix(){
+  if(!$('mixOut').dataset.custom){
+    $('mixOut').dataset.custom='1';
+    const rows=FACTORS.map(f=>`<div style="display:flex;align-items:center;gap:12px;margin-bottom:9px">
+      <span style="width:150px;flex-shrink:0;font-size:.82rem">${f.i} ${f.n.replace(/ \(.*/,'')}</span>
+      <input type="range" id="cw-${f.k}" value="${customW[f.k]||0}" min="0" max="100" step="1" style="flex:1">
+      <span id="cwv-${f.k}" style="width:42px;flex-shrink:0;text-align:right;font-size:.82rem;font-weight:800;color:var(--acc)">${customW[f.k]||0}%</span></div>`).join('');
+    const btn='padding:5px 11px;border:1px solid var(--bdr2);border-radius:7px;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.74rem;font-weight:600;cursor:pointer';
+    const setSlider=(k,v)=>{customW[k]=v;const s=$('cw-'+k);if(s)s.value=v;const d=$('cwv-'+k);if(d)d.textContent=v+'%';};
+    $('mixOut')._setSlider=setSlider;
+    $('mixOut').innerHTML=`<div style="font-weight:800;font-size:1rem;margin-bottom:2px">🎛️ Your custom mix</div>
+      <div style="font-size:.78rem;color:var(--txt2);margin-bottom:14px">Slide each ETF. Your <b>total = exposure</b> — over 100% = leverage, under 100% = part in cash. The return, volatility & worst‑drop tiles scale with it.</div>
+      <div style="display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start;margin-bottom:14px">
+        <div style="flex:1;min-width:300px;max-width:560px">
+          <div style="margin-bottom:10px">${rows}</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <button id="cwNorm" style="${btn}">Reset to 100% (no leverage)</button>
+            <button id="cwClear" style="${btn}">Clear</button>
+            <span id="cwTotal" style="font-size:.78rem;font-weight:700"></span></div>
+        </div>
+        <div style="flex:1;min-width:280px">
+          <div style="font-size:.82rem;font-weight:700;margin-bottom:8px">📅 Where your mix shines across the market cycle</div>
+          <div id="customCycle"></div>
+        </div>
+      </div>
+      <div id="customOut"></div>`;
+    FACTORS.forEach(f=>$('cw-'+f.k).addEventListener('input',()=>{customW[f.k]=Math.max(0,+$('cw-'+f.k).value||0);$('cwv-'+f.k).textContent=customW[f.k]+'%';computeCustom();}));
+    $('cwNorm').onclick=()=>{const legs=FACTORS.filter(f=>(customW[f.k]||0)>0);const t=legs.reduce((s,f)=>s+customW[f.k],0);if(!t)return;
+      legs.forEach(f=>setSlider(f.k,Math.round(customW[f.k]/t*100)));
+      const diff=100-legs.reduce((s,f)=>s+customW[f.k],0);if(legs.length){const big=legs.reduce((a,b)=>customW[a.k]>=customW[b.k]?a:b);setSlider(big.k,customW[big.k]+diff);}
+      computeCustom();};
+    $('cwClear').onclick=()=>{FACTORS.forEach(f=>setSlider(f.k,0));computeCustom();};
+  }
+  computeCustom();
+}
+const CUST_CASH=6, CUST_BORROW=9;   // cash yield % and leverage borrow cost %
+function computeCustom(){
+  const legs=FACTORS.filter(f=>(customW[f.k]||0)>0).map(f=>[f.k,customW[f.k]]);
+  const total=legs.reduce((s,[,w])=>s+w,0);
+  if(total<=0){
+    $('cwTotal').innerHTML='<span style="color:var(--txt3)">Exposure 0%</span>';
+    $('customOut').innerHTML='<div class="callout w">Give at least one ETF a weight above to see your blended profile.</div>';
+    if($('customCycle'))$('customCycle').innerHTML='<div class="hint">Pick some ETFs to light up the cycle.</div>';return;}
+  const comp=legs.map(([k,w])=>[k,w/total*100]);        // composition (character) — sums to 100
+  const E=total/100, n=legs.length, disc=divDiscount(n);
+  const bRet=comp.reduce((s,[k,w])=>s+FMAP[k].ret*w,0)/100;            // 100%-invested blend
+  const bVol=comp.reduce((s,[k,w])=>s+FMAP[k].vol*w,0)/100*disc;
+  const bDd =comp.reduce((s,[k,w])=>s+FMAP[k].dd *w,0)/100*disc;
+  let pRet,pVol,pDd,lbl,col,note;
+  if(E>1.001){const b=E-1; pRet=E*bRet-b*CUST_BORROW; pVol=E*bVol; pDd=Math.min(100,E*bDd);
+    lbl=`Exposure ${total}% · ${E.toFixed(2)}× leverage`; col='var(--danger)';
+    note=`🔼 <b>Leverage ${E.toFixed(2)}×.</b> You borrow ${Math.round(b*100)}% at ~${CUST_BORROW}%/yr, so returns AND risk scale ~${E.toFixed(2)}×: the blend’s ~−${bDd.toFixed(0)}% fall becomes <b>~−${pDd.toFixed(0)}% on your own capital</b>${pDd>=100?' — a full wipeout / margin call':''}. Magnifies a bull run, brutal in a crash — only with conviction and staying power.`;
+  }else if(E<0.999){const cash=1-E; pRet=E*bRet+cash*CUST_CASH; pVol=E*bVol; pDd=E*bDd;
+    lbl=`Exposure ${total}% · <span style="color:var(--danger)">${Math.round(cash*100)}% in cash</span>`; col='var(--acc)';
+    note=`🛟 <b>${total}% invested, ${Math.round(cash*100)}% in cash (~${CUST_CASH}%).</b> Calmer ride (worst drop only ~−${pDd.toFixed(0)}%) but the long‑run return is pulled toward cash. Good for money you may need soon or while waiting to deploy into a dip.`;
+  }else{pRet=bRet;pVol=bVol;pDd=bDd; lbl='Exposure 100% · fully invested'; col='var(--success)';
+    note=`A custom blend of ${n} ETF${n>1?'s':''}, fully invested. Slide the total <b>above 100%</b> to model leverage, or <b>below</b> to hold cash — the tiles update live.`;}
+  $('cwTotal').innerHTML=`<span style="color:${col};font-weight:800">${lbl}</span>`;
+  const stack=comp.map(([k,w],i)=>`<div title="${FMAP[k].n} ${w.toFixed(0)}% of invested" style="width:${w}%;background:${MIXPAL[i%MIXPAL.length]}"></div>`).join('');
+  const legend=legs.map(([k,w],i)=>`<div style="display:flex;align-items:center;gap:7px;font-size:.82rem;padding:3px 0"><span style="width:11px;height:11px;border-radius:3px;background:${MIXPAL[i%MIXPAL.length]};flex-shrink:0"></span><b>${w}%</b> ${FMAP[k].i} ${FMAP[k].n.replace(/ \(.*/,'')}</div>`).join('');
+  $('customOut').innerHTML=`
+    <div style="display:flex;height:16px;border-radius:6px;overflow:hidden;margin-bottom:12px">${stack}</div>
+    <div style="margin-bottom:14px">${legend}</div>
+    <div class="tiles" style="margin-bottom:12px">
+      <div class="tile good"><div class="l">Blended return</div><div class="n">~${pRet.toFixed(1)}%</div><div class="s">${E>1.001?'after borrow cost':E<0.999?'incl. cash':'long‑run, illustrative'}</div></div>
+      <div class="tile hot"><div class="l">Likely worst drop</div><div class="n">~−${pDd.toFixed(0)}%</div><div class="s">${pDd>=100?'wipeout risk':'be ready to hold it'}</div></div>
+      <div class="tile gold"><div class="l">Volatility</div><div class="n">~${pVol.toFixed(0)}%</div><div class="s">${pVol<15?'calm':pVol<22?'moderate':'jumpy'}</div></div>
+    </div>
+    <div class="callout ${E>1.001?'w':'i'}">${note}</div>`;
+  if($('customCycle'))renderCustomCycle(comp);
+}
+// Score how the custom blend fares in each market-cycle phase (weighted by allocation)
+function mixPhaseScore(legs,r){let s=0,t=0;legs.forEach(([k,w])=>{const f=FMAP[k];t+=w;s+=w*(f.good.includes(r)?1:f.bad.includes(r)?-1:0);});return t?s/t:0;}
+function renderCustomCycle(legs){
+  const baseH=CY_TOP+CY_H, totalH=baseH+30, path=cySmooth(CY_PTS);
+  const scores=CYCLE.map(p=>mixPhaseScore(legs,p.r));
+  let bands='',labels='';
+  CYCLE.forEach((p,i)=>{const sc=scores[i];let fill='transparent',op=0;
+    if(sc>=0.12){fill='var(--success)';op=Math.min(0.45,0.13+sc*0.32);}
+    else if(sc<=-0.12){fill='var(--danger)';op=Math.min(0.45,0.13+(-sc)*0.32);}
+    bands+=`<rect x="${i*100}" y="${CY_TOP}" width="100" height="${CY_H}" style="fill:${fill}" opacity="${op.toFixed(2)}"/>`;
+    labels+=`<text x="${i*100+50}" y="${baseH+14}" text-anchor="middle" font-size="11" style="fill:var(--txt2)">${p.i}</text>
+             <text x="${i*100+50}" y="${baseH+26}" text-anchor="middle" font-size="7.5" style="fill:var(--txt3)">${p.n.split(' / ')[0]}</text>`;});
+  let divs='';for(let i=1;i<6;i++)divs+=`<line x1="${i*100}" y1="${CY_TOP}" x2="${i*100}" y2="${baseH}" style="stroke:var(--bdr)" stroke-dasharray="3 3"/>`;
+  const ranked=CYCLE.map((p,i)=>({p,sc:scores[i]})).sort((a,b)=>b.sc-a.sc);
+  const best=ranked.filter(x=>x.sc>=0.12).map(x=>x.p.i+' '+x.p.n.split(' / ')[0]);
+  const weak=ranked.filter(x=>x.sc<=-0.12).map(x=>x.p.i+' '+x.p.n.split(' / ')[0]);
+  $('customCycle').innerHTML=`<svg viewBox="0 0 600 ${totalH}" width="100%" style="display:block">${bands}${divs}<path d="${path}" style="fill:none;stroke:var(--acc);stroke-width:2.5"/>${labels}</svg>
+    <div style="font-size:.76rem;margin-top:8px;line-height:1.65">
+      <b style="color:var(--success)">✅ Shines in:</b> ${best.length?best.join(', '):'no standout phase — well‑rounded'}<br>
+      <b style="color:var(--danger)">⚠️ Weakest in:</b> ${weak.length?weak.join(', '):'no clear weak spot'}</div>`;
+}
+function factor(){
+  const r=$('regime').value;
+  $('regimeHint').textContent=REGIME_TXT[r];
+  renderFactorTbl();
+  renderMix();
+  renderCycleOnce();
+  highlightCycle(r,false);
+  renderCorr();
+  $('factorCards').innerHTML=FACTORS.map(f=>{
+    const spot=f.good.includes(r), dim=f.bad.includes(r);
+    return `<div class="fcard ${spot?'spot':dim?'dim':''}"><h3>${f.i} ${f.n} ${spot?'<span class="pill g">Favoured</span>':dim?'<span class="pill r">Laggard</span>':'<span class="pill y">Neutral</span>'}</h3>
+      <div class="erow"><span class="pill b">Ret ~${f.ret}%</span><span class="pill y">Vol ~${f.vol}%</span><span class="pill r">DD ~−${f.dd}%</span></div>
+      <p>${f.desc}</p>
+      <div class="when"><b>Works:</b> ${f.when}<div class="bad" style="margin-top:4px"><b>Struggles:</b> ${f.avoid}</div></div></div>`;
+  }).join('');
+  // operating-manual accordion (rendered once)
+  if(!$('factorGuide').dataset.done){
+    $('factorGuide').innerHTML=FACTOR_GUIDE.map((g,i)=>`<div class="acc-item ${i===0?'open':''}"><div class="acc-h"><span class="em">${g.i}</span>${g.n}<span class="ar">▼</span></div>
+      <div class="acc-b"><div class="acc-b-in"><ul>${g.pts.map(p=>`<li>${p}</li>`).join('')}</ul></div></div></div>`).join('');
+    $('factorGuide').querySelectorAll('.acc-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+    $('factorGuide').dataset.done='1';
+  }
+}
+const FACTOR_GUIDE=[
+  {i:'🛒',n:'When & how to buy',pts:[
+    'Buy via <b>SIP</b> (monthly), not a single lump sum — it removes timing stress and averages your cost.',
+    'Keep a little dry powder and <b>add extra when the market falls 10%+</b>. Drawdowns are when factor ETFs are cheapest.',
+    'Use the <b>core‑satellite</b> structure: 60–70% in a cheap Nifty 50/500 core, 30–40% in 2–3 factor satellites.',
+    'Prefer ETFs/index funds with <b>low expense ratio + low tracking error</b> and decent AUM/liquidity. A cheap plain index often beats an expensive clever factor after costs.']},
+  {i:'🔄',n:'When to switch — and should you?',pts:[
+    '<b>Honest answer: mostly, don’t.</b> Chasing last year’s winning factor is exactly how retail buys the top — factors mean‑revert.',
+    'Switching = realising tax (20% STCG if under a year) + costs every time. That drag usually beats any timing gain (see the Beat‑the‑Index tab).',
+    'Better than switching: <b>rebalance yearly</b> back to your target weights — it auto‑sells the hot factor and buys the cold one.',
+    'Only tilt deliberately when a regime is <i>clearly</i> extreme (e.g. froth → add Quality/Low‑Vol; deep bear → add Momentum/Alpha for the recovery). Small tilts, not all‑in bets.']},
+  {i:'⏰',n:'Best buy & sell timing',pts:[
+    'You can’t time tops/bottoms — but you <b>can</b> buy more when others panic. Pre‑commit a buy‑ladder: add at −10%, −20%, −30%.',
+    '<b>Best sell time: rarely.</b> Sell to rebalance, to fund a real goal, or if the fund’s structure breaks — not because of a scary headline.',
+    'Cross the <b>12‑month line before selling</b> to convert 20% STCG into 12.5% LTCG (the Tax tab quantifies it).',
+    'Avoid trading around results/event days — spreads widen and you pay more slippage.']},
+  {i:'💡',n:'Pro tips & clues',pts:[
+    'Pair an <b>offensive + defensive</b> factor (Momentum + Quality). They zig when the other zags, smoothing the ride.',
+    'Watch <b>relative valuation</b>: when a factor’s P/E is far above its history, future returns usually disappoint — trim, don’t add.',
+    'More holdings ≠ safer once you own a few diversified ETFs — extra funds just add overlap and cost.',
+    'Track <b>your behaviour</b>, not just returns: the biggest leak is panic‑selling crashes and chasing rallies.',
+    'Re‑invest dividends/growth option; never let cash sit idle.']},
+  {i:'📈',n:'How to increase profit',pts:[
+    '<b>Step‑up your SIP</b> ~10%/yr — this adds more to your corpus than chasing extra return (see Goal CAGR tab).',
+    'Deploy lump sums <b>into drawdowns</b>, not into all‑time highs.',
+    'Cut costs: low‑ER funds, avoid churn, harvest the ₹1.25L LTCG exemption yearly.',
+    'Tilt 20–30% toward higher‑return factors (Momentum/Alpha/Next 50) <b>only</b> with a long horizon and a Quality cushion.',
+    'Let it compound — uninterrupted time in the market is the single biggest profit lever.']},
+  {i:'💤',n:'The buy‑&‑forget blueprint',pts:[
+    'Pick <b>2–3 funds</b> max: e.g. Nifty 50 (50%) + Quality (30%) + Momentum (20%).',
+    'Automate a monthly SIP and a yearly step‑up. Set it and stop checking daily.',
+    '<b>Rebalance once a year</b> (use fresh SIP money first to avoid selling & tax).',
+    'Ignore news, forecasts, and “hot tip” funds. Do nothing for 10+ years.',
+    'This boring plan beats most active investors — because it removes the mistakes that cost them.']},
+];
+$('regime').onchange=factor;
+$('factorSort').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  factorSort=b.dataset.s;$('factorSort').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderFactorTbl();});
+$('mixGoal').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  mixGoal=b.dataset.g;$('mixGoal').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderMix();});
+
+/* ════════════════ TAB: BONDS ════════════════ */
+// yld=indicative yield %, dur=duration yrs (rate sensitivity), cs=credit score (1 safest), ls=liquidity score (1 most liquid)
+const BONDS=[
+  {k:'liquid',i:'💧',n:'Liquid / Overnight',yld:6.3,dur:0.1,credit:'Sovereign/AAA',cs:1,liq:'Instant',ls:1,
+    desc:'Parking spot for cash — near‑zero rate risk, withdraw anytime. Replaces an idle savings balance.',
+    good:['rising','stable'],bad:['falling'],when:'Emergency fund, dry powder, rising‑rate phases.',avoid:'Long‑term wealth — it barely beats inflation.'},
+  {k:'ultra',i:'🌊',n:'Ultra‑Short / Money Market',yld:6.8,dur:0.5,credit:'AAA',cs:2,liq:'High',ls:2,
+    desc:'A notch more yield than liquid for money you need in 3–12 months.',
+    good:['rising','stable'],bad:['falling'],when:'6–12 month goals; rising rates.',avoid:'When you want duration gains from rate cuts.'},
+  {k:'short',i:'📏',n:'Short Duration',yld:7.2,dur:2.5,credit:'AAA',cs:2,liq:'Medium',ls:3,
+    desc:'Steady accrual with modest rate risk — the all‑weather debt workhorse.',
+    good:['stable','rising'],bad:['falling'],when:'1–3 year horizons; range‑bound rates.',avoid:'If you specifically want to ride a rate‑cut rally.'},
+  {k:'corp',i:'🏢',n:'Corporate Bond (AAA)',yld:7.5,dur:3.5,credit:'AAA',cs:2,liq:'Medium',ls:3,
+    desc:'Top‑rated company bonds — a little more yield than G‑secs for similar safety.',
+    good:['stable','peaking'],bad:['rising'],when:'Stable rates; clipping coupons for income.',avoid:'Sharp rate‑rise phases (prices dip).'},
+  {k:'psu',i:'🏛️',n:'Banking & PSU',yld:7.3,dur:3.5,credit:'AAA (quasi‑sov)',cs:2,liq:'Medium',ls:3,
+    desc:'Bonds of banks & PSUs — very safe accrual, a core debt holding.',
+    good:['stable','peaking'],bad:['rising'],when:'Core debt allocation; stable rates.',avoid:'Rising‑rate phases for longer‑dated variants.'},
+  {k:'gilt',i:'🦅',n:'Gilt / Long G‑Sec',yld:7.0,dur:8,credit:'Sovereign',cs:1,liq:'Medium',ls:3,
+    desc:'Government bonds — zero default risk, but the most price‑sensitive to rates. The rate‑cut rocket.',
+    good:['falling','peaking'],bad:['rising'],when:'When rates peak/fall — prices rally hard.',avoid:'Rising rates — long duration falls the most.'},
+  {k:'tmf',i:'🎯',n:'Target Maturity / Bharat Bond',yld:7.3,dur:5,credit:'Sov/AAA/SDL',cs:1,liq:'ETF',ls:2,
+    desc:'Holds a basket to a fixed maturity date. Hold till then and your YTM is locked — rate risk melts away over time.',
+    good:['rising','peaking','stable'],bad:[],when:'You want a near‑predictable return for a known horizon.',avoid:'If you may need to exit early during a rate spike.'},
+  {k:'credit',i:'⚠️',n:'Credit Risk (AA & below)',yld:8.6,dur:2.5,credit:'AA / below',cs:4,liq:'Low',ls:4,
+    desc:'Chases extra yield by lending to lower‑rated firms. Higher income, real risk of defaults.',
+    good:['stable'],bad:['rising'],when:'Improving economy & credit cycle — experienced investors only.',avoid:'Slowdowns/stress — defaults spike. Rarely worth it for retail.'},
+  {k:'rbifrsb',i:'🇮🇳',n:'RBI Floating Rate Savings Bond',yld:8.05,dur:0,credit:'Sovereign',cs:1,liq:'Locked 7y',ls:5,
+    desc:'Govt‑guaranteed ~8% floating rate, reset half‑yearly. Safest high yield — but a 7‑year lock‑in.',
+    good:['rising','peaking','stable'],bad:[],when:'Safe, high fixed income you won’t touch for years.',avoid:'If you need liquidity — it’s locked.'},
+];
+const BMAP=Object.fromEntries(BONDS.map(b=>[b.k,b]));
+const BOND_REGIME_TXT={
+  rising:'RBI hiking / yields climbing — long bonds LOSE price. Hide in liquid, ultra‑short and floating‑rate; their yields reset higher.',
+  peaking:'Rates at the top with cuts on the horizon — the sweet spot to LOCK long duration (gilt, target‑maturity) before prices rise.',
+  falling:'RBI cutting / yields dropping — long‑duration gilt funds gain the most as prices rally; liquid/short earn less.',
+  stable:'Rates range‑bound — accrual is king. Corporate bond, banking & PSU and short duration quietly clip coupons.',
+};
+let bondSort='yld';
+function renderBondTbl(){
+  const maxY=Math.max(...BONDS.map(b=>b.yld)), maxD=Math.max(...BONDS.map(b=>b.dur));
+  const rows=[...BONDS].sort((a,b)=>{
+    if(bondSort==='yld')return b.yld-a.yld;
+    if(bondSort==='safe')return a.cs-b.cs||a.dur-b.dur;
+    if(bondSort==='dur')return a.dur-b.dur;
+    return a.ls-b.ls;
+  });
+  $('bondTbl').innerHTML=`<thead><tr><th>Debt type</th><th class="num">Yield</th><th class="num">Rate risk (duration)</th><th>Credit / safety</th><th>Liquidity</th></tr></thead><tbody>${
+    rows.map((b,i)=>`<tr class="${i===0?'hl':''}"><td><b>${b.i} ${b.n}</b></td>
+      <td class="num">${b.yld}%${bar(b.yld,maxY,css('--success'))}</td>
+      <td class="num">${b.dur===0?'n/a':b.dur+'y'}${bar(b.dur,maxD,css('--danger'))}</td>
+      <td><span class="pill ${b.cs<=1?'g':b.cs<=2?'b':b.cs<=3?'y':'r'}">${b.credit}</span></td>
+      <td><span class="pill ${b.ls<=1?'g':b.ls<=3?'b':'y'}">${b.liq}</span></td></tr>`).join('')
+  }</tbody>`;
+}
+const BMIXES={
+  income:{t:'💵 Regular income',sub:'Steady coupons, moderate risk',legs:[['corp',40],['psu',30],['short',20],['gilt',10]],
+    note:'AAA corporate + banking/PSU accrual carry the income; a dash of gilt adds a rate‑cut kicker. Best held 3 yrs+. Remember coupons/gains are taxed at your slab.'},
+  safety:{t:'🛡️ Maximum safety',sub:'Sleep‑at‑night, near‑zero default risk',legs:[['gilt',35],['psu',30],['liquid',20],['tmf',15]],
+    note:'Sovereign & AAA only — capital protection over yield. This is the <b>ballast</b> that lets you stay brave with equities in a crash.'},
+  park:{t:'🅿️ Park short‑term cash',sub:'Money you need within a year',legs:[['liquid',50],['ultra',35],['short',15]],
+    note:'Instant access, near‑zero rate risk — far better than idle savings. Use for your emergency fund and dry powder to deploy into market dips.'},
+  ratecut:{t:'📉 Bet on rate cuts',sub:'Tactical duration play',legs:[['gilt',55],['tmf',30],['psu',15]],
+    note:'Long duration gains the most when RBI cuts — but the price swings both ways. Only when rates look set to peak/fall, and size it as a tactical tilt, not your whole debt book.'},
+};
+let bondMix='safety';
+function renderBondMix(){
+  const m=BMIXES[bondMix];
+  const wY=m.legs.reduce((s,[k,w])=>s+BMAP[k].yld*w,0)/100;
+  const wD=m.legs.reduce((s,[k,w])=>s+BMAP[k].dur*w,0)/100;
+  const palette=['#0891b2','#7c3aed','#d97706','#16a34a','#dc2626'];
+  const stack=m.legs.map(([k,w],i)=>`<div title="${BMAP[k].n} ${w}%" style="width:${w}%;background:${palette[i%palette.length]}"></div>`).join('');
+  const legend=m.legs.map(([k,w],i)=>`<div style="display:flex;align-items:center;gap:7px;font-size:.82rem;padding:3px 0"><span style="width:11px;height:11px;border-radius:3px;background:${palette[i%palette.length]};flex-shrink:0"></span><b>${w}%</b> ${BMAP[k].i} ${BMAP[k].n}</div>`).join('');
+  const rr=wD<1?'Very low':wD<3?'Low':wD<5?'Moderate':'High';
+  $('bondMixOut').innerHTML=`
+    <div style="font-weight:800;font-size:1rem;margin-bottom:2px">${m.t}</div>
+    <div style="font-size:.78rem;color:var(--txt2);margin-bottom:12px">${m.sub}</div>
+    <div style="display:flex;height:16px;border-radius:6px;overflow:hidden;margin-bottom:12px">${stack}</div>
+    <div style="margin-bottom:14px">${legend}</div>
+    <div class="tiles" style="margin-bottom:12px">
+      <div class="tile good"><div class="l">Blended yield</div><div class="n">~${wY.toFixed(1)}%</div><div class="s">pre‑tax, indicative</div></div>
+      <div class="tile gold"><div class="l">Avg duration</div><div class="n">~${wD.toFixed(1)}y</div><div class="s">rate risk: ${rr}</div></div>
+      <div class="tile acc"><div class="l">Post‑tax (30% slab)</div><div class="n">~${(wY*0.7).toFixed(1)}%</div><div class="s">debt taxed at slab now</div></div>
+    </div>
+    <div class="callout i">${m.note}</div>`;
+}
+// ── Interest-rate cycle curve (reuses cyY/cySmooth) ────────────────────
+const RCYCLE=[
+  {r:'rising', i:'📈', n:'Rates Rising', mv:52},
+  {r:'peaking',i:'⛰️', n:'Rates Peaking',mv:88},
+  {r:'falling',i:'📉', n:'Rates Falling',mv:60},
+  {r:'stable', i:'😌', n:'Low / Easy',   mv:26},
+];
+const RC_PTS=[[0,22],[150,80],[300,94],[450,34],[600,22]];
+function renderRateCycleOnce(){
+  if($('rateCycleChart').dataset.done)return;
+  const path=cySmooth(RC_PTS), baseH=CY_TOP+CY_H, totalH=baseH+34;
+  let divs='';for(let i=1;i<4;i++)divs+=`<line x1="${i*150}" y1="${CY_TOP}" x2="${i*150}" y2="${baseH}" style="stroke:var(--bdr)" stroke-dasharray="3 3"/>`;
+  let labels='',bands='';
+  RCYCLE.forEach((p,i)=>{
+    labels+=`<text x="${i*150+75}" y="${baseH+15}" text-anchor="middle" font-size="12" style="fill:var(--txt2)">${p.i}</text>
+             <text x="${i*150+75}" y="${baseH+28}" text-anchor="middle" font-size="9" style="fill:var(--txt3)">${p.n}</text>`;
+    bands+=`<rect id="rcband-${i}" x="${i*150}" y="0" width="150" height="${baseH}" fill="transparent" style="cursor:pointer"/>`;
+  });
+  $('rateCycleChart').innerHTML=`<svg viewBox="0 0 600 ${totalH}" width="100%" style="display:block">
+    <rect id="rchi" x="0" y="${CY_TOP}" width="150" height="${CY_H}" style="fill:var(--acc-bg)" opacity="0"/>
+    ${divs}
+    <path d="${path}" style="fill:none;stroke:var(--acc);stroke-width:2.5"/>
+    <circle id="rcdot" r="6" style="fill:var(--acc);stroke:var(--card);stroke-width:2.5"/>
+    ${labels}${bands}
+  </svg>`;
+  RCYCLE.forEach((p,i)=>{const b=$('rcband-'+i);
+    b.addEventListener('mouseenter',()=>highlightRateCycle(p.r,true));
+    b.addEventListener('click',()=>{$('brate').value=p.r;bond();});});
+  $('rateCycleChart').querySelector('svg').addEventListener('mouseleave',()=>highlightRateCycle($('brate').value,false));
+  $('rateCycleChart').dataset.done='1';
+}
+function highlightRateCycle(r,hover){
+  const idx=RCYCLE.findIndex(p=>p.r===r);if(idx<0)return;
+  const hi=$('rchi');if(hi){hi.setAttribute('x',idx*150);hi.setAttribute('opacity','1');}
+  const dot=$('rcdot');if(dot){dot.setAttribute('cx',idx*150+75);dot.setAttribute('cy',cyY(RCYCLE[idx].mv));}
+  const p=RCYCLE[idx];
+  const lead=BONDS.filter(b=>b.good.includes(r)).map(b=>b.i+' '+b.n.replace(/ \(.*/,''));
+  const lag =BONDS.filter(b=>b.bad.includes(r)).map(b=>b.n.replace(/ \(.*/,''));
+  $('rateCycleInfo').innerHTML=`<span class="big">${p.i} ${p.n}${hover?'':' · you are here'}</span>${BOND_REGIME_TXT[r]}
+    <div style="margin-top:7px"><b style="color:var(--success)">✅ Best here:</b> ${lead.length?lead.join(', '):'—'}<br>
+    <b style="color:var(--danger)">⚠️ Avoid:</b> ${lag.length?lag.join(', '):'none stand out'}</div>`;
+}
+const BOND_GUIDE=[
+  {i:'🛒',n:'When & how to buy bonds',pts:[
+    'Easiest route: <b>debt mutual funds / ETFs</b> (pick category by goal). For direct G‑secs, use <b>RBI Retail Direct</b> (free, buy government bonds directly).',
+    '<b>Match duration to your horizon:</b> need money in 1 yr → liquid/ultra‑short; 3–5 yrs → short/corporate/target‑maturity; 7+ yrs or a rate‑cut bet → gilt.',
+    'Lump sum is fine for debt (less timing risk than equity); SIP works too for discipline.',
+    'Check <b>expense ratio</b>, <b>portfolio credit quality</b> and <b>average maturity</b> before buying.']},
+  {i:'⏱️',n:'Duration — the master dial',pts:[
+    'Rule of thumb: <b>price move ≈ −duration × change in yield</b>. A 7‑yr gilt rises ~7% if yields fall 1% — and falls ~7% if they rise 1%.',
+    'Long duration = big gains when rates fall, big pain when they rise. Short duration = steady and boring.',
+    'If you’re unsure on rates, stay <b>short‑to‑medium</b> and earn the accrual.',
+    'Hold a bond/TMF <b>to maturity</b> and interim price swings don’t matter — you get your locked YTM.']},
+  {i:'🔄',n:'When to shift duration (and when not to)',pts:[
+    'Go <b>long</b> (gilt/TMF) when rates look set to <b>peak or fall</b>; go <b>short</b> (liquid/ultra) when rates are <b>rising</b>.',
+    '<b>Don’t over‑trade.</b> Nobody calls rate turns perfectly, and switching realises slab‑rate tax + costs.',
+    'For most people, a fixed short‑to‑medium allocation + yearly rebalance beats trying to time the RBI.',
+    'Tactical duration bets should be a slice of your debt, not the whole thing.']},
+  {i:'🪜',n:'The bond ladder',pts:[
+    'A <b>ladder</b> = bonds/TMFs maturing in staggered years (e.g. 2027, 2029, 2031). As each matures you reinvest at prevailing rates.',
+    'It smooths reinvestment risk and cuts rate sensitivity vs a single long bond.',
+    '<b>Target‑maturity funds (Bharat Bond)</b> are a ready‑made rung — pick the maturity year that matches your goal.',
+    'Great for predictable future expenses (fees, down‑payment, retirement income).']},
+  {i:'🧾',n:'Tax — read this before you buy',pts:[
+    '<b>Debt funds bought on/after 1‑Apr‑2023: gains taxed at your income slab</b>, any holding period — no LTCG/indexation benefit.',
+    'High earner wanting equity‑style tax? Consider <b>arbitrage</b> or <b>equity‑savings</b> funds (taxed as equity: 12.5% LTCG).',
+    'RBI Floating Rate Savings Bond & bank FDs: interest taxed at slab, added to income yearly.',
+    'Direct G‑secs: interest taxed at slab; listed bond capital gains have their own rules — check before selling.']},
+  {i:'💡',n:'Pro tips & where bonds fit',pts:[
+    'Bonds are <b>ballast, not the engine</b> — their job is to fall less so you can rebalance into equities when stocks crash.',
+    'Keep your <b>emergency fund</b> in liquid funds; never chase yield with money you might need fast.',
+    '<b>Credit risk rarely pays off for retail</b> — the extra 1–2% yield isn’t worth a default. Stick to sovereign/AAA.',
+    'In a market crash, <b>sell some bonds to buy cheap equity</b> — that’s the rebalancing bonus.',
+    'A simple equity:debt split (e.g. 70:30) rebalanced yearly beats most clever timing.']},
+  {i:'💤',n:'Buy & hold the safe way',pts:[
+    'For a known future date, buy a <b>target‑maturity fund</b> maturing that year and hold — your return is near‑locked.',
+    'Want a safe ~8% you won’t touch? <b>RBI Floating Rate Savings Bond</b> (7‑yr lock, govt‑guaranteed).',
+    'Pair one short‑duration fund (liquidity) + one target‑maturity/gilt (locked return) and ignore the noise.',
+    'Reinvest payouts; rebalance once a year against your equity sleeve. Done.']},
+];
+function bond(){
+  const r=$('brate').value;
+  $('brateHint').textContent=BOND_REGIME_TXT[r];
+  renderBondTbl();
+  renderBondMix();
+  renderRateCycleOnce();
+  highlightRateCycle(r,false);
+  $('bondCards').innerHTML=BONDS.map(b=>{
+    const spot=b.good.includes(r), dim=b.bad.includes(r);
+    return `<div class="fcard ${spot?'spot':dim?'dim':''}"><h3>${b.i} ${b.n} ${spot?'<span class="pill g">Favoured</span>':dim?'<span class="pill r">Avoid</span>':'<span class="pill y">Neutral</span>'}</h3>
+      <div class="erow"><span class="pill b">Yield ~${b.yld}%</span><span class="pill y">Dur ${b.dur===0?'n/a':b.dur+'y'}</span><span class="pill ${b.cs<=2?'g':'r'}">${b.credit}</span></div>
+      <p>${b.desc}</p>
+      <div class="when"><b>Works:</b> ${b.when}<div class="bad" style="margin-top:4px"><b>Struggles:</b> ${b.avoid}</div></div></div>`;
+  }).join('');
+  if(!$('bondGuide').dataset.done){
+    $('bondGuide').innerHTML=BOND_GUIDE.map((g,i)=>`<div class="acc-item ${i===0?'open':''}"><div class="acc-h"><span class="em">${g.i}</span>${g.n}<span class="ar">▼</span></div>
+      <div class="acc-b"><div class="acc-b-in"><ul>${g.pts.map(pt=>`<li>${pt}</li>`).join('')}</ul></div></div></div>`).join('');
+    $('bondGuide').querySelectorAll('.acc-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+    $('bondGuide').dataset.done='1';
+  }
+}
+$('brate').onchange=bond;
+$('bondSortSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  bondSort=b.dataset.s;$('bondSortSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderBondTbl();});
+$('bondMixSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  bondMix=b.dataset.g;$('bondMixSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));renderBondMix();});
+
+/* ════════════════ TAB 5: STRATEGY SCREENER ════════════════ */
+function screen(){
+  const price=+$('sPrice').value, eps0=+$('sEps').value, g=+$('sGrow').value/100,
+        N=+$('sN').value, tgtPe=+$('sTgtPe').value, cheap=+$('sCheap').value;
+  const curPe=price/eps0;
+  const epsN=eps0*Math.pow(1+g,N);
+  const fwdPeFlat=price/epsN;                  // forward P/E if price unchanged
+  const fairPrice=epsN*tgtPe;                  // price if market keeps target multiple
+  const upside=(fairPrice/price-1)*100;
+  const priceCagr=Math.pow(fairPrice/price,1/N)-1;
+  const peg=curPe/(g*100);
+  const ey=(eps0/price)*100;
+  // price at which forward P/E hits the "cheap" trigger today's-eps basis isn't it — interpret:
+  // your idea: in N yrs forward P/E < cheap, i.e. epsN must be high enough vs price.
+  const epsNeeded=price/cheap;                 // eps in N yrs to make P/E < cheap at flat price
+  const growthNeeded=Math.pow(epsNeeded/eps0,1/N)-1;
+  $('sTiles').innerHTML=`
+    <div class="tile acc"><div class="l">P/E today</div><div class="n">${curPe.toFixed(1)}</div><div class="s">EPS ₹${eps0} · yield ${ey.toFixed(1)}%</div></div>
+    <div class="tile ${fwdPeFlat<cheap?'good':'gold'}"><div class="l">Fwd P/E in ${N}y</div><div class="n">${fwdPeFlat.toFixed(1)}</div><div class="s">if price stays flat</div></div>
+    <div class="tile ${upside>0?'good':'hot'}"><div class="l">Upside @ ${tgtPe}× exit</div><div class="n">${upside>=0?'+':''}${upside.toFixed(0)}%</div><div class="s">${pct(priceCagr*100)} price CAGR</div></div>
+    <div class="tile ${peg<1?'good':peg<1.5?'gold':'hot'}"><div class="l">PEG ratio</div><div class="n">${peg.toFixed(2)}</div><div class="s">${peg<1?'cheap vs growth':peg<1.5?'fair':'pricey vs growth'}</div></div>`;
+  let cls,msg;
+  if(fwdPeFlat<cheap){cls='v';msg=`<span class="big">✅ Thesis holds: at ${pct(g*100)} EPS growth, forward P/E drops to ${fwdPeFlat.toFixed(1)} (< ${cheap}) in ${N} years even if the price never moves.</span> If the market re‑rates it back to ${tgtPe}×, the stock is worth ${fmt(fairPrice)} — <b>${upside.toFixed(0)}% upside (${pct(priceCagr*100)} CAGR).</b> Earnings + re‑rating = the double engine.`;}
+  else{cls='w';msg=`<span class="big">⚠️ Not quite: ${pct(g*100)} growth only gets forward P/E to ${fwdPeFlat.toFixed(1)} in ${N}y — above your ${cheap} trigger.</span> To hit P/E &lt; ${cheap} at a flat price you'd need EPS to compound <b>${pct(growthNeeded*100)}/yr</b> (EPS ₹${epsNeeded.toFixed(0)} by year ${N}). Either demand faster growth, pay a lower entry price, or lengthen your horizon.`;}
+  $('sVerdict').className='callout '+cls;$('sVerdict').innerHTML=msg;
+  let rows='';for(let y=0;y<=N;y++){const e=eps0*Math.pow(1+g,y);const pe=price/e;
+    rows+=`<tr class="${pe<cheap?'hl':''}"><td>Year ${y}</td><td class="num">₹${e.toFixed(1)}</td><td class="num">${pe.toFixed(1)}×</td><td class="num">${fmt(e*tgtPe)}</td></tr>`;}
+  $('sTbl').innerHTML=`<thead><tr><th>When</th><th class="num">EPS</th><th class="num">Fwd P/E (flat price)</th><th class="num">Fair value @ ${tgtPe}×</th></tr></thead><tbody>${rows}</tbody>`;
+}
+const STRATS=[
+  {i:'🚀',n:'GARP (Growth At Reasonable Price)',d:'Your core idea, formalised. Growing companies bought before the crowd pays up.',c:['PEG < 1','EPS growth ≥ 20% & accelerating','ROE > 18%, low debt','Forward P/E re‑rating runway']},
+  {i:'🪄',n:'Magic Formula (Greenblatt)',d:'Rank the market on two numbers and buy the top of both — cheap + high‑quality, mechanically.',c:['High Earnings Yield (EBIT/EV)','High Return on Capital (ROCE)','Basket of 20–30 names','Rebalance yearly']},
+  {i:'☕',n:'Coffee Can (buy & forget 10y)',d:'A handful of durable compounders, never sold. Survives churn‑tax and emotion.',c:['Revenue growth ≥ 10% for 10y','ROCE ≥ 15% for 10y','Strong moat / pricing power','Hold a decade — ignore noise']},
+  {i:'🔄',n:'Cyclical Mean‑Reversion',d:'Buy commodity/auto/realty cyclicals at trough margins & high P/E, sell at peak margins & low P/E.',c:['Buy when P/E looks HIGH (depressed earnings)','Sell when P/E looks LOW (peak earnings)','Track capacity & margin cycle','Counter‑intuitive timing']},
+  {i:'💰',n:'Quality Compounder',d:'Pay up for the best businesses and let them compound. Low turnover, tax‑efficient.',c:['ROE > 20% sustained','Consistent FCF generation','Reinvestment runway','Don\'t overpay — wait for dips']},
+  {i:'🔧',n:'Special Situations / Turnaround',d:'Spin‑offs, deleveraging, management change, demergers — re‑rating from a low base.',c:['Identifiable catalyst','Debt falling / margins inflecting','Cheap because mispriced, not broken','Patience for the catalyst to play']},
+];
+function stratLib(){$('stratLib').innerHTML=STRATS.map(s=>`<div class="fcard"><h3>${s.i} ${s.n}</h3><p>${s.d}</p>
+  <div class="when">${s.c.map(x=>`<div class="chk"><span class="mk">✓</span><span>${x}</span></div>`).join('')}</div></div>`).join('');}
+
+/* ════════════════ TAB: MULTIBAGGER LAB ════════════════ */
+const MPRESETS={
+  double:{pe:12,xpe:40,eps:40,yrs:10},   // ~100×: 29× earnings × 3.3× re-rating
+  compound:{pe:28,xpe:28,eps:44,yrs:10}, // EPS ~40×, flat P/E → stock ~40×
+  rerate:{pe:5,xpe:35,eps:12,yrs:7},     // cheap & unloved re-rated, modest earnings
+};
+let mEpsMode='growth';
+// Resolve the EPS growth + years from whichever input mode is active
+function eqGrowthYears(){
+  if(mEpsMode==='abs'){const now=+$('mEpsNow').value,fut=+$('mEpsFut').value,yrs=+$('mYrs2').value;
+    return {g:(now>0&&yrs>0)?Math.pow(fut/now,1/yrs)-1:0,yrs,now,fut,abs:true};}
+  if(mEpsMode==='order'){const sales=+$('mSales').value,ob=+$('mOrderbook').value,exec=+$('mExec').value,
+      mN=+$('mMargNow').value/100,mF=+$('mMargFut').value/100;
+    const futRev=exec>0?ob/exec:0, pNow=sales*mN, pFut=futRev*mF;
+    return {g:(pNow>0&&exec>0)?Math.pow(pFut/pNow,1/exec)-1:0,yrs:exec,futRev,vis:sales>0?ob/sales:0};}
+  return {g:+$('mEps').value/100,yrs:+$('mYrs').value};
+}
+function multi(){
+  const pe=+$('mEntryPE').value, xpe=+$('mExitPE').value;
+  const gy=eqGrowthYears(), g=gy.g, yrs=gy.yrs;
+  if(mEpsMode==='abs') $('mDerivedG').innerHTML=`→ implies <b>${pct(g*100)}/yr</b> EPS growth · ${(gy.fut/Math.max(gy.now,0.01)).toFixed(1)}× earnings in ${yrs}y`;
+  if(mEpsMode==='order') $('mDerivedOrder').innerHTML=`Order book = <b>${gy.vis.toFixed(1)}× annual sales</b> · run‑rate ≈ ₹${gy.futRev.toFixed(0)}cr/yr · implies <b>${pct(g*100)}/yr</b> profit growth over ${yrs}y`;
+  const epsMult=Math.pow(1+g,yrs), reMult=xpe/pe, total=epsMult*reMult;
+  const priceCagr=Math.pow(total,1/yrs)-1;
+  $('mTiles').innerHTML=`
+    <div class="tile good"><div class="l">EPS engine</div><div class="n">${epsMult.toFixed(1)}×</div><div class="s">${pct(g*100)}/yr for ${yrs}y</div></div>
+    <div class="tile p" style="background:var(--purple-bg);border-color:var(--purple)"><div class="l">Re‑rating engine</div><div class="n" style="color:var(--purple)">${reMult.toFixed(2)}×</div><div class="s">P/E ${pe} → ${xpe}</div></div>
+    <div class="tile ${total>=10?'gold':'acc'}"><div class="l">Total return</div><div class="n">${total.toFixed(0)}×</div><div class="s">your money multiplied</div></div>
+    <div class="tile acc"><div class="l">Price CAGR</div><div class="n">${pct(priceCagr*100)}</div><div class="s">compounded /yr</div></div>`;
+  // decomposition bar (log shares)
+  const lt=Math.log(Math.max(total,1.0001)), epsShare=Math.max(0,Math.min(1,Math.log(Math.max(epsMult,1))/lt));
+  const reShare=1-epsShare;
+  $('mBar').innerHTML=`<div style="width:${(epsShare*100).toFixed(0)}%;background:var(--success);color:#fff;display:flex;align-items:center;justify-content:center">EPS ${(epsShare*100).toFixed(0)}%</div>
+    <div style="width:${(reShare*100).toFixed(0)}%;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center">Re‑rate ${(reShare*100).toFixed(0)}%</div>`;
+  let cls,msg;
+  if(reMult<1){cls='w';msg=`<span class="big">De‑rating drag.</span> The P/E fell from ${pe} to ${xpe}, so the multiple <b>worked against you</b> — your ${epsMult.toFixed(1)}× earnings growth shrank to a ${total.toFixed(1)}× stock. This is why <b>over‑paying on entry P/E</b> is the silent killer of returns.`;}
+  else if(reMult>=2&&epsMult>=4){cls='v';msg=`<span class="big">🚀 Double engine — the real 100× pattern.</span> Earnings grew ${epsMult.toFixed(1)}× AND the market re‑rated it ${reMult.toFixed(1)}×. Both firing together is what turns ₹1L into ₹${(total/1).toFixed(0)}L. You only get this by buying <b>cheap + high‑growth before the crowd</b>.`;}
+  else if(reShare>0.55){cls='i';msg=`<span class="big">🔄 Mostly a re‑rating story.</span> ${(reShare*100).toFixed(0)}% of the gain came from the P/E expanding, not earnings. These work when a hated/cheap stock gets discovered — but they’re <b>timing‑dependent</b> and can reverse. Real durable 100×s still need the earnings engine.`;}
+  else{cls='i';msg=`<span class="big">💰 Mostly an earnings compounder.</span> ${(epsShare*100).toFixed(0)}% of the gain is pure EPS growth — the P/E barely moved. This is the most <b>reliable</b> path: buy quality at a fair price and let earnings compound. "EPS 40× → stock 40×."`;}
+  $('mVerdict').className='callout '+cls;$('mVerdict').innerHTML=msg;
+}
+function setEpsMode(m){
+  mEpsMode=m;
+  $('mEpsMode').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x.dataset.m===m));
+  $('mGrowthRow').style.display=m==='growth'?'':'none';
+  $('mAbsRow').style.display=m==='abs'?'':'none';
+  $('mOrderRow').style.display=m==='order'?'':'none';
+}
+$('mEpsMode').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;setEpsMode(b.dataset.m);multi();});
+$('mPreset').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  const p=MPRESETS[b.dataset.p];$('mEntryPE').value=p.pe;$('mExitPE').value=p.xpe;$('mEps').value=p.eps;$('mYrs').value=p.yrs;
+  setEpsMode('growth');                       // presets are expressed as a growth rate
+  $('mPreset').querySelectorAll('button').forEach(x=>x.classList.toggle('active',x===b));multi();});
+['mEntryPE','mExitPE','mEps','mYrs','mEpsNow','mEpsFut','mYrs2','mSales','mOrderbook','mExec','mMargNow','mMargFut'].forEach(id=>$(id).addEventListener('input',multi));
+
+// ── Scorecard ──────────────────────────────────────────────────────────
+const MSCORE=[
+  {k:'growth',n:'Earnings growth & long runway',d:'Small base, big market, 20%+/yr for years'},
+  {k:'roce',n:'High & rising ROCE / ROE',d:'>18–20%, capital‑efficient compounding'},
+  {k:'val',n:'Reasonable entry valuation',d:'PEG < 1; not already priced for perfection'},
+  {k:'oplev',n:'Operating leverage / margin expansion',d:'Profit grows faster than sales'},
+  {k:'balance',n:'Strong balance sheet',d:'Low debt, no serial equity dilution'},
+  {k:'promoter',n:'Promoter skin in the game',d:'High holding, rising, no pledging'},
+  {k:'size',n:'Still small / mid‑cap',d:'A ₹500cr co can 100×; a ₹5L cr can’t'},
+  {k:'tailwind',n:'Industry tailwind / catalyst',d:'Structural trend or clear re‑rating trigger'},
+];
+const mState={}; MSCORE.forEach(s=>mState[s.k]=5);
+const mWord=v=>v<=3?['❌ Weak','var(--danger)']:v<=6?['⚠️ OK','var(--gold)']:['✅ Strong','var(--success)'];
+function renderScoreRows(){
+  $('mScoreRows').innerHTML=MSCORE.map(s=>{const [w,c]=mWord(mState[s.k]);
+    return `<div class="f" style="margin-bottom:13px">
+      <label>${s.n} <span class="v" id="msv-${s.k}" style="color:${c}">${w}</span></label>
+      <input type="range" id="ms-${s.k}" min="0" max="10" step="1" value="${mState[s.k]}">
+      <div class="hint">${s.d}</div></div>`;}).join('');
+  MSCORE.forEach(s=>$('ms-'+s.k).addEventListener('input',()=>{mState[s.k]=+$('ms-'+s.k).value;
+    const [w,c]=mWord(mState[s.k]);const e=$('msv-'+s.k);e.textContent=w;e.style.color=c;scoreMulti();}));
+}
+function scoreMulti(){
+  const max=MSCORE.length*10, sum=MSCORE.reduce((a,s)=>a+mState[s.k],0), pctScore=sum/max*100;
+  let cls,lbl,msg;
+  if(pctScore>=80){cls='good';lbl='Strong candidate';msg='Hits most multibagger traits. Do deep due‑diligence, size sensibly and let it compound. Re‑check the thesis every result.';}
+  else if(pctScore>=60){cls='gold';lbl='Promising — watch';msg='A real prospect with gaps. Wait for the weak boxes to improve (or a cheaper price) before betting big.';}
+  else if(pctScore>=40){cls='acc';lbl='Mixed';msg='Some strengths, real risks. Likely a trade, not a 100‑bagger. Be honest about what’s missing.';}
+  else{cls='hot';lbl='Pass';msg='Too many red flags — this is where value traps and hype stocks live. Move on.';}
+  $('mScoreOut').innerHTML=`<div class="tile ${cls==='hot'?'hot':cls}"><div class="l">Multibagger score</div><div class="n">${pctScore.toFixed(0)}%</div><div class="s">${sum}/${max} points</div></div>
+    <div class="tile ${cls}"><div class="l">Verdict</div><div class="n" style="font-size:1.05rem">${lbl}</div><div class="s">honest read</div></div>`;
+  $('mScoreVerdict').className='callout '+(pctScore>=80?'v':pctScore>=60?'w':pctScore>=40?'i':'d');
+  $('mScoreVerdict').innerHTML=msg;
+}
+const MARCHE=[
+  {i:'🔄',n:'Re‑rating play',t:'Cheap & unloved → discovered',d:'Low EPS growth but the P/E expands hugely (e.g. 5× → 35×). A hated cyclical, holdco or turnaround the market re‑prices.',pts:['Buy at a depressed P/E nobody wants','Needs a catalyst: deleveraging, sector revival, governance fix','⚠️ Timing‑dependent — can de‑rate just as fast','Rarely gives 100× on re‑rating alone']},
+  {i:'💰',n:'Earnings compounder',t:'EPS does all the work',d:'P/E stays roughly flat while EPS compounds 25–44%/yr for a decade. "EPS 40× → stock 40×." The most reliable path.',pts:['Buy quality at a fair price','High ROCE, low debt, long runway','Low maintenance — let it compound','Survives even if the market never re‑rates it']},
+  {i:'🚀',n:'Double engine',t:'The real 100×',d:'Cheap AND fast‑growing, so earnings growth × re‑rating fire together. Post‑2020 small‑caps (BSE, Gravita‑type) did exactly this.',pts:['Buy cheap, before the crowd, as earnings inflect','Both engines multiply: 30× EPS × 3× P/E = ~100×','Highest reward — and the hardest to spot early','Demands conviction to hold through volatility']},
+];
+function renderArche(){$('mArche').innerHTML=MARCHE.map(a=>`<div class="fcard"><h3>${a.i} ${a.n}</h3>
+  <div style="font-size:.74rem;font-weight:700;color:var(--acc);margin:3px 0 4px">${a.t}</div>
+  <p>${a.d}</p><div class="when">${a.pts.map(p=>`<div class="chk"><span class="mk">•</span><span>${p}</span></div>`).join('')}</div></div>`).join('');}
+const MGUIDE=[
+  {i:'🧮',n:'The maths of a multibagger',pts:[
+    '<b>Return = EPS growth × P/E re‑rating.</b> A 100× = e.g. 30× earnings × 3.3× re‑rating.',
+    'The cheapest 100×s come from buying a <b>low P/E + high growth</b> — you collect BOTH engines.',
+    'Buy an already‑expensive P/E and only earnings can save you; any de‑rating eats your return.',
+    'Time matters: at 40%/yr EPS for 10 years, earnings alone are ~29× before any re‑rating.']},
+  {i:'📈',n:'Where the EPS engine comes from',pts:[
+    '<b>Revenue growth × margin expansion.</b> Operating leverage means profit grows faster than sales.',
+    'A <b>small base</b> can grow for years — ₹50cr profit → ₹2,000cr is plausible; ₹20,000cr → ₹8L cr isn’t.',
+    'Look for pricing power, a widening moat, and reinvestment at high ROCE.',
+    'Beware EPS from <b>one‑offs</b> (asset sales, other income) — it doesn’t repeat.']},
+  {i:'🔄',n:'Where the re‑rating engine comes from',pts:[
+    'A <b>catalyst</b> changes the market’s mind: deleveraging, new management, demerger, sector coming into favour, index inclusion, governance clean‑up.',
+    'Buying when a stock is <b>hated and cheap</b> gives the most re‑rating room.',
+    'Re‑rating is real money but <b>mean‑reverts</b> — don’t pay up for a multiple that’s already stretched.']},
+  {i:'🧩',n:'The "70× with no EPS growth" puzzle',pts:[
+    'Usually the earnings were <b>cyclically depressed or tiny</b> at your entry — so EPS actually exploded off a low base, even if long‑run growth looks modest.',
+    'That low‑base recovery <i>plus</i> a re‑rating from a beaten‑down P/E = the giant move.',
+    'Lesson: your <b>entry point</b> (bottom of a cycle / crisis like 2020) often matters more than the company’s steady‑state growth.',
+    'Conversely "EPS 40× → stock 40×" means you bought at a fair P/E and pure compounding did the work — no luck on the multiple needed.']},
+  {i:'⚠️',n:'Traps that kill returns',pts:[
+    '<b>Value traps</b>: cheap for a reason, no catalyst, P/E never re‑rates.',
+    '<b>Dilution</b>: EPS stalls because share count keeps rising — watch equity issuance.',
+    '<b>Hype at high P/E</b>: great story already priced in; a de‑rating erases years of gains.',
+    'High debt, weak cash flow, pledged promoter shares, and illiquidity — any one can be fatal.']},
+  {i:'🎯',n:'Entry, sizing & exit',pts:[
+    'Demand a <b>margin of safety</b> on entry — cheap valuation is your downside protection AND your re‑rating fuel.',
+    '<b>Size for asymmetry</b>: many small bets; a 100× only needs to work occasionally to dominate your portfolio.',
+    '<b>Let winners run</b> — most lifetime gains come from a handful of names; don’t sell a compounder early.',
+    'Sell when the <b>thesis breaks</b> (growth stalls, ROCE falls, debt balloons) or valuation gets truly absurd — not on noise.']},
+];
+function renderMGuide(){
+  if($('multiGuide').dataset.done)return;
+  $('multiGuide').innerHTML=MGUIDE.map((g,i)=>`<div class="acc-item ${i===0?'open':''}"><div class="acc-h"><span class="em">${g.i}</span>${g.n}<span class="ar">▼</span></div>
+    <div class="acc-b"><div class="acc-b-in"><ul>${g.pts.map(p=>`<li>${p}</li>`).join('')}</ul></div></div></div>`).join('');
+  $('multiGuide').querySelectorAll('.acc-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+  $('multiGuide').dataset.done='1';
+}
+// ── Watchlist (saved in localStorage) ──────────────────────────────────
+const WL_KEY='af_watchlist';
+let watchlist=[];
+const esc=s=>String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+function wlSave(){try{localStorage.setItem(WL_KEY,JSON.stringify(watchlist));}catch(e){}}
+function wlCalc(c){
+  const g=(c.epsNow>0&&c.yrs>0)?Math.pow(c.epsFut/c.epsNow,1/c.yrs)-1:0;
+  const epsMult=Math.pow(1+g,c.yrs||0), reMult=(c.entryPE>0)?c.exitPE/c.entryPE:1;
+  const total=epsMult*reMult, cagr=(c.yrs>0&&total>0)?Math.pow(total,1/c.yrs)-1:0;
+  return {g,total,cagr};
+}
+let wlSort={key:'total',dir:-1}, wlEdit=null;
+const wlClr=()=>{$('wlName').value='';};
+function wlSetMode(){const ed=wlEdit!==null;$('wlAdd').textContent=ed?'✓ Save changes':'➕ Add from equation';$('wlCancel').style.display=ed?'':'none';}
+// Read the current multibagger-equation state into a company object (stores absolute EPS path)
+function eqToCompany(name){
+  const entryPE=+$('mEntryPE').value, exitPE=+$('mExitPE').value, gy=eqGrowthYears();
+  let epsNow,epsFut,yrs=gy.yrs;
+  if(gy.abs){epsNow=gy.now;epsFut=gy.fut;}
+  else{epsNow=100;epsFut=Math.round(100*Math.pow(1+gy.g,yrs));}   // growth & order modes → normalised base
+  return {name,entryPE,exitPE,epsNow,epsFut,yrs};
+}
+// Load a saved company back into the equation (abs mode) so the user can review/tweak
+function companyToEq(c){
+  $('mEntryPE').value=c.entryPE;$('mExitPE').value=c.exitPE;
+  setEpsMode('abs');$('mEpsNow').value=c.epsNow;$('mEpsFut').value=c.epsFut;$('mYrs2').value=c.yrs;multi();
+}
+function wlStartEdit(i){wlEdit=i;$('wlName').value=watchlist[i].name;wlSetMode();companyToEq(watchlist[i]);
+  document.querySelector('#tab-multi .intro').scrollIntoView({behavior:'smooth',block:'start'});$('wlName').focus();}
+function renderWL(){
+  const arrow=k=>wlSort.key===k?(wlSort.dir<0?' ▼':' ▲'):'';
+  const head=`<thead><tr><th>#</th><th>Company</th><th class="num">Entry→Exit P/E</th><th class="num">EPS path</th>`+
+    `<th class="num" data-sort="g" style="cursor:pointer">Growth/yr${arrow('g')}</th>`+
+    `<th class="num" data-sort="total" style="cursor:pointer">Total ×${arrow('total')}</th>`+
+    `<th class="num" data-sort="cagr" style="cursor:pointer">Price CAGR${arrow('cagr')}</th><th></th></tr></thead>`;
+  const bindSort=()=>$('wlTbl').querySelectorAll('[data-sort]').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort; if(wlSort.key===k)wlSort.dir*=-1; else{wlSort.key=k;wlSort.dir=-1;} renderWL();});
+  if(!watchlist.length){$('wlTbl').innerHTML=head+'<tbody><tr><td colspan="8" style="color:var(--txt3);padding:14px 4px">No companies yet — add one above. Your list is saved in this browser and survives reloads.</td></tr></tbody>';bindSort();return;}
+  const rows=watchlist.map((c,i)=>({c,i,m:wlCalc(c)})).sort((a,b)=>(a.m[wlSort.key]-b.m[wlSort.key])*wlSort.dir);
+  $('wlTbl').innerHTML=head+`<tbody>${
+    rows.map((r,rank)=>`<tr${r.i===wlEdit?' class="hl"':''}><td>${rank+1}</td><td><b>${esc(r.c.name)}</b></td><td class="num">${r.c.entryPE}→${r.c.exitPE}</td><td class="num">₹${r.c.epsNow}→₹${r.c.epsFut} · ${r.c.yrs}y</td><td class="num">${pct(r.m.g*100)}</td><td class="num"><span class="pill ${r.m.total>=10?'g':r.m.total>=3?'b':'y'}">${r.m.total.toFixed(1)}×</span></td><td class="num">${pct(r.m.cagr*100)}</td><td class="num" style="white-space:nowrap"><button data-edit="${r.i}" title="Edit" style="border:none;background:none;cursor:pointer;font-size:.95rem;padding:3px 7px">✏️</button><button data-del="${r.i}" title="Remove" style="border:none;background:none;cursor:pointer;color:var(--danger);font-size:.95rem;padding:3px 7px;margin-left:12px">🗑</button></td></tr>`).join('')
+  }</tbody>`;
+  bindSort();
+  $('wlTbl').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.del;const c=watchlist[i];if(!c)return;
+    if(!confirm(`Remove "${c.name}" from your watchlist?`))return;
+    watchlist.splice(i,1);if(wlEdit===i){wlEdit=null;wlSetMode();wlClr();}wlSave();renderWL();});
+  $('wlTbl').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>wlStartEdit(+b.dataset.edit));
+}
+function watchlistInit(){
+  if($('wlTbl').dataset.done){renderWL();return;}
+  try{watchlist=JSON.parse(localStorage.getItem(WL_KEY))||[];}catch(e){watchlist=[];}
+  $('wlAdd').onclick=()=>{const name=$('wlName').value.trim();if(!name){$('wlName').focus();return;}
+    const obj=eqToCompany(name);
+    if(wlEdit!==null){watchlist[wlEdit]=obj;wlEdit=null;wlSetMode();}else watchlist.push(obj);
+    wlSave();renderWL();wlClr();$('wlName').focus();};
+  $('wlCancel').onclick=()=>{wlEdit=null;wlSetMode();wlClr();renderWL();};
+  $('wlExport').onclick=()=>{const io=$('wlIO');io.style.display=io.style.display==='none'?'':'none';$('wlJSON').value=JSON.stringify(watchlist,null,2);};
+  $('wlApply').onclick=()=>{try{const a=JSON.parse($('wlJSON').value);if(Array.isArray(a)){watchlist=a;wlEdit=null;wlSetMode();wlSave();renderWL();$('wlIO').style.display='none';}else alert('JSON must be a list [ ... ]');}catch(e){alert('Invalid JSON');}};
+  $('wlClear').onclick=()=>{if(!watchlist.length||confirm('Clear the entire watchlist?')){watchlist=[];wlEdit=null;wlSetMode();wlSave();renderWL();}};
+  $('wlTbl').dataset.done='1';renderWL();
+}
+function multibagger(){multi();if(!$('mScoreRows').dataset.done){renderScoreRows();$('mScoreRows').dataset.done='1';}scoreMulti();renderArche();renderMGuide();watchlistInit();}
+
+/* ════════════════ TAB 6: TAX & COSTS ════════════════ */
+function tax(){
+  const buy=+$('tBuy').value, gainPct=+$('tGain').value/100, hold=+$('tHold').value,
+        other=+$('tOther').value;
+  const STCG=0.20, LTCG=0.125, EXEMPT=125000;
+  const gain=buy*gainPct;
+  const isLong=hold>=12;
+  // Tax if sold now
+  let taxNow;
+  if(isLong){const exLeft=Math.max(0,EXEMPT-other);taxNow=LTCG*Math.max(0,gain-exLeft);}
+  else taxNow=STCG*gain;
+  // Tax if held to 12 months (becomes LTCG)
+  const exLeft=Math.max(0,EXEMPT-other);
+  const taxLong=LTCG*Math.max(0,gain-exLeft);
+  const saved=taxNow-taxLong;
+  const monthsToGo=Math.max(0,12-hold);
+  $('tTiles').innerHTML=`
+    <div class="tile ${isLong?'good':'hot'}"><div class="l">Status now</div><div class="n">${isLong?'LTCG':'STCG'}</div><div class="s">${isLong?'12.5% rate':'20% rate'} · ${hold} mo held</div></div>
+    <div class="tile hot"><div class="l">Tax if sold today</div><div class="n">${fmtC(taxNow)}</div><div class="s">on ${fmtC(gain)} gain</div></div>
+    <div class="tile good"><div class="l">Tax if held to 12 mo</div><div class="n">${fmtC(taxLong)}</div><div class="s">LTCG, minus exemption</div></div>
+    <div class="tile ${saved>0?'gold':'acc'}"><div class="l">${saved>0?'You\'d save':'No saving'}</div><div class="n">${fmtC(Math.max(0,saved))}</div><div class="s">${monthsToGo>0?`by waiting ${monthsToGo} mo`:'already long‑term'}</div></div>`;
+  let cls,msg;
+  if(isLong){cls='v';msg=`<span class="big">✅ Already long‑term — taxed at just 12.5%.</span> ₹${(exLeft).toLocaleString('en-IN')} of your ₹1.25L LTCG exemption is still free this year. If you don't need to sell, the deferral keeps compounding pre‑tax.`;}
+  else if(saved>0){cls='w';msg=`<span class="big">⏳ Hold ${monthsToGo} more month${monthsToGo>1?'s':''} → save ${fmtC(saved)} in tax.</span> Selling now at 20% STCG vs waiting for 12.5% LTCG (with exemption) is a guaranteed, risk‑free <b>${((saved/gain)*100).toFixed(1)}% of your gain</b> — provided you'd still hold the stock on merit.`;}
+  else{cls='v';msg='No meaningful tax saving from waiting on this one — decide on fundamentals.';}
+  $('tVerdict').className='callout '+cls;$('tVerdict').innerHTML=msg;
+  // Brokerage breakdown (discount delivery, round trip on full sell value)
+  const sell=buy*(1+gainPct);
+  const turnover=buy+sell;
+  const brok=0; // ₹0 delivery (typical discount broker)
+  const stt=0.001*(buy+sell);                 // 0.1% buy+sell delivery
+  const exch=0.0000297*turnover;              // NSE ~0.00297%
+  const sebi=0.000001*turnover;               // 0.0001%
+  const stamp=0.00015*buy;                    // 0.015% buy side
+  const dp=15.93;                             // per sell scrip
+  const gst=0.18*(brok+exch+sebi);
+  const total=brok+stt+exch+sebi+stamp+dp+gst;
+  $('tCost').innerHTML=`<thead><tr><th>Charge</th><th class="num">Amount</th><th>Note</th></tr></thead><tbody>
+    <tr><td>Brokerage</td><td class="num">${fmt(brok)}</td><td>₹0 delivery (discount broker)</td></tr>
+    <tr><td>STT</td><td class="num">${fmt(stt)}</td><td>0.1% buy + 0.1% sell</td></tr>
+    <tr><td>Exchange txn</td><td class="num">${fmt(exch)}</td><td>~0.00297% NSE</td></tr>
+    <tr><td>SEBI + stamp</td><td class="num">${fmt(sebi+stamp)}</td><td>0.0001% + 0.015% buy</td></tr>
+    <tr><td>DP charge</td><td class="num">${fmt(dp)}</td><td>per sell, flat</td></tr>
+    <tr><td>GST (18%)</td><td class="num">${fmt(gst)}</td><td>on brokerage+txn</td></tr>
+    <tr class="hl"><td><b>Total round‑trip cost</b></td><td class="num"><b>${fmt(total)}</b></td><td>${(total/buy*100).toFixed(3)}% of capital</td></tr>
+  </tbody>`;
+}
+const TAXTIPS=[
+  {i:'⏳',n:'Convert STCG → LTCG',d:'Crossing 12 months drops the rate from 20% to 12.5%. On a ₹5L gain that\'s ₹37,500 saved — for doing nothing but waiting.'},
+  {i:'🎁',n:'Harvest the ₹1.25L exemption yearly',d:'LTCG up to ₹1.25 lakh is tax‑free every financial year. Sell & rebuy long‑term winners each year to "use up" the exemption and reset your cost base higher.'},
+  {i:'📉',n:'Tax‑loss harvesting',d:'Book losers before 31 March to offset taxable gains. STCL offsets both STCG & LTCG; LTCL offsets only LTCG. Losses carry forward 8 years.'},
+  {i:'🏦',n:'Defer = compound pre‑tax',d:'Every rupee of tax you postpone keeps compounding for you, not the govt. This is why buy‑and‑hold quietly crushes churn over decades.'},
+  {i:'⚖️',n:'Arbitrage funds for parking cash',d:'Taxed as equity (12.5% LTCG) yet behave like low‑risk debt — better post‑tax than a savings account or liquid fund for a high earner.'},
+  {i:'🧾',n:'Mind the 23‑Jul‑2024 change',d:'STCG rose 15%→20%, LTCG 10%→12.5%, exemption ₹1L→₹1.25L. Indexation on equity is gone. Use current rates — old guides are stale.'},
+];
+function taxTips(){$('taxTips').innerHTML=TAXTIPS.map(t=>`<div class="fcard"><h3>${t.i} ${t.n}</h3><p>${t.d}</p></div>`).join('');}
+
+/* ════════════════ TAB 7: PLAYBOOK ════════════════ */
+const PLAYL=[
+  {i:'🧮',n:'Compounding is the whole game',pts:['A 4‑point CAGR edge (12%→16%) roughly <b>doubles</b> your 25‑year corpus.','Never interrupt compounding unnecessarily — no churn, no panic selling, no timing the exit.','Time in the market &gt; timing the market. Start early, the tail years are explosive.']},
+  {i:'🪜',n:'Step‑up SIP — the silent multiplier',pts:['Raise your SIP 10% a year as income grows. It can add <b>more to your corpus than chasing extra returns.</b>','Automate it so you never "decide" to skip a month.','Increase contributions <b>most</b> when markets fall — you buy more units cheap.']},
+  {i:'🎯',n:'Position sizing & Kelly',pts:['Bet bigger when your edge & conviction are high, smaller when uncertain.','Use <b>half‑Kelly</b> — ~75% of the growth, far less volatility.','No single position so large that being wrong ends your game.']},
+  {i:'✂️',n:'Cut losers, ride winners',pts:['Average <b>up</b> into winners (pyramiding), not down into losers.','A losing thesis doesn\'t owe you a recovery — sell and redeploy.','Let winners run; most of your lifetime gains come from a few big ones.']},
+];
+const PLAYR=[
+  {i:'📉',n:'Deploy into drawdowns',pts:['Keep 10–20% dry powder. Markets fall ~10% most years, ~30%+ every few years.','Pre‑commit a buy ladder (e.g. add at −10/−20/−30%) so fear can\'t freeze you.','This is where leverage, if any, belongs — cheap assets, not expensive ones.']},
+  {i:'🧬',n:'Core‑satellite scaling',pts:['70% low‑cost index/quality core that you never touch.','30% satellites (factor ETFs, your forward‑PE bets) where you take active risk.','Scale the satellite sleeve only as your process proves itself.']},
+  {i:'🔁',n:'Rebalance, don\'t tinker',pts:['Rebalance once or twice a year to your target weights — forces buy‑low/sell‑high.','Mind the churn‑tax: rebalance with fresh SIP money first before selling.','Less screen time = better returns for most investors.']},
+  {i:'🛡️',n:'Survive first, then thrive',pts:['Avoiding a −50% drawdown matters more than catching a +50% run (you need +100% to recover −50%).','Emergency fund + insurance so you never force‑sell investments.','The investor who survives every cycle compounds the longest — and that\'s everything.']},
+];
+function playbook(){
+  const render=arr=>arr.map((p,i)=>`<div class="acc-item ${i===0?'open':''}"><div class="acc-h"><span class="em">${p.i}</span>${p.n}<span class="ar">▼</span></div>
+    <div class="acc-b"><div class="acc-b-in"><ul>${p.pts.map(x=>`<li>${x}</li>`).join('')}</ul></div></div></div>`).join('');
+  $('playLeft').innerHTML=render(PLAYL);$('playRight').innerHTML=render(PLAYR);
+  document.querySelectorAll('.acc-h').forEach(h=>h.onclick=()=>h.parentElement.classList.toggle('open'));
+  // Rule of 72
+  const rates=[8,10,12,15,18,20,25,30,40];
+  $('ruleTbl').innerHTML=`<thead><tr><th>CAGR</th><th class="num">Yrs to 2×</th><th class="num">Yrs to 10×</th><th class="num">₹10L becomes in 20y</th></tr></thead><tbody>${
+    rates.map(r=>{const d=72/r;const t10=Math.log(10)/Math.log(1+r/100);const v=1000000*Math.pow(1+r/100,20);
+      return `<tr class="${r===12?'hl':''}"><td><b>${r}%</b></td><td class="num">${d.toFixed(1)}</td><td class="num">${t10.toFixed(1)}</td><td class="num">${fmtC(v)}</td></tr>`;}).join('')
+  }</tbody>`;
+}
+
+/* ── Wire up live recompute ─────────────────────────────────────────── */
+function renderAll(){beat();goal();lev();factor();bond();screen();stratLib();multibagger();tax();taxTips();playbook();}
+// segmented controls
+$('bCompare').addEventListener('click',e=>{const tr=e.target.closest('tr[data-n]');if(!tr)return;
+  selN=+tr.dataset.n;beat();});
+$('bHoldPreset').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  $('bHold').value=b.dataset.h;beat();});
+$('gPreset').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  $('gCagr').value=b.dataset.c;goal();});
+// all inputs
+['bIdx','bStrat','bStcg','bLtcg','bYrs','bCap','bHold','cSttB','cSttS','cStamp','cExch','cSlip','cBrok','cDp']
+  .forEach(id=>$(id).addEventListener('input',beat));
+['gCagr','gYrs','gCap','gSip','gStep'].forEach(id=>$(id).addEventListener('input',goal));
+['lRet','lLev','lCost','lDD','lWin','lPay'].forEach(id=>$(id).addEventListener('input',lev));
+['cbFall','cbRebound','cbWorst','cbCost'].forEach(id=>$(id).addEventListener('input',crashBuy));
+$('cbLoad').addEventListener('click',()=>{
+  $('lLev').value=Math.min(4,cbSuggested);
+  $('lDD').value=$('cbWorst').value;
+  $('lRet').value=Math.min(100,+$('cbRebound').value);
+  lev();
+  document.querySelector('#tab-lev .grid').scrollIntoView({behavior:'smooth',block:'start'});
+});
+['sPrice','sEps','sGrow','sN','sTgtPe','sCheap'].forEach(id=>$(id).addEventListener('input',screen));
+['tBuy','tGain','tHold','tOther'].forEach(id=>$(id).addEventListener('input',tax));
+renderAll();
+</script>
+</body>
+</html>

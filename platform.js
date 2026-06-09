@@ -19,6 +19,7 @@
     { id: 'happyhome',       name: 'India Home',     icon: '🏡', href: 'mortgage.html' },
     { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
     { id: 'dreamcar',        name: 'Dream Car',      icon: '🚗', href: 'dreamcar.html' },
+    { id: 'alphaforge',      name: 'AlphaForge',     icon: '⚒️', href: 'alphaforge.html' },
   ];
 
   const THEME_KEY = 'pw_theme';
