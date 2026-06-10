@@ -152,6 +152,14 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
 .vc-row.sub{border-top:1px solid var(--bdr);margin-top:4px;padding-top:5px;font-weight:600;color:var(--txt)}
 .vc-row.net{border-top:2px solid var(--acc-bdr);margin-top:4px;padding-top:5px;font-size:.78rem;color:var(--acc);font-weight:800}
 .vc-row.net b{color:var(--acc);font-weight:800}
+.vc-items{min-height:86px}   /* pads the 3-row Lease card to the 4-row Buy cards so totals line up across columns */
+.vc-mo{margin-top:10px;border-top:1px dashed var(--bdr2);padding-top:9px}
+.vc-mo-t{font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--txt3);margin-bottom:5px}
+.vc-mo .vc-row.sub{color:var(--acc);font-weight:800}
+.vc-mo .vc-row.sub b{color:var(--acc)}
+.vc-row.vc-mo-pay{margin-top:5px;color:var(--gold);font-weight:700}
+.vc-row.vc-mo-pay b{color:var(--gold)}
+.vc-mo-note{font-size:.62rem;color:var(--txt3);line-height:1.4;margin-top:4px}
 
 .rank{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:12px 14px 6px;box-shadow:var(--sh);margin-bottom:14px}
 .rank h4{font-size:.78rem;font-weight:700;margin-bottom:6px;color:var(--txt2)}
@@ -272,6 +280,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
       <div class="slw">
         <div class="slh"><span class="sll">How long will you keep it?</span><span class="slv"><span id="d-hold-v">6</span> yrs</span></div>
         <input type="range" id="d-hold" min="1" max="12" step="1" value="6">
+        <div class="hint" style="margin-top:5px">📊 This drives the whole comparison — set it to how long you'll actually own the car (e.g. 2 yrs if you trade up often).</div>
       </div>
       <div class="slw">
         <div class="slh"><span class="sll">Driving / year</span><span class="slv"><span id="d-km-v">15,000</span> <span class="dist">km</span></span></div>
@@ -286,7 +295,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
             <div class="f"><label>Down payment %</label><div class="inwrap hassuf"><input type="number" id="d-dp" value="20"><span class="suf">%</span></div></div>
             <div class="f"><label>Loan rate</label><div class="inwrap hassuf"><input type="number" id="d-rate" step="0.1"><span class="suf">%</span></div></div>
           </div>
-          <div class="f"><label>Loan term (months)</label><input type="number" id="d-term"></div>
+          <div class="hint" style="margin-top:2px">💡 You finance &amp; keep the car for the period set by <b>“How long will you keep it?”</b> up top.</div>
         </div></div>
       </div>
 
@@ -304,10 +313,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
       <div class="card">
         <div class="ch"><div class="ci ci-p">📄</div><div class="ctxt"><div class="ct">Lease</div><div class="csum">Monthly payment, you return it</div></div><div class="chev up">▾</div></div>
         <div class="cbody"><div class="cbody-in">
-          <div class="g2">
-            <div class="f"><label>Monthly lease</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-lease"></div></div>
-            <div class="f"><label>Lease term (months)</label><input type="number" id="d-leaseterm" value="36"></div>
-          </div>
+          <div class="f"><label>Monthly lease</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-lease"></div></div>
           <div class="f"><label>Drive-off / down at signing</label><div class="inwrap haspre"><span class="pre cursym">$</span><input type="number" id="d-leasedown"></div></div>
         </div></div>
       </div>
@@ -687,9 +693,11 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
   /* ════════════════════ TAB 1 — DECIDE ═══════════════════════════════════ */
   function calcDecide(){
     const H=num('d-hold');
-    const newP=num('d-newprice'), dp=num('d-dp')/100, rate=num('d-rate'), term=num('d-term');
+    // You finance the loan and hold the lease for exactly as long as you keep the car.
+    const term=H*12, leaseTerm=H*12;
+    const newP=num('d-newprice'), dp=num('d-dp')/100, rate=num('d-rate');
     const usedAge=num('d-usedage'), usedP=num('d-usedprice'), usedRate=num('d-usedrate');
-    const lease=num('d-lease'), leaseTerm=num('d-leaseterm'), leaseDown=num('d-leasedown');
+    const lease=num('d-lease'), leaseDown=num('d-leasedown');
     const dep1=num('d-dep1'), dep2=num('d-dep2');
     const maint=num('d-maint'), maintg=num('d-maintg'), insM=num('d-ins');
 
@@ -726,9 +734,9 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
     // Each opt carries:  total = NET cost (what it truly costs, resale already deducted),
     //                    price = up-front vehicle cost,  gross = total spending (= total + resale).
     const opts=[
-      {key:'new', name:'Buy New', ico:'🚗', total:newTotal, price:newP,  dep:newDep, int:newInt, maint:newMaint, ins:newIns, resale:newResale, own:true},
-      {key:'used',name:'Buy Used',ico:'🔑', total:usedTotal,price:usedP, dep:usedDep,int:usedInt,maint:usedMaint,ins:usedIns,resale:usedResale,own:true},
-      {key:'lease',name:'Lease',  ico:'📄', total:leaseTotal,price:0,    dep:leasePay,int:0,maint:leaseMaint,ins:newIns,resale:0,own:false},
+      {key:'new', name:'Buy New', ico:'🚗', total:newTotal, price:newP,  dep:newDep, int:newInt, maint:newMaint, ins:newIns, resale:newResale, own:true,  pay:emi(newLoan,rate,term), payMonths:term},
+      {key:'used',name:'Buy Used',ico:'🔑', total:usedTotal,price:usedP, dep:usedDep,int:usedInt,maint:usedMaint,ins:usedIns,resale:usedResale,own:true,  pay:emi(usedLoan,usedRate,term), payMonths:term},
+      {key:'lease',name:'Lease',  ico:'📄', total:leaseTotal,price:0,    dep:leasePay,int:0,maint:leaseMaint,ins:newIns,resale:0,own:false, pay:lease, payMonths:leaseTerm},
     ];
     opts.forEach(o=>{ o.gross=o.total+o.resale; });   // total spending before getting resale back
     return {H,opts,newTotal,usedTotal,leaseTotal};
@@ -766,16 +774,37 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
       const inHand = o.own
         ? `<b style="color:var(--success)">−${money(o.resale)}</b>`
         : `<b style="color:var(--danger)">Nothing</b>`;
+      // The actual loan / lease term entered, formatted (e.g. 24 → "2 yrs", 30 → "30 mo").
+      const pmRaw = o.payMonths||0;
+      const payDur = pmRaw%12===0 ? (pmRaw/12)+(pmRaw/12===1?' yr':' yrs') : pmRaw+' mo';
       return `<div class="vc ${o.key===best.key?'best':''}">
         ${o.key===best.key?'<span class="vc-badge">LOWEST NET</span>':''}
         <div class="vc-h"><span class="vc-ico">${o.ico}</span><span class="vc-name">${o.name}</span></div>
         <div class="vc-cost">${money(o.total)}</div>
-        <div class="vc-costl">net spending · ${d.H} yrs &nbsp;•&nbsp; ${money(o.total/(d.H*12))}/mo</div>
+        <div class="vc-costl">all-in cost · ${d.H} yrs &nbsp;•&nbsp; ${money(o.total/(d.H*12))}/mo</div>
         <div class="vc-rows">
-          ${spendRows}
+          <div class="vc-items">${spendRows}</div>
           <div class="vc-row sub"><span>Total spending</span><b>${money(o.gross)}</b></div>
           <div class="vc-row"><span>Worth at end (in hand)</span>${inHand}</div>
           <div class="vc-row net"><span>Net spending</span><b>${money(o.total)}</b></div>
+        </div>
+        <div class="vc-mo">
+          <div class="vc-mo-t">Per month over ${d.H} yrs — where it goes</div>
+          <div class="vc-items">
+            ${o.own
+              ? `<div class="vc-row"><span>📉 Depreciation</span><b>${money(o.dep/(d.H*12))}/mo</b></div>
+                 ${o.int>0?`<div class="vc-row"><span>🏦 Loan interest</span><b>${money(o.int/(d.H*12))}/mo</b></div>`:''}`
+              : `<div class="vc-row"><span>📄 Lease payments</span><b>${money(o.dep/(d.H*12))}/mo</b></div>`}
+            <div class="vc-row"><span>🔧 Maintenance</span><b>${money(o.maint/(d.H*12))}/mo</b></div>
+            <div class="vc-row"><span>🛡️ Insurance</span><b>${money(o.ins/(d.H*12))}/mo</b></div>
+          </div>
+          <div class="vc-row sub"><span>= All-in cost</span><b>${money(o.total/(d.H*12))}/mo</b></div>
+          <div class="vc-row vc-mo-pay"><span>💳 ${o.own?'Loan payment to bank':'Lease payment'}</span><b>${money(o.pay)}/mo · ${payDur}</b></div>
+          <div class="vc-mo-note">${o.own
+            ? (pmRaw <= d.H*12
+                ? `You pay that for the <b>${payDur}</b> loan, then own it free for the rest of the ${d.H} yrs. The all-in ${money(o.total/(d.H*12))}/mo runs the full ${d.H} yrs — mostly depreciation &amp; insurance.`
+                : `This is an <b>${payDur}</b> loan but you keep it only ${d.H} yrs, so you'd still owe a balance at sale. The all-in ${money(o.total/(d.H*12))}/mo runs the full ${d.H} yrs — mostly depreciation &amp; insurance.`)
+            : `Each lease runs ${payDur}, then you re-lease — pure cost, you own nothing at the end.`}</div>
         </div>
       </div>`;
     }).join('');
@@ -1351,7 +1380,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
 
     const set=(id,v)=>{ if($(id)) $(id).value=v; };
     // Decide
-    set('d-newprice',c.newPrice); set('d-rate',c.loanRate); set('d-term',c.term);
+    set('d-newprice',c.newPrice); set('d-rate',c.loanRate);
     set('d-usedprice',c.usedPrice); set('d-usedage',c.usedAge); set('d-usedrate',c.usedRate);
     set('d-lease',c.leaseMonthly); set('d-leasedown',c.leaseDown);
     set('d-maint',c.maint); set('d-ins',c.ins);
