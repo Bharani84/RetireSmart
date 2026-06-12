@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Spark — How does your child learn?</title>
+<meta name="description" content="A playful, no-reading-needed explorer that helps you discover how your young child likes to learn — by watching, listening, or doing. For ages 3–6.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- PlanWise shared platform shell (master nav + theme) -->
+<link rel="stylesheet" href="platform.css">
+<script src="platform.js"></script>
+<style>
+/* ═══ TOKENS (needed by the shared platform bar) ═══════════════════════ */
+:root{
+  --bg:#eef2f7; --card:#fff; --bdr:rgba(0,0,0,.08);
+  --acc:#7c3aed; --acc-bg:rgba(124,58,237,.1); --acc-bdr:rgba(124,58,237,.26);
+  --gold:#d97706; --gold-bg:rgba(217,119,6,.1);
+  --txt:#1e293b; --txt2:#64748b; --txt3:#94a3b8;
+  --ibg:#f1f5f9; --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+}
+[data-theme="dark"]{
+  --bg:#0a0f1a; --card:rgba(255,255,255,.05); --bdr:rgba(255,255,255,.09);
+  --acc:#a78bfa; --acc-bg:rgba(167,139,250,.16); --acc-bdr:rgba(167,139,250,.32);
+  --gold:#f4a261; --gold-bg:rgba(244,162,97,.12);
+  --txt:#f0f4f8; --txt2:rgba(240,244,248,.6); --txt3:rgba(240,244,248,.35);
+  --ibg:rgba(255,255,255,.06); --sh:none;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--txt);-webkit-tap-highlight-color:transparent}
+
+/* ═══ Sub-nav header ═══════════════════════════════════════════════════ */
+.hdr{height:40px;background:var(--card);border-bottom:1px solid var(--bdr);box-shadow:var(--sh);position:sticky;top:52px;z-index:90;display:flex;align-items:center;gap:8px;padding:0 14px}
+.subnav-lbl{font-size:.82rem;font-weight:800;color:var(--txt);white-space:nowrap}
+.subnav-sub{font-size:.68rem;font-weight:500;color:var(--txt3)}
+
+/* ═══ Kid stage — always bright & playful ══════════════════════════════ */
+#stage{position:relative;min-height:calc(100vh - 92px);overflow:hidden;
+  background:linear-gradient(160deg,#a78bfa 0%,#7dd3fc 45%,#fda4af 100%);
+  display:flex;align-items:center;justify-content:center;text-align:center;font-family:'Baloo 2','Inter',sans-serif}
+#stage::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(circle at 18% 22%,rgba(255,255,255,.5) 0 9px,transparent 10px),
+  radial-gradient(circle at 80% 16%,rgba(255,255,255,.4) 0 7px,transparent 8px),
+  radial-gradient(circle at 70% 78%,rgba(255,255,255,.35) 0 11px,transparent 12px),
+  radial-gradient(circle at 30% 84%,rgba(255,255,255,.4) 0 6px,transparent 7px);
+  pointer-events:none;animation:floaty 9s ease-in-out infinite alternate}
+@keyframes floaty{to{transform:translateY(-14px)}}
+.scene{position:relative;z-index:2;width:100%;max-width:760px;padding:24px 18px 40px}
+
+/* mascot */
+.mascot{font-size:clamp(72px,16vw,128px);line-height:1;display:inline-block;filter:drop-shadow(0 8px 14px rgba(0,0,0,.18));animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-16px) rotate(3deg)}}
+.mascot.cheer{animation:cheer .6s ease infinite}
+@keyframes cheer{0%,100%{transform:translateY(0) rotate(-6deg) scale(1)}50%{transform:translateY(-22px) rotate(6deg) scale(1.08)}}
+.bubble{display:inline-block;margin-top:6px;background:rgba(255,255,255,.95);color:#5b21b6;font-weight:800;
+  font-size:clamp(1.1rem,3.6vw,1.7rem);padding:12px 22px;border-radius:24px;box-shadow:0 6px 0 rgba(0,0,0,.08);max-width:90%}
+
+/* big play button */
+.bigplay{margin:28px auto 0;width:clamp(150px,42vw,220px);height:clamp(150px,42vw,220px);border-radius:50%;border:none;cursor:pointer;
+  background:radial-gradient(circle at 38% 32%,#fff 0%,#ffe066 38%,#ffb703 100%);
+  box-shadow:0 12px 0 #d98c00,0 20px 36px rgba(0,0,0,.25);
+  font-size:clamp(64px,16vw,104px);color:#b45309;display:flex;align-items:center;justify-content:center;
+  animation:pulse 1.4s ease-in-out infinite;transition:transform .08s}
+.bigplay:active{transform:translateY(8px);box-shadow:0 4px 0 #d98c00,0 8px 18px rgba(0,0,0,.25)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+
+/* progress stars */
+.prog{display:flex;gap:6px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.prog .p{font-size:clamp(18px,4.5vw,26px);filter:grayscale(1) opacity(.55);transition:.25s}
+.prog .p.on{filter:none;transform:scale(1.18)}
+
+.ask{font-size:clamp(1.3rem,4.6vw,2rem);font-weight:800;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.14);margin-bottom:4px}
+.minimascot{font-size:clamp(40px,9vw,64px);line-height:1;animation:bob 1.8s ease-in-out infinite;display:inline-block;margin-bottom:2px}
+
+/* choice tiles */
+.tiles{display:flex;gap:clamp(12px,3vw,22px);justify-content:center;flex-wrap:wrap;margin-top:18px}
+.tile{position:relative;width:clamp(120px,27vw,180px);height:clamp(140px,30vw,200px);border:none;border-radius:30px;cursor:pointer;
+  background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 10px 0 rgba(0,0,0,.16),0 16px 30px rgba(0,0,0,.18);
+  display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.tile:active{transform:translateY(6px) scale(.98)}
+.tile .em{font-size:clamp(56px,14vw,86px);line-height:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.18))}
+.tile.V .em{animation:sparklepop 1.6s ease-in-out infinite}
+.tile.K .em{animation:wig 0.9s ease-in-out infinite}
+.tile.A .em{animation:throb 0.7s ease-in-out infinite}
+@keyframes sparklepop{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.12) rotate(6deg);filter:drop-shadow(0 0 10px #fff)}}
+@keyframes wig{0%,100%{transform:translateY(0) rotate(-7deg)}50%{transform:translateY(-12px) rotate(7deg)}}
+@keyframes throb{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+.tile.V{--c1:#fb7185;--c2:#fbbf24}
+.tile.A{--c1:#34d399;--c2:#22d3ee}
+.tile.K{--c1:#818cf8;--c2:#c084fc}
+.tile .sticker{position:absolute;top:8px;right:10px;font-size:clamp(16px,4vw,22px);opacity:.85}
+.tile.chosen{animation:chosen .6s ease}
+@keyframes chosen{0%{transform:scale(1)}40%{transform:scale(1.22)}100%{transform:scale(0)}}
+.tile.fade{animation:fade .45s ease forwards}
+@keyframes fade{to{opacity:0;transform:scale(.7)}}
+
+/* result */
+.badge{font-size:clamp(96px,26vw,180px);line-height:1;filter:drop-shadow(0 10px 18px rgba(0,0,0,.22));animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.rtitle{font-size:clamp(1.8rem,7vw,3rem);font-weight:800;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.16);margin-top:6px}
+.rsub{font-size:clamp(1.05rem,3.6vw,1.4rem);font-weight:700;color:#fff;opacity:.96;margin-top:4px}
+.btn{margin-top:24px;display:inline-flex;align-items:center;gap:8px;background:#fff;color:#7c3aed;border:none;cursor:pointer;
+  font-family:'Baloo 2',sans-serif;font-weight:800;font-size:clamp(1.1rem,3.8vw,1.5rem);padding:14px 30px;border-radius:30px;box-shadow:0 8px 0 rgba(0,0,0,.12)}
+.btn:active{transform:translateY(5px);box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.btn.sm{font-size:.85rem;padding:8px 16px;box-shadow:0 4px 0 rgba(0,0,0,.1)}
+
+/* parent panel */
+.parent-link{position:absolute;top:12px;right:14px;z-index:5;background:rgba(255,255,255,.85);border:none;border-radius:20px;
+  font-family:'Inter',sans-serif;font-weight:700;font-size:.74rem;color:#6d28d9;padding:7px 13px;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.12)}
+.card-p{background:var(--card);color:var(--txt);border-radius:20px;box-shadow:0 12px 40px rgba(0,0,0,.2);max-width:560px;margin:0 auto;
+  padding:22px;text-align:left;font-family:'Inter',sans-serif}
+.card-p h2{font-family:'Baloo 2';font-size:1.3rem;margin-bottom:4px}
+.card-p .muted{color:var(--txt2);font-size:.82rem;line-height:1.5}
+.bars{margin:14px 0}
+.bar{margin-bottom:10px}
+.bar-l{display:flex;justify-content:space-between;font-size:.8rem;font-weight:700;margin-bottom:4px}
+.bar-t{height:14px;background:var(--ibg);border-radius:8px;overflow:hidden}
+.bar-f{height:100%;border-radius:8px;transition:width .6s ease}
+.bar-f.V{background:linear-gradient(90deg,#fb7185,#fbbf24)}
+.bar-f.A{background:linear-gradient(90deg,#34d399,#22d3ee)}
+.bar-f.K{background:linear-gradient(90deg,#818cf8,#c084fc)}
+.hist{margin-top:10px;border-top:1px solid var(--bdr);padding-top:10px;max-height:240px;overflow:auto}
+.hrow{display:flex;align-items:center;gap:10px;font-size:.82rem;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.hrow:last-child{border-bottom:none}
+.hrow .hd{color:var(--txt3);width:96px;flex-shrink:0}
+.hrow .ht{font-weight:700;flex:1}
+.hrow .hp{color:var(--txt2);font-variant-numeric:tabular-nums}
+.consist{background:var(--acc-bg);border:1px solid var(--acc-bdr);border-radius:12px;padding:11px 13px;margin:12px 0;font-size:.86rem;font-weight:600;color:var(--acc)}
+.prow{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+/* confetti */
+#confetti-layer{position:absolute;inset:0;pointer-events:none;z-index:9;overflow:hidden}
+.conf{position:absolute;top:-14px;width:11px;height:14px;border-radius:2px;animation:fall 2.1s linear forwards}
+@keyframes fall{to{transform:translate(var(--x),110vh) rotate(720deg);opacity:.9}}
+.hidden{display:none!important}
+</style>
+</head>
+<body data-app="spark">
+<!-- ═══ PLATFORM BAR (shared) ═══ -->
+<div id="pw-bar"></div>
+<header class="hdr">
+  <span class="subnav-lbl">⭐ Spark</span>
+  <span class="subnav-sub">· Discover how your child learns — through play</span>
+</header>
+
+<main id="stage">
+  <button class="parent-link" id="parentLink">👨‍👩‍👧 Grown-ups</button>
+  <div id="confetti-layer"></div>
+  <div class="scene" id="scene"></div>
+</main>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const scene = $('scene');
+const STORE_KEY = 'spark_sessions_v1';
+const MASCOT = '🦊';
+
+/* ── Learner channels ───────────────────────────────────────────────── */
+const CHAN = {
+  V:{key:'V', name:'Looker',   emoji:'👁️', color:'#f43f5e', big:'🌈',
+     kidLine:'You love COLOURS and watching!', parent:'Visual — learns best by seeing: pictures, colours, demonstrations, watching first.'},
+  A:{key:'A', name:'Listener', emoji:'👂', color:'#10b981', big:'🎵',
+     kidLine:'You love SOUNDS and music!', parent:'Auditory — learns best by hearing: songs, talking it through, rhymes, sounds.'},
+  K:{key:'K', name:'Mover',    emoji:'🤸', color:'#8b5cf6', big:'⚽',
+     kidLine:'You love MOVING and doing!', parent:'Kinesthetic — learns best by doing: touching, building, moving, hands-on play.'},
+};
+const MULTI = {name:'Explorer', emoji:'🌈', kidLine:'You love a bit of EVERYTHING!',
+  parent:'Multimodal — drawn fairly equally to seeing, hearing AND doing. Mix it up; no single channel dominates yet (common at this age).'};
+
+/* ── Round pool: each round = three play choices, one per channel ─────── */
+const POOL = [
+  {V:{e:'🌈',s:'✨'}, A:{e:'🥁',s:'🎶'}, K:{e:'⚽',s:'💨'}},
+  {V:{e:'🎨',s:'✨'}, A:{e:'🎵',s:'🎶'}, K:{e:'🧩',s:'💨'}},
+  {V:{e:'✨',s:'🌟'}, A:{e:'🎤',s:'🎶'}, K:{e:'🤸',s:'💨'}},
+  {V:{e:'🦋',s:'✨'}, A:{e:'🔔',s:'🎶'}, K:{e:'🐸',s:'💨'}},
+  {V:{e:'📺',s:'✨'}, A:{e:'🎸',s:'🎶'}, K:{e:'🏃',s:'💨'}},
+  {V:{e:'🌟',s:'✨'}, A:{e:'🎹',s:'🎶'}, K:{e:'🪀',s:'💨'}},
+  {V:{e:'🐠',s:'✨'}, A:{e:'🐦',s:'🎶'}, K:{e:'🛼',s:'💨'}},
+  {V:{e:'🎆',s:'✨'}, A:{e:'📣',s:'🎶'}, K:{e:'🤹',s:'💨'}},
+  {V:{e:'🖼️',s:'✨'}, A:{e:'🎶',s:'🎵'}, K:{e:'💃',s:'💨'}},
+  {V:{e:'🌺',s:'✨'}, A:{e:'🌊',s:'🎶'}, K:{e:'🚲',s:'💨'}},
+];
+const ROUNDS = 9;
+
+let state = {round:0, tally:{V:0,A:0,K:0}, deck:[]};
+
+/* ── Audio (no files): friendly speech + simple tones ────────────────── */
+let actx=null;
+function ac(){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} return actx; }
+function tone(freq,dur=0.25,type='sine',vol=0.18,when=0){ const c=ac(); if(!c) return; const o=c.createOscillator(),g=c.createGain();
+  o.type=type;o.frequency.value=freq;o.connect(g);g.connect(c.destination); const t=c.currentTime+when;
+  g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.start(t);o.stop(t+dur+0.02); }
+const chime   = ()=>[523,659,784,1047].forEach((f,i)=>tone(f,0.32,'triangle',0.16,i*0.09));
+const pop     = ()=>{tone(660,0.1,'square',0.14);tone(990,0.12,'square',0.1,0.05);};
+const earCue  = ()=>[392,523,659].forEach((f,i)=>tone(f,0.2,'sine',0.13,i*0.13)); // auditory-tile teaser
+function speak(text){ try{ if(!('speechSynthesis'in window))return; const u=new SpeechSynthesisUtterance(text);
+  u.rate=0.92;u.pitch=1.2;u.volume=1; const vs=speechSynthesis.getVoices();
+  const pick=vs.find(v=>/female|samantha|zira|google us english/i.test(v.name))||vs.find(v=>/en[-_]/i.test(v.lang)); if(pick)u.voice=pick;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+
+function confetti(n=46){ const layer=$('confetti-layer');
+  for(let i=0;i<n;i++){ const d=document.createElement('div'); d.className='conf';
+    d.style.left=Math.random()*100+'%'; d.style.background=`hsl(${Math.random()*360},90%,62%)`;
+    d.style.setProperty('--x',(Math.random()*240-120)+'px'); d.style.animationDelay=(Math.random()*0.4)+'s';
+    layer.appendChild(d); setTimeout(()=>d.remove(),2600); } }
+
+const shuffle = a => a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+
+/* ═══ SCREENS ═══════════════════════════════════════════════════════════ */
+function screenStart(){
+  state = {round:0, tally:{V:0,A:0,K:0}, deck:shuffle(POOL.map((r,i)=>i)).slice(0,ROUNDS)};
+  scene.innerHTML = `
+    <div class="mascot">${MASCOT}</div>
+    <div><span class="bubble">Tap to play! 🎈</span></div>
+    <button class="bigplay" id="playBtn" aria-label="Play">▶️</button>`;
+  $('playBtn').onclick = ()=>{ ac(); pop(); speak('Hi! Let’s play. Tap the one you like best!'); nextRound(); };
+}
+
+function nextRound(){
+  if(state.round>=ROUNDS) return screenResult();
+  const r = POOL[state.deck[state.round]];
+  const opts = shuffle(['V','A','K']).map(k=>({k, ...r[k]}));
+  const dots = Array.from({length:ROUNDS},(_,i)=>`<span class="p ${i<state.round?'on':''}">⭐</span>`).join('');
+  scene.innerHTML = `
+    <div class="prog">${dots}</div>
+    <div class="minimascot">${MASCOT}</div>
+    <div class="ask">Which one do you like?</div>
+    <div class="tiles" id="tiles">
+      ${opts.map(o=>`<button class="tile ${o.k}" data-k="${o.k}"><span class="sticker">${o.s}</span><span class="em">${o.e}</span></button>`).join('')}
+    </div>`;
+  speak('Which one do you like?');
+  // let the "sound" tile sing a little so the ear-led child is drawn to it
+  setTimeout(earCue, 700);
+  $('tiles').querySelectorAll('.tile').forEach(t=>{
+    t.onclick = ()=>choose(t);
+  });
+}
+
+function choose(tile){
+  const k = tile.dataset.k;
+  state.tally[k]++;
+  pop(); confetti(22);
+  // play that channel's flavour
+  if(k==='A') earCue(); else if(k==='K') tone(300,0.18,'sawtooth',0.12); else tone(880,0.16,'triangle',0.14);
+  tile.classList.add('chosen');
+  tile.parentElement.querySelectorAll('.tile').forEach(o=>{ if(o!==tile) o.classList.add('fade'); o.style.pointerEvents='none'; });
+  state.round++;
+  setTimeout(nextRound, 820);
+}
+
+function classify(){
+  const t = state.tally, total = t.V+t.A+t.K || 1;
+  const arr = ['V','A','K'].map(k=>({k, n:t[k]})).sort((a,b)=>b.n-a.n);
+  const top=arr[0], second=arr[1];
+  const dominant = top.n>=5 && (top.n-second.n)>=2;     // clear single channel
+  const pct = {V:Math.round(t.V/total*100), A:Math.round(t.A/total*100), K:Math.round(t.K/total*100)};
+  return { type: dominant ? top.k : 'M', pct, tally:{...t} };
+}
+
+function screenResult(){
+  const res = classify();
+  const info = res.type==='M' ? MULTI : CHAN[res.type];
+  saveSession(res);
+  confetti(70); chime();
+  speak(`You did it! You are a ${info.name}. ${info.kidLine}`);
+  scene.innerHTML = `
+    <div class="mascot cheer">${MASCOT}</div>
+    <div class="badge">${info.emoji}</div>
+    <div class="rtitle">You are a ${info.name}!</div>
+    <div class="rsub">${info.kidLine}</div>
+    <button class="btn" id="again">🔁 Play again</button>
+    <div style="margin-top:14px"><button class="btn sm" id="forParents">📊 For grown-ups</button></div>`;
+  $('again').onclick = ()=>{ pop(); screenStart(); };
+  $('forParents').onclick = ()=> screenParents(res);
+}
+
+/* ═══ PARENT VIEW ══════════════════════════════════════════════════════ */
+function loadSessions(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY))||[]; }catch(e){ return []; } }
+function saveSession(res){
+  const list = loadSessions();
+  list.push({ date:new Date().toISOString(), type:res.type, pct:res.pct, tally:res.tally });
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(list.slice(-50))); }catch(e){}
+}
+const TYPENAME = t => t==='M'?MULTI.name:CHAN[t].name;
+const TYPEEMO  = t => t==='M'?MULTI.emoji:CHAN[t].emoji;
+
+function screenParents(latest){
+  const list = loadSessions().slice().reverse();
+  const res = latest || (list[0] ? {type:list[0].type, pct:list[0].pct} : null);
+  // consistency: most common type across all saved sessions
+  let consist='';
+  if(list.length>=2){
+    const counts={}; list.forEach(s=>counts[s.type]=(counts[s.type]||0)+1);
+    const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    const share=Math.round(top[1]/list.length*100);
+    consist = `Across ${list.length} sessions, the most common result is <b>${TYPEEMO(top[0])} ${TYPENAME(top[0])}</b> (${share}% of the time). ${share>=60?'That’s a fairly consistent pattern. 🎯':'Still mixed — re-check in a few months.'}`;
+  } else {
+    consist = `This is the first saved session. Come back in ~6 months and play again — a result that repeats is the meaningful one.`;
+  }
+  const bars = res ? ['V','A','K'].map(k=>`
+    <div class="bar"><div class="bar-l"><span>${CHAN[k].emoji} ${CHAN[k].name}</span><span>${res.pct[k]}%</span></div>
+      <div class="bar-t"><div class="bar-f ${k}" style="width:${res.pct[k]}%"></div></div></div>`).join('') : '<div class="muted">No session yet — tap Play to run one.</div>';
+  const hist = list.length ? list.map(s=>{
+    const d=new Date(s.date); const ds=d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
+    return `<div class="hrow"><span class="hd">${ds}</span><span class="ht">${TYPEEMO(s.type)} ${TYPENAME(s.type)}</span><span class="hp">${s.pct.V}/${s.pct.A}/${s.pct.K}</span></div>`;
+  }).join('') : '<div class="muted" style="padding:8px 0">No saved sessions yet.</div>';
+
+  scene.innerHTML = `
+    <div class="card-p">
+      <h2>📊 Grown-ups corner</h2>
+      <div class="muted">Spark watches which kinds of play your child is naturally drawn to — by seeing 👁️, hearing 👂, or doing 🤸. One session is just a snapshot; <b>play again every ~6 months</b> and look for a pattern that repeats.</div>
+      ${res?`<div style="font-weight:800;font-family:'Baloo 2';font-size:1.1rem;margin-top:14px">Latest: ${TYPEEMO(res.type)} ${TYPENAME(res.type)}</div><div class="muted" style="margin-top:2px">${res.type==='M'?MULTI.parent:CHAN[res.type].parent}</div>`:''}
+      <div class="bars">${bars}</div>
+      <div class="consist">${consist}</div>
+      <div style="font-weight:700;font-size:.82rem;margin-top:6px">History <span class="muted" style="font-weight:400">(date · result · V/A/K%)</span></div>
+      <div class="hist">${hist}</div>
+      <div class="prow">
+        <button class="btn sm" id="pBack">⬅️ Back to play</button>
+        ${list.length?`<button class="btn sm" id="pClear" style="color:#dc2626">🗑️ Clear history</button>`:''}
+      </div>
+    </div>`;
+  $('pBack').onclick = ()=> screenStart();
+  if($('pClear')) $('pClear').onclick = ()=>{ if(confirm('Delete all saved Spark sessions?')){ localStorage.removeItem(STORE_KEY); screenParents(null);} };
+}
+
+/* ═══ BOOT ═════════════════════════════════════════════════════════════ */
+$('parentLink').onclick = ()=> screenParents(null);
+if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged = ()=>{}; speechSynthesis.getVoices(); }
+window.addEventListener('pw-theme-change',()=>{});  // kid stage is always bright; nothing to re-theme
+screenStart();
+</script>
+</body>
+</html>

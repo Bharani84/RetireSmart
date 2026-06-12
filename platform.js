@@ -20,6 +20,8 @@
     { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
     { id: 'dreamcar',        name: 'Dream Car',      icon: '🚗', href: 'dreamcar.html' },
     { id: 'alphaforge',      name: 'AlphaForge',     icon: '⚒️', href: 'alphaforge.html' },
+    { id: 'spark',           name: 'Spark',          icon: '⭐', href: 'spark.html' },
+    { id: 'abc',             name: 'ABC',            icon: '🔤', href: 'abc.html' },
   ];
 
   const THEME_KEY = 'pw_theme';
