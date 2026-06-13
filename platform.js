@@ -20,8 +20,16 @@
     { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
     { id: 'dreamcar',        name: 'Dream Car',      icon: '🚗', href: 'dreamcar.html' },
     { id: 'alphaforge',      name: 'AlphaForge',     icon: '⚒️', href: 'alphaforge.html' },
-    { id: 'spark',           name: 'Spark',          icon: '⭐', href: 'spark.html' },
-    { id: 'abc',             name: 'ABC',            icon: '🔤', href: 'abc.html' },
+    { id: 'kids',            name: 'Kids',           icon: '🧒', href: 'kids.html', group: ['kids','spark','abc','listen'] },
+  ];
+
+  // ── Kid apps that live UNDER the "Kids" tab ───────────────────────────────
+  // ADD A KID APP  →  one entry here + its HTML file (the Kids hub + sub-nav
+  // auto-update; set its <body data-app="<id>"> and add the id to the group above).
+  const KIDS = [
+    { id: 'spark',  name: 'Spark',  icon: '⭐', href: 'spark.html',  blurb: 'What kind of learner is your child?' },
+    { id: 'abc',    name: 'ABC',    icon: '🔤', href: 'abc.html',    blurb: 'Learn the letters, then play' },
+    { id: 'listen', name: 'Listen', icon: '👂', href: 'listen.html', blurb: 'Fun games to grow listening' },
   ];
 
   const THEME_KEY = 'pw_theme';
@@ -63,7 +71,8 @@
       if (a.soon) {
         return `<span class="pw-app soon" title="Coming soon">${a.icon} ${a.name} <span class="pw-soon">Soon</span></span>`;
       }
-      const cls = a.id === active ? 'pw-app active' : 'pw-app';
+      const isActive = a.id === active || (a.group && a.group.includes(active));
+      const cls = isActive ? 'pw-app active' : 'pw-app';
       // The active app links to itself (harmless); others navigate across files.
       return `<a class="${cls}" href="${a.href}">${a.icon} ${a.name}</a>`;
     }).join('');
@@ -80,12 +89,24 @@
     document.getElementById('pw-theme-btn').addEventListener('click', toggleTheme);
   }
 
-  // Expose a tiny API in case an app wants it.
-  window.PlanWise = { APPS, toggleTheme, isDark };
+  // Renders the kid sub-nav (Spark · ABC · Listen …) into any <div id="pw-kidnav">.
+  function renderKidNav() {
+    const mount = document.getElementById('pw-kidnav');
+    if (!mount) return;
+    const active = currentAppId();
+    mount.className = 'pw-kidnav';
+    mount.innerHTML =
+      `<a class="ktab ktab-home ${active === 'kids' ? 'active' : ''}" href="kids.html">🧒 Kids</a>`
+      + KIDS.map(k => `<a class="ktab ${k.id === active ? 'active' : ''}" href="${k.href}">${k.icon} ${k.name}</a>`).join('');
+  }
 
+  // Expose a tiny API in case an app wants it (the Kids hub reads KIDS).
+  window.PlanWise = { APPS, KIDS, toggleTheme, isDark };
+
+  function boot() { renderBar(); renderKidNav(); }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', renderBar);
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    renderBar();
+    boot();
   }
 })();

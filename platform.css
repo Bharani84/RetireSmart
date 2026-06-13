@@ -15,3 +15,11 @@
 .pw-soon{font-size:.57rem;background:var(--gold-bg);color:var(--gold);border-radius:4px;padding:1px 5px;font-weight:700}
 .pw-theme{flex-shrink:0;display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .18s}
 .pw-theme:hover{border-color:var(--acc-bdr);color:var(--acc)}
+
+/* Kid sub-nav (Spark · ABC · Listen …) — rendered into <div id="pw-kidnav"> */
+.pw-kidnav{display:flex;align-items:center;gap:4px;flex-wrap:wrap;width:100%}
+.ktab{font-family:inherit;font-size:.8rem;font-weight:700;color:var(--txt2);text-decoration:none;padding:5px 11px;border-radius:8px;white-space:nowrap;transition:all .15s}
+.ktab:hover{background:var(--ibg);color:var(--txt)}
+.ktab.active{background:var(--acc-bg);color:var(--acc)}
+.ktab.ktab-home{font-weight:800;color:var(--txt)}
+.ktab.ktab-home::after{content:'·';margin-left:6px;color:var(--txt3)}
