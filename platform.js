@@ -20,7 +20,7 @@
     { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
     { id: 'dreamcar',        name: 'Dream Car',      icon: '🚗', href: 'dreamcar.html' },
     { id: 'alphaforge',      name: 'AlphaForge',     icon: '⚒️', href: 'alphaforge.html' },
-    { id: 'kids',            name: 'Kids',           icon: '🧒', href: 'kids.html', group: ['kids','spark','abc','listen'] },
+    { id: 'kids',            name: 'Kids',           icon: '🧒', href: 'kids.html', group: ['kids','spark','abc','listen','cosmos'] },
   ];
 
   // ── Kid apps that live UNDER the "Kids" tab ───────────────────────────────
@@ -30,6 +30,7 @@
     { id: 'spark',  name: 'Spark',  icon: '⭐', href: 'spark.html',  blurb: 'What kind of learner is your child?' },
     { id: 'abc',    name: 'ABC',    icon: '🔤', href: 'abc.html',    blurb: 'Learn the letters, then play' },
     { id: 'listen', name: 'Listen', icon: '👂', href: 'listen.html', blurb: 'Fun games to grow listening' },
+    { id: 'cosmos', name: 'Cosmos', icon: '🪐', href: 'cosmos.html', blurb: 'Fly through the solar system, galaxy & universe in 3D' },
   ];
 
   const THEME_KEY = 'pw_theme';
