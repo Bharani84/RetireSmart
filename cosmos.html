@@ -347,13 +347,19 @@ function plain(html){ return html.replace(/<[^>]+>/g,'').replace(/−/g,'minus '
 function mkU(t){ const u=new SpeechSynthesisUtterance(t); if(voice)u.voice=voice; u.rate=0.82; u.pitch=1.05; u.volume=1; return u; }
 // Accepts a string or an array of sentences. Queuing each sentence as its own
 // utterance gives a calmer, clearer pace with natural pauses (good for kids).
+let sayTimer=null;
 function say(text){
   if(!voiceOn || !synth) return;
-  try{ synth.cancel();
-    (Array.isArray(text)?text:[text]).map(s=>(s||'').trim()).filter(Boolean).forEach(s=>synth.speak(mkU(s)));
-  }catch(e){}
+  const parts=(Array.isArray(text)?text:[text]).map(s=>(s||'').trim()).filter(Boolean);
+  if(!parts.length) return;
+  clearTimeout(sayTimer);
+  try{ synth.cancel(); }catch(e){}
+  // Chrome frequently DROPS speak() when it's called in the same tick as cancel()
+  // (the bug behind "no sound during the tour"). Defer a tick and resume() in case
+  // the engine was left paused, then queue each sentence.
+  sayTimer=setTimeout(()=>{ try{ synth.resume(); parts.forEach(s=>synth.speak(mkU(s))); }catch(e){} }, 70);
 }
-function stopSay(){ try{ synth && synth.cancel(); }catch(e){} }
+function stopSay(){ clearTimeout(sayTimer); try{ synth && synth.cancel(); }catch(e){} }
 
 /* ════════════════════════════════════════════════════════════════════════
    PROCEDURAL TEXTURES (no image files — drawn on a canvas)
@@ -894,7 +900,7 @@ function startTour(){
   tourOn=true; tourIdx=0; tourban.classList.add('show');
   document.getElementById('tgTour').classList.add('on');
   say('Let’s take a tour of the solar system!');
-  tourStep();
+  tourTimer=setTimeout(tourStep, 2600);   // let the intro finish before the first planet (avoids cancelling it)
 }
 function tourStep(){
   if(!tourOn) return;
