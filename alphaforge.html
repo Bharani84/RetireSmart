@@ -132,6 +132,10 @@ select option{background:var(--card);color:var(--txt)}
 .tbl tr:last-child td{border-bottom:none}
 .tbl td.num,.tbl th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tbl tr.hl td{background:var(--acc-bg);font-weight:700}
+.tbl input.secinp{width:100%;min-width:90px;border:1px solid transparent;background:transparent;color:var(--txt);font-family:inherit;font-size:.8rem;font-weight:600;padding:4px 7px;border-radius:6px;outline:none;transition:.15s}
+.tbl input.secinp::placeholder{color:var(--txt3);font-weight:500}
+.tbl input.secinp:hover{background:var(--ibg)}
+.tbl input.secinp:focus{background:var(--card);border-color:var(--acc)}
 .pill{display:inline-block;font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:20px}
 .pill.g{background:var(--succ-bg);color:var(--success)}
 .pill.r{background:var(--dang-bg);color:var(--danger)}
@@ -594,7 +598,8 @@ select option{background:var(--card);color:var(--txt)}
   <div class="card" style="margin-top:16px"><div class="ch"><div class="ci">📌</div><div><div class="ct">My watchlist — companies with potential</div><div class="csub">Saved in this browser (localStorage). Add the names you're tracking; auto‑ranked by upside.</div></div></div>
     <div class="cbody">
       <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
-        <div class="f" style="flex:1;min-width:200px;margin:0"><label>Company / ticker</label><input id="wlName" placeholder="e.g. Gravita India"></div>
+        <div class="f" style="flex:1;min-width:180px;margin:0"><label>Company / ticker</label><input id="wlName" placeholder="e.g. Gravita India"></div>
+        <div class="f" style="width:160px;margin:0"><label>Sector (optional)</label><input id="wlSector" placeholder="e.g. Capital goods"></div>
         <button id="wlAdd" style="padding:8px 15px;border:1px solid var(--acc);border-radius:8px;background:var(--acc);color:#fff;font-family:inherit;font-size:.78rem;font-weight:700;cursor:pointer">➕ Add from equation</button>
         <button id="wlCancel" style="padding:8px 12px;border:1px solid var(--bdr2);border-radius:8px;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;display:none">✕ Cancel edit</button>
         <button id="wlExport" style="padding:8px 12px;border:1px solid var(--bdr2);border-radius:8px;background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer">⤓ Export / Import</button>
@@ -1523,7 +1528,7 @@ function eqGrowthYears(){
   if(mEpsMode==='order'){const sales=+$('mSales').value,ob=+$('mOrderbook').value,exec=+$('mExec').value,
       mN=+$('mMargNow').value/100,mF=+$('mMargFut').value/100;
     const futRev=exec>0?ob/exec:0, pNow=sales*mN, pFut=futRev*mF;
-    return {g:(pNow>0&&exec>0)?Math.pow(pFut/pNow,1/exec)-1:0,yrs:exec,futRev,vis:sales>0?ob/sales:0};}
+    return {g:(pNow>0&&exec>0)?Math.pow(pFut/pNow,1/exec)-1:0,yrs:exec,futRev,vis:sales>0?ob/sales:0,order:true,pNow,pFut};}
   return {g:+$('mEps').value/100,yrs:+$('mYrs').value};
 }
 function multi(){
@@ -1656,41 +1661,43 @@ function wlCalc(c){
   return {g,total,cagr};
 }
 let wlSort={key:'total',dir:-1}, wlEdit=null;
-const wlClr=()=>{$('wlName').value='';};
+const wlClr=()=>{$('wlName').value='';$('wlSector').value='';};
 function wlSetMode(){const ed=wlEdit!==null;$('wlAdd').textContent=ed?'✓ Save changes':'➕ Add from equation';$('wlCancel').style.display=ed?'':'none';}
 // Read the current multibagger-equation state into a company object (stores absolute EPS path)
 function eqToCompany(name){
   const entryPE=+$('mEntryPE').value, exitPE=+$('mExitPE').value, gy=eqGrowthYears();
   let epsNow,epsFut,yrs=gy.yrs;
   if(gy.abs){epsNow=gy.now;epsFut=gy.fut;}
-  else{epsNow=100;epsFut=Math.round(100*Math.pow(1+gy.g,yrs));}   // growth & order modes → normalised base
-  return {name,entryPE,exitPE,epsNow,epsFut,yrs};
+  else if(gy.order){epsNow=Math.round(gy.pNow*10)/10;epsFut=Math.round(gy.pFut*10)/10;}  // order book → real profit path
+  else{epsNow=100;epsFut=Math.round(100*Math.pow(1+gy.g,yrs));}   // growth %/yr → index base (only a rate is known)
+  return {name,sector:($('wlSector').value||'').trim(),entryPE,exitPE,epsNow,epsFut,yrs};
 }
 // Load a saved company back into the equation (abs mode) so the user can review/tweak
 function companyToEq(c){
   $('mEntryPE').value=c.entryPE;$('mExitPE').value=c.exitPE;
   setEpsMode('abs');$('mEpsNow').value=c.epsNow;$('mEpsFut').value=c.epsFut;$('mYrs2').value=c.yrs;multi();
 }
-function wlStartEdit(i){wlEdit=i;$('wlName').value=watchlist[i].name;wlSetMode();companyToEq(watchlist[i]);
+function wlStartEdit(i){wlEdit=i;$('wlName').value=watchlist[i].name;$('wlSector').value=watchlist[i].sector||'';wlSetMode();companyToEq(watchlist[i]);
   document.querySelector('#tab-multi .intro').scrollIntoView({behavior:'smooth',block:'start'});$('wlName').focus();}
 function renderWL(){
   const arrow=k=>wlSort.key===k?(wlSort.dir<0?' ▼':' ▲'):'';
-  const head=`<thead><tr><th>#</th><th>Company</th><th class="num">Entry→Exit P/E</th><th class="num">EPS path</th><th class="num">Years</th>`+
+  const head=`<thead><tr><th>#</th><th>Company</th><th>Sector</th><th class="num">Entry→Exit P/E</th><th class="num">EPS path</th><th class="num">Years</th>`+
     `<th class="num" data-sort="g" style="cursor:pointer">Growth/yr${arrow('g')}</th>`+
     `<th class="num" data-sort="total" style="cursor:pointer">Total ×${arrow('total')}</th>`+
     `<th class="num" data-sort="cagr" style="cursor:pointer">Price CAGR${arrow('cagr')}</th><th></th></tr></thead>`;
   const bindSort=()=>$('wlTbl').querySelectorAll('[data-sort]').forEach(th=>th.onclick=()=>{
     const k=th.dataset.sort; if(wlSort.key===k)wlSort.dir*=-1; else{wlSort.key=k;wlSort.dir=-1;} renderWL();});
-  if(!watchlist.length){$('wlTbl').innerHTML=head+'<tbody><tr><td colspan="9" style="color:var(--txt3);padding:14px 4px">No companies yet — add one above. Your list is saved in this browser and survives reloads.</td></tr></tbody>';bindSort();return;}
+  if(!watchlist.length){$('wlTbl').innerHTML=head+'<tbody><tr><td colspan="10" style="color:var(--txt3);padding:14px 4px">No companies yet — add one above. Your list is saved in this browser and survives reloads.</td></tr></tbody>';bindSort();return;}
   const rows=watchlist.map((c,i)=>({c,i,m:wlCalc(c)})).sort((a,b)=>(a.m[wlSort.key]-b.m[wlSort.key])*wlSort.dir);
   $('wlTbl').innerHTML=head+`<tbody>${
-    rows.map((r,rank)=>`<tr${r.i===wlEdit?' class="hl"':''}><td>${rank+1}</td><td><b>${esc(r.c.name)}</b></td><td class="num">${r.c.entryPE}→${r.c.exitPE}</td><td class="num">₹${r.c.epsNow}→₹${r.c.epsFut}</td><td class="num">${r.c.yrs}y</td><td class="num">${pct(r.m.g*100)}</td><td class="num"><span class="pill ${r.m.total>=10?'g':r.m.total>=3?'b':'y'}">${r.m.total.toFixed(1)}×</span></td><td class="num">${pct(r.m.cagr*100)}</td><td class="num" style="white-space:nowrap"><button data-edit="${r.i}" title="Edit" style="border:none;background:none;cursor:pointer;font-size:.95rem;padding:3px 7px">✏️</button><button data-del="${r.i}" title="Remove" style="border:none;background:none;cursor:pointer;color:var(--danger);font-size:.95rem;padding:3px 7px;margin-left:12px">🗑</button></td></tr>`).join('')
+    rows.map((r,rank)=>`<tr${r.i===wlEdit?' class="hl"':''}><td>${rank+1}</td><td><b>${esc(r.c.name)}</b></td><td><input class="secinp" data-sec="${r.i}" value="${esc(r.c.sector||'')}" placeholder="add sector"></td><td class="num">${r.c.entryPE}→${r.c.exitPE}</td><td class="num">₹${(+r.c.epsNow).toLocaleString('en-IN',{maximumFractionDigits:2})}→₹${(+r.c.epsFut).toLocaleString('en-IN',{maximumFractionDigits:2})}</td><td class="num">${r.c.yrs}y</td><td class="num">${pct(r.m.g*100)}</td><td class="num"><span class="pill ${r.m.total>=10?'g':r.m.total>=3?'b':'y'}">${r.m.total.toFixed(1)}×</span></td><td class="num">${pct(r.m.cagr*100)}</td><td class="num" style="white-space:nowrap"><button data-edit="${r.i}" title="Edit" style="border:none;background:none;cursor:pointer;font-size:.95rem;padding:3px 7px">✏️</button><button data-del="${r.i}" title="Remove" style="border:none;background:none;cursor:pointer;color:var(--danger);font-size:.95rem;padding:3px 7px;margin-left:12px">🗑</button></td></tr>`).join('')
   }</tbody>`;
   bindSort();
   $('wlTbl').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const i=+b.dataset.del;const c=watchlist[i];if(!c)return;
     if(!confirm(`Remove "${c.name}" from your watchlist?`))return;
     watchlist.splice(i,1);if(wlEdit===i){wlEdit=null;wlSetMode();wlClr();}wlSave();renderWL();});
   $('wlTbl').querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>wlStartEdit(+b.dataset.edit));
+  $('wlTbl').querySelectorAll('[data-sec]').forEach(inp=>inp.oninput=()=>{const i=+inp.dataset.sec;if(watchlist[i]){watchlist[i].sector=inp.value;wlSave();}});
 }
 function watchlistInit(){
   if($('wlTbl').dataset.done){renderWL();return;}
