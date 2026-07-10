@@ -20,6 +20,7 @@
     { id: 'canadamortgage',  name: 'Maple Home',     icon: '🍁', href: 'canadamortgage.html' },
     { id: 'dreamcar',        name: 'Dream Car',      icon: '🚗', href: 'dreamcar.html' },
     { id: 'alphaforge',      name: 'AlphaForge',     icon: '⚒️', href: 'alphaforge.html' },
+    { id: 'harness',         name: 'Harness Lab',    icon: '🎓', href: 'harness.html' },
     { id: 'kids',            name: 'Kids',           icon: '🧒', href: 'kids.html', group: ['kids','spark','abc','listen','cosmos'] },
   ];
 
