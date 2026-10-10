@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Harness Lab — Become a Harness Engineer</title>
-<meta name="description" content="A visual, step-by-step learning path to become an AI harness engineer. 13 topics, interactive demos, progress tracking.">
+<title>Learning — Harness Lab & AI Engineering Path</title>
+<meta name="description" content="Two learning divisions: Harness Lab (13 hands-on interactive labs) and the AI Engineering Path (an 8-phase top-down syllabus). Visual, checkable, with progress tracking.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- PlanWise shared platform shell (master nav + theme) -->
@@ -135,6 +135,62 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .pill.later{background:var(--ibg);color:var(--txt3);border:1px solid var(--bdr)}
 .pill.redo{background:var(--gold-bg);color:var(--gold)}
 .titem.dim .ic,.titem.dim .tx,.titem.dim .meta .time{opacity:.55}
+
+/* ═══ TRACK SWITCHER (two divisions) ════════════════════════════════════ */
+.trackbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.trackbtn{display:flex;align-items:center;gap:12px;text-align:left;background:var(--card);border:1.5px solid var(--bdr);border-radius:var(--r);padding:13px 16px;cursor:pointer;font-family:inherit;transition:all .18s;box-shadow:var(--sh)}
+.trackbtn:hover{border-color:var(--acc-bdr)}
+.trackbtn.active{border-color:var(--acc);background:var(--acc-bg);box-shadow:var(--sh),inset 3px 0 0 var(--acc)}
+.trackbtn .tb-ic{font-size:1.7rem;flex-shrink:0}
+.trackbtn .tb-t{font-size:.92rem;font-weight:800;color:var(--txt);line-height:1.15}
+.trackbtn .tb-s{font-size:.68rem;color:var(--txt2);margin-top:2px}
+.trackbtn .tb-p{margin-left:auto;flex-shrink:0;text-align:right}
+.trackbtn .tb-pv{font-size:1.1rem;font-weight:800;color:var(--acc);line-height:1}
+.trackbtn .tb-pl{font-size:.56rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em}
+.trackbtn.active .tb-t{color:var(--acc)}
+
+/* ═══ SYLLABUS PHASES ═══════════════════════════════════════════════════ */
+.phase{margin-bottom:12px;border-radius:var(--r);overflow:hidden;border:1px solid var(--bdr);box-shadow:var(--sh);background:var(--card);transition:border-color .2s}
+.phase:hover{border-color:var(--bdr2)}
+.ph-hd{display:flex;align-items:center;gap:13px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s}
+.ph-hd:hover{background:var(--acc-bg)}
+.ph-num{width:40px;height:40px;border-radius:11px;background:var(--acc-bg);border:1.5px solid var(--acc-bdr);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;line-height:1}
+.ph-num .pn-k{font-size:.5rem;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.04em}
+.ph-num .pn-n{font-size:1.05rem;font-weight:800;color:var(--acc)}
+.phase.pdone .ph-num{background:var(--succ-bg);border-color:var(--success)}
+.phase.pdone .ph-num .pn-k,.phase.pdone .ph-num .pn-n{color:var(--success)}
+.ph-tx{flex:1;min-width:0}
+.ph-tt{font-size:.92rem;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ph-goal{font-size:.7rem;color:var(--txt2);margin-top:2px;line-height:1.45}
+.ph-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.ph-count{font-size:.68rem;font-weight:700;color:var(--txt3);white-space:nowrap}
+.ph-mini{width:84px;height:6px;border-radius:3px;background:var(--ibg);border:1px solid var(--bdr);overflow:hidden}
+.ph-mini i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .4s}
+.phase.pdone .ph-mini i{background:var(--success)}
+.ph-chev{width:16px;color:var(--txt3);font-size:.6rem;transition:transform .3s;flex-shrink:0}
+.ph-chev.up{transform:rotate(180deg)}
+.ph-body{overflow:hidden;max-height:0;opacity:0;transition:max-height .4s cubic-bezier(.4,0,.2,1),opacity .3s ease}
+.ph-body.open{max-height:6000px;opacity:1}
+.ph-body-in{padding:2px 16px 15px}
+.grp{margin-top:14px}
+.grp-h{font-size:.64rem;font-weight:800;color:var(--acc);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;display:flex;align-items:center;gap:8px}
+.grp-h::after{content:'';flex:1;height:1px;background:var(--bdr)}
+.sitem{display:flex;align-items:flex-start;gap:11px;padding:8px 9px;border-radius:9px;cursor:pointer;transition:background .13s}
+.sitem:hover{background:var(--acc-bg)}
+.sitem input{width:17px;height:17px;accent-color:var(--acc);margin-top:2px;flex-shrink:0;cursor:pointer}
+.sitem .si-tx{display:flex;flex-direction:column;min-width:0}
+.sitem .si-t{font-size:.8rem;font-weight:700;line-height:1.45}
+.sitem .si-d{font-size:.72rem;color:var(--txt2);margin-top:1px;line-height:1.5}
+.sitem.sdone .si-t{text-decoration:line-through;color:var(--txt3)}
+.sitem.sdone .si-d{opacity:.6}
+.build{display:flex;gap:11px;align-items:flex-start;background:linear-gradient(135deg,var(--gold-bg),transparent);border:1.5px solid rgba(217,119,6,.3);border-radius:11px;padding:12px 14px;margin-top:16px}
+.build .bi{font-size:1.4rem;flex-shrink:0}
+.build .bt{font-size:.64rem;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.06em}
+.build .bd{font-size:.8rem;font-weight:600;margin-top:2px;line-height:1.55}
+.build-chk{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:.72rem;font-weight:700;color:var(--gold);cursor:pointer}
+.build-chk input{width:16px;height:16px;accent-color:var(--gold);cursor:pointer}
+.syl-note{display:flex;gap:9px;align-items:flex-start;background:var(--blue-bg);border:1px solid rgba(37,99,235,.22);border-radius:11px;padding:11px 14px;font-size:.76rem;line-height:1.6;margin-bottom:16px}
+.syl-note .ci{font-size:1.05rem;flex-shrink:0}
 
 /* ═══ LESSON VIEW ═══════════════════════════════════════════════════════ */
 .lhead{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap}
@@ -333,48 +389,22 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 
 <!-- ══════════════ HARNESS LAB SUB-NAV ════════════════════════════════════ -->
 <header class="hdr">
-  <span class="subnav-lbl">🎓 Harness Lab</span>
-  <div class="crumb" id="crumb"><a onclick="showDash()">🗺️ Roadmap</a></div>
+  <span class="subnav-lbl">🎓 Learning</span>
+  <div class="crumb" id="crumb"><a onclick="showDash()">🗺️ Overview</a></div>
   <div class="hdr-pct"><span id="hdr-pct-txt">0%</span><div class="hdr-bar"><i id="hdr-pct-bar" style="width:0%"></i></div></div>
 </header>
 
 <div class="wrap">
 
-  <!-- ════════════════════ VIEW: DASHBOARD / ROADMAP ═════════════════════ -->
+  <!-- ════════════════════ VIEW: DASHBOARD ════════════════════════════════ -->
   <div class="view active" id="view-dash">
+    <!-- hidden <defs> so the ring gradient is always available -->
+    <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient></defs></svg>
 
-    <div class="hero">
-      <div class="ringw">
-        <svg width="132" height="132" viewBox="0 0 132 132">
-          <defs><linearGradient id="ringgrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#22d3ee"/>
-          </linearGradient></defs>
-          <circle class="ring-bg" cx="66" cy="66" r="57"/>
-          <circle class="ring-fg" id="ring" cx="66" cy="66" r="57" stroke-dasharray="358" stroke-dashoffset="358"/>
-        </svg>
-        <div class="ring-txt"><div class="ring-pct" id="ring-pct">0%</div><div class="ring-lbl">complete</div></div>
-      </div>
-      <div class="hero-r">
-        <h1>Your path to Harness Engineer</h1>
-        <div class="sub">13 topics · visual lessons · one at a time. Small daily sessions beat weekend marathons.</div>
-        <div class="stats">
-          <div class="stat hot"><div class="k">🔥 Streak</div><div class="v" id="st-streak">0 days</div></div>
-          <div class="stat"><div class="k">✅ Topics done</div><div class="v" id="st-topics">0 / 13</div></div>
-          <div class="stat"><div class="k">📋 Tasks done</div><div class="v" id="st-tasks">0</div></div>
-          <div class="stat"><div class="k">🎯 On track for</div><div class="v" id="st-eta">—</div></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="upnext" id="upnext"></div>
-
-    <div class="rules">
-      <div class="rule"><div class="ri">1️⃣</div><div class="rt">One topic at a time</div><div class="rp">Never two in parallel — that's where slow learners drown. The glowing item below is your only job.</div></div>
-      <div class="rule"><div class="ri">⏱️</div><div class="rt">45–60 min daily</div><div class="rp">Daily beats marathons. Spaced repetition is literally how memory works — show up small, every day.</div></div>
-      <div class="rule"><div class="ri">🔁</div><div class="rt">Re-do is the point</div><div class="rp">Repeating an exercise a week later isn't wasted time for you — it's the method. Use the Re-do button.</div></div>
-    </div>
-
-    <div id="roadmap"></div>
+    <div class="trackbar" id="trackbar"></div>
+    <div id="track-body"></div>
   </div>
 
   <!-- ════════════════════ VIEW: LESSON ═══════════════════════════════════ -->
@@ -400,6 +430,8 @@ S.done=S.done||{};     // {topicId:true}
 S.once=S.once||{};     // completed at least once (survives re-do)
 S.redo=S.redo||{};     // {topicId:count}
 S.act=S.act||{};       // {'YYYY-MM-DD':1} activity log for streak
+S.track=S.track||'harness'; // which division is open: 'harness' | 'syllabus'
+S.syl=S.syl||{};       // {phaseId:{itemIdx:true}}  checklist ticks (build project = idx 'build')
 function save(){localStorage.setItem(LS,JSON.stringify(S))}
 function dkey(d){const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
 function touch(){S.act[dkey(new Date())]=1;save()}
@@ -955,6 +987,315 @@ x:'Scope discipline IS a demonstrated skill. A finished, polished, honest projec
 ]},
 ];
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   AI ENGINEERING PATH — Bharani's own top-down syllabus (from the .docx).
+   Checklist-style: learn it, try it, tick it off. Each phase ends with a Build.
+   ═══════════════════════════════════════════════════════════════════════════ */
+const PHASES=[
+{id:'p1',n:1,icon:'✍️',title:'Prompt engineering',time:'2–3 weeks',estDays:18,
+ goal:'Replace trial-and-error prompting with a repeatable, tested method.',
+ groups:[
+  {g:'LLM basics you need for prompting',items:[
+    ['Tokens','Text is split into small pieces; cost, speed and limits are all counted in tokens.'],
+    ['Context window','The maximum text a model can see at once (prompt + history + output).'],
+    ['Temperature / sampling','Controls randomness; low for consistent output, higher for creative output.'],
+    ['Hallucination','Models generate plausible text, not verified facts, so they can be confidently wrong.'],
+    ['Knowledge cutoff','The model only knows what was in its training data up to a date.'],
+    ['Model tiers','Large models are smarter but slower and pricier; small models are fast and cheap.'],
+    ['Stateless calls','The model remembers nothing between calls; the full history is resent each time.'],
+  ]},
+  {g:'Prompt structure',items:[
+    ['System prompt','Sets the model\'s role, rules and constraints for the whole conversation.'],
+    ['User vs assistant messages','The roles in a conversation and how the model reads them.'],
+    ['Clear task + context + constraints','Say what to do, why, and what not to do.'],
+    ['Role prompting','Giving the model a persona ("senior QA engineer") to shape its answers.'],
+    ['Delimiters / XML tags','Wrap inputs in tags so the model separates instructions from data.'],
+    ['Output format spec','State the exact shape you want (length, sections, JSON schema).'],
+  ]},
+  {g:'Techniques',items:[
+    ['Zero-shot','Ask directly with no examples.'],
+    ['Few-shot','Show 2–5 input/output examples so the model copies the pattern.'],
+    ['Chain-of-thought','Ask the model to reason step by step before answering.'],
+    ['Extended thinking / reasoning models','Models that think internally before replying; when to use them.'],
+    ['Prompt chaining','Split a big task into several smaller prompts, each feeding the next.'],
+    ['Self-critique','Ask the model to check and fix its own output.'],
+    ['Prefilling','Start the model\'s answer for it to force a format or direction.'],
+    ['Structured outputs','Getting reliable JSON the code can parse.'],
+    ['Long-context prompting','Put documents first, question last; quote relevant parts before answering.'],
+    ['Meta-prompting','Using an LLM to draft or improve prompts (a better version of your reverse prompting).'],
+  ]},
+  {g:'Testing prompts (the most important skill)',items:[
+    ['Prompt templates with variables','One reusable prompt, different inputs filled in.'],
+    ['Test sets','10–20 fixed inputs you rerun after every prompt change.'],
+    ['Evaluation criteria','Define what "good" means before judging outputs.'],
+    ['LLM-as-judge','Using a model to grade outputs at scale.'],
+    ['Versioning prompts','Keep prompts in Git like code.'],
+    ['Prompt injection basics','How text in the input can hijack instructions.'],
+  ]},
+ ],
+ build:'Turn one prompt you use at work into a versioned template with a 15-case test set and a pass/fail score.'},
+
+{id:'p2',n:2,icon:'🤖',title:'Using and managing agents',time:'2–3 weeks',estDays:18,
+ goal:'Become an expert operator of agents (using Claude Code as your lab) before building your own.',
+ groups:[
+  {g:'What an agent is',items:[
+    ['Chatbot vs workflow vs agent','A chatbot answers; a workflow follows fixed steps; an agent decides its own next step.'],
+    ['The agent loop','Think → call a tool → read the result → repeat until done.'],
+    ['Tools','Actions the agent can take (read files, run commands, search, call APIs).'],
+    ['Autonomy levels','From "suggest only" to "ask before acting" to fully autonomous.'],
+    ['Agent limits','Strong on clear, checkable tasks; weak on vague, very long or unverifiable ones.'],
+  ]},
+  {g:'Types of agents and patterns',items:[
+    ['Single agent','One model with tools doing the whole task.'],
+    ['Coding agents','Claude Code, Cursor, Copilot agent mode, Codex: agents that edit code and run commands.'],
+    ['Computer-use / browser agents','Agents that click, type and read screens or web pages.'],
+    ['Research agents','Agents that search, read and summarize many sources.'],
+    ['Orchestrator–worker (subagents)','A lead agent hands focused tasks to helper agents with clean context.'],
+    ['Router','A first step classifies the request and sends it to the right specialist.'],
+    ['Parallelization','Several agents or calls work on parts of a task at once, results merged.'],
+    ['Evaluator–optimizer','One agent produces, another critiques, and they loop until good.'],
+    ['Human-in-the-loop','The agent pauses for your approval at risky steps.'],
+  ]},
+  {g:'Managing agents with Claude Code',items:[
+    ['CLAUDE.md','Project memory file with rules, commands and conventions the agent always reads.'],
+    ['Plan mode','Have the agent plan before touching files; review the plan first.'],
+    ['Permissions','Control which tools and commands run without asking.'],
+    ['Custom slash commands','Save repeated prompts as reusable commands.'],
+    ['Subagents','Define specialist agents (test writer, reviewer) with their own prompt and tools.'],
+    ['When to use subagents','For parallel work or to keep the main context clean; not for tiny tasks.'],
+    ['Hooks','Scripts that run automatically at agent events (before a tool call, after an edit).'],
+    ['Skills','Packaged instructions and scripts the agent loads when relevant.'],
+    ['MCP servers','Plug external tools (Jira, databases, browsers) into the agent.'],
+    ['Headless mode','Run the agent from scripts or CI with no chat window.'],
+    ['Context management','Clearing, compacting and resuming sessions so the agent stays focused.'],
+    ['Checkpoints / Git discipline','Commit often so you can undo agent mistakes.'],
+  ]},
+  {g:'Supervising agents well',items:[
+    ['Task scoping','Give small, verifiable tasks with a clear definition of done.'],
+    ['Verification loops','Make the agent run tests or linters to check its own work.'],
+    ['Reading agent traces','Follow its tool calls to see where it went wrong.'],
+    ['Cost and token awareness','Know what a long agent session costs.'],
+    ['Safety','Never let agents run destructive commands or touch secrets unchecked.'],
+  ]},
+ ],
+ build:'Run Claude Code headless in your automation pipeline to analyze failed tests, using a custom subagent and a hook.'},
+
+{id:'p3',n:3,icon:'🐍',title:'Calling LLMs from code',time:'~1 month',estDays:30,
+ goal:'Move from agent user to developer by talking to models directly through their APIs.',
+ groups:[
+  {g:'Python foundations',items:[
+    ['Core Python','Functions, classes, dicts, lists, error handling.'],
+    ['Virtual environments and pip / uv','Isolate and install project dependencies.'],
+    ['Environment variables / .env','Keep API keys out of your code.'],
+    ['JSON handling','Read, write and validate JSON.'],
+    ['Async basics (asyncio)','Run many model calls at once.'],
+    ['Pydantic','Define data shapes and validate model outputs.'],
+  ]},
+  {g:'LLM APIs',items:[
+    ['API keys and SDKs','Using the Anthropic / OpenAI Python SDKs.'],
+    ['Messages API','Sending system prompt + message list, reading the response.'],
+    ['Parameters','model, max_tokens, temperature, stop sequences.'],
+    ['Streaming','Show output as it is generated.'],
+    ['Multi-turn conversations','Manage the message history yourself.'],
+    ['Multimodal input','Sending images and PDFs.'],
+    ['Token counting and pricing','Estimate and track cost per call.'],
+    ['Rate limits, retries and backoff','Handle errors and throttling gracefully.'],
+    ['Prompt caching','Reuse long, repeated prompt parts to cut cost and latency.'],
+    ['Batch API','Cheap bulk processing when you don\'t need instant answers.'],
+  ]},
+  {g:'Tool use (function calling)',items:[
+    ['Tool definitions','Describe a function with name, description and JSON schema.'],
+    ['The tool-use cycle','Model requests a tool → your code runs it → you return the result.'],
+    ['Parallel tool calls','The model asking for several tools at once.'],
+    ['Tool choice','Forcing, allowing or blocking tool use.'],
+    ['Server-side tools','Built-in tools like web search and code execution.'],
+    ['Structured output via tools','Using a tool schema to get guaranteed JSON.'],
+  ]},
+ ],
+ build:'A Python script where the model reads a test report through your own tool and returns a JSON summary of failures.'},
+
+{id:'p4',n:4,icon:'🛠️',title:'Building your own agent',time:'~1 month',estDays:30,
+ goal:'Write an agent from scratch first, then use frameworks knowing what they do for you.',
+ groups:[
+  {g:'Agent from scratch',items:[
+    ['The loop in code','A while-loop that calls the model, runs requested tools, and feeds results back.'],
+    ['Stop conditions','End on task done, max steps, max cost or timeout.'],
+    ['Agent system prompt','Goal, available tools, rules and when to stop.'],
+    ['Tool design','Few, clearly named tools with precise descriptions and helpful error messages.'],
+    ['Tool error handling','Return errors to the model so it can recover instead of crashing.'],
+    ['Planning','Have the agent write a plan or to-do list before acting.'],
+    ['ReAct pattern','Alternate reasoning and acting, the classic agent recipe.'],
+    ['Reflection','The agent reviews its result and retries if it falls short.'],
+    ['State','Track what the agent has done, learned and still needs to do.'],
+  ]},
+  {g:'Reliability and safety',items:[
+    ['Guardrails','Validate inputs and outputs; block dangerous actions.'],
+    ['Sandboxing','Run agent actions in containers or limited environments.'],
+    ['Approval gates','Require a human "yes" before irreversible actions.'],
+    ['Least privilege','Give each agent only the permissions it truly needs.'],
+    ['Idempotency','Design tools so repeating an action does no harm.'],
+    ['Logging and tracing','Record every step to debug failures.'],
+  ]},
+  {g:'Agent frameworks',items:[
+    ['Claude Agent SDK','The engine behind Claude Code, for building your own agents.'],
+    ['OpenAI Agents SDK','Lightweight agents with handoffs and guardrails.'],
+    ['LangGraph','Agents as graphs of steps with explicit state; good for complex control.'],
+    ['LangChain / LlamaIndex','Broad toolkits for chains, tools and data connectors.'],
+    ['CrewAI / AutoGen','Role-based multi-agent frameworks.'],
+    ['Choosing a framework','Prefer the simplest option; avoid frameworks that hide prompts.'],
+  ]},
+ ],
+ build:'An agent (first from scratch, then with the Agent SDK) that reads a failing test\'s logs, inspects the code and proposes a fix.'},
+
+{id:'p5',n:5,icon:'📚',title:'RAG (Retrieval-Augmented Generation)',time:'~1 month',estDays:30,
+ goal:'Ground the model in your own documents so answers are accurate and current.',
+ groups:[
+  {g:'Core RAG pipeline',items:[
+    ['Why RAG','Give the model knowledge it was never trained on, without retraining.'],
+    ['Document loading','Read PDFs, web pages, Confluence, code and tickets into text.'],
+    ['Chunking','Split text into pieces; fixed-size, by section, or semantic.'],
+    ['Chunk size and overlap','The trade-off between precision and context.'],
+    ['Embeddings','Turn text into vectors where similar meaning sits close together.'],
+    ['Embedding models','Choosing one (cost, language, dimensions).'],
+    ['Vector databases','Store and search embeddings (Chroma, pgvector, Qdrant, Pinecone).'],
+    ['Similarity search','Cosine similarity and top-k retrieval.'],
+    ['Augmented prompt','Inserting retrieved chunks into the prompt with instructions to cite them.'],
+    ['Metadata and filtering','Narrow search by source, date, project or permissions.'],
+  ]},
+  {g:'Better retrieval',items:[
+    ['Keyword search (BM25)','Classic exact-word search, strong for IDs and error codes.'],
+    ['Hybrid search','Combine keyword and vector search for the best of both.'],
+    ['Reranking','A second model reorders results by true relevance.'],
+    ['Query rewriting','Rephrase or expand the user question before searching.'],
+    ['Contextual retrieval','Add a short summary of the source to each chunk before embedding.'],
+    ['Parent-child chunks','Search small chunks, return their bigger surrounding section.'],
+  ]},
+  {g:'RAG types',items:[
+    ['Naive RAG','Retrieve once, then answer.'],
+    ['Agentic RAG','The agent decides when and what to search, possibly several times.'],
+    ['GraphRAG','Retrieval over a knowledge graph of entities and relationships.'],
+    ['Multimodal RAG','Retrieving images, tables and diagrams, not only text.'],
+    ['RAG vs long context','When simply pasting all documents into the prompt is better.'],
+  ]},
+  {g:'Evaluating RAG',items:[
+    ['Retrieval metrics','Recall and precision: did the right chunks come back?'],
+    ['Answer metrics','Faithfulness (no made-up facts) and relevance.'],
+    ['Eval tools','Ragas or similar frameworks for automated scoring.'],
+  ]},
+ ],
+ build:'A Q&A assistant over your automation framework\'s docs, then give it to your Phase 4 agent as a search tool.'},
+
+{id:'p6',n:6,icon:'🧠',title:'Tools and memory in depth',time:'~1 month',estDays:30,
+ goal:'Give agents reusable tools and the ability to remember across steps and sessions.',
+ groups:[
+  {g:'Tools and MCP',items:[
+    ['Model Context Protocol (MCP)','A standard way to connect any agent to any tool or data source.'],
+    ['MCP architecture','Host (the app), client (the connector) and server (the tool provider).'],
+    ['MCP primitives','Tools (actions), resources (data) and prompts (templates).'],
+    ['Transports','Local (stdio) vs remote (HTTP) servers.'],
+    ['Building an MCP server','Expose your own functions with the Python MCP SDK.'],
+    ['MCP authentication','Securing remote servers with OAuth.'],
+    ['Tool security','Risks of untrusted servers, tool poisoning and data leaks.'],
+    ['Agent-to-agent (A2A)','Protocols for agents from different systems to talk to each other.'],
+  ]},
+  {g:'Memory types',items:[
+    ['Short-term memory','The current conversation inside the context window.'],
+    ['Working memory / scratchpad','Notes and to-do lists the agent keeps during a task.'],
+    ['Long-term memory','Facts saved to a file or database and loaded in later sessions.'],
+    ['Episodic memory','Records of past runs and what happened.'],
+    ['Semantic memory','General facts and preferences, often stored with embeddings.'],
+    ['Procedural memory','Learned how-tos, like CLAUDE.md or skills.'],
+  ]},
+  {g:'Context engineering',items:[
+    ['Context engineering','Deciding exactly what goes into the context window at each step.'],
+    ['Context rot','Quality drops as the context fills with irrelevant text.'],
+    ['Compaction / summarization','Compress old history to free space.'],
+    ['Just-in-time retrieval','Load data only when needed instead of upfront.'],
+    ['Subagents for context isolation','Let helpers do messy work and return only a summary.'],
+  ]},
+ ],
+ build:'An MCP server that exposes your framework\'s actions (run suite, fetch results), plus long-term memory so your agent remembers past failures.'},
+
+{id:'p7',n:7,icon:'🏭',title:'Production and autonomous systems',time:'~1 month',estDays:30,
+ goal:'Run agents reliably, safely and affordably without someone watching every step.',
+ groups:[
+  {g:'Multi-agent systems',items:[
+    ['Orchestration','A lead agent planning work and delegating to specialists.'],
+    ['Handoffs','Passing a task and its context cleanly from one agent to another.'],
+    ['Shared state','How agents read and write common data without conflicts.'],
+    ['When not to go multi-agent','Extra agents add cost and failure points; start with one.'],
+  ]},
+  {g:'Long-running autonomy',items:[
+    ['Durable execution','Agents that survive crashes and resume (Temporal, LangGraph checkpoints).'],
+    ['Scheduled and event-driven agents','Triggered by cron, webhooks or CI events.'],
+    ['Progress tracking','Agents writing status files or tickets so humans can follow along.'],
+    ['Escalation','Knowing when to stop and ask a human.'],
+  ]},
+  {g:'Evaluation and observability',items:[
+    ['Agent evals','Test whole tasks end-to-end, not single prompts.'],
+    ['Benchmarks','How public agent benchmarks (e.g. SWE-bench) measure agents.'],
+    ['Tracing','Tools like Langfuse, LangSmith or OpenTelemetry to record every step.'],
+    ['Regression testing','Rerun evals after every prompt, model or tool change.'],
+    ['Online monitoring','Watch live success rate, cost, latency and user feedback.'],
+  ]},
+  {g:'Security',items:[
+    ['Prompt injection','Malicious text in files, web pages or emails that hijacks the agent.'],
+    ['Data exfiltration','Stopping agents from leaking secrets through tools or links.'],
+    ['Secrets management','Keep keys in vaults, never in prompts.'],
+    ['Audit logs','Record who and what triggered every agent action.'],
+  ]},
+  {g:'Cost, speed and deployment',items:[
+    ['Model routing','Use small models for easy steps, big ones for hard steps.'],
+    ['Caching','Reuse prompt prefixes and repeated results.'],
+    ['Latency tuning','Streaming, parallel calls and shorter outputs.'],
+    ['Deployment','Packaging agents as APIs or workers (FastAPI, Docker, cloud functions).'],
+    ['Cloud AI platforms','AWS Bedrock, Google Vertex AI and Azure for enterprise use.'],
+  ]},
+ ],
+ build:'A scheduled multi-agent pipeline that triages nightly test failures, files tickets, and is fully traced and evaluated.'},
+
+{id:'p8',n:8,icon:'🔬',title:'Under the hood',optional:true,time:'optional · open-ended',estDays:40,
+ goal:'Understand how LLMs are built and adapted, for when prompting, RAG and agents are not enough.',
+ groups:[
+  {g:'How LLMs work',items:[
+    ['Neural network basics','Layers, weights, and learning by adjusting weights to reduce error.'],
+    ['Training loop','Forward pass, loss, backpropagation, gradient descent.'],
+    ['Tokenization','How BPE splits text into tokens.'],
+    ['Embeddings','How tokens become vectors inside the model.'],
+    ['Transformer architecture','The design behind every modern LLM.'],
+    ['Self-attention','Each token weighs every other token to understand context.'],
+    ['Next-token prediction','LLMs generate text one token at a time.'],
+    ['Decoding','Greedy, top-k, top-p sampling and temperature in detail.'],
+  ]},
+  {g:'How models are trained',items:[
+    ['Pre-training','Learning language from huge text datasets.'],
+    ['Instruction tuning (SFT)','Teaching the model to follow instructions.'],
+    ['RLHF / RLAIF','Aligning behavior with human or AI feedback.'],
+    ['Constitutional AI and DPO','Newer alignment methods.'],
+    ['Scaling laws','How data, parameters and compute drive capability.'],
+    ['Reasoning training','Reinforcement learning that teaches models to think step by step.'],
+  ]},
+  {g:'Adapting models',items:[
+    ['Fine-tuning vs RAG vs prompting','Choosing the cheapest approach that works.'],
+    ['Full fine-tuning','Retraining all weights; expensive.'],
+    ['LoRA / QLoRA','Cheap fine-tuning by training small add-on weights.'],
+    ['Datasets for fine-tuning','Collecting, cleaning and formatting examples.'],
+    ['Distillation','Training a small model to copy a large one.'],
+    ['Quantization','Shrinking models to run faster on smaller hardware.'],
+    ['Open-weight models','Llama, Mistral, Qwen, Gemma and how to run them (Ollama, vLLM).'],
+  ]},
+  {g:'Building a model from scratch',items:[
+    ['Math','Linear algebra (matrices), calculus (gradients), probability.'],
+    ['PyTorch','The main framework for building and training models.'],
+    ['Hugging Face','Model hub, Transformers library and datasets.'],
+    ['GPUs and compute','CUDA, memory limits, distributed training.'],
+    ['Build a tiny GPT','Follow Andrej Karpathy\'s "Neural Networks: Zero to Hero" course.'],
+    ['Reality check','Frontier models cost millions to train; individuals train small models or fine-tune.'],
+  ]},
+ ],
+ build:'Fine-tune a small open model with LoRA on your test-log data, and compare it against your RAG + prompting solution.'},
+];
+
 /* ─── Interactive demos (inserted below) ────────────────────────────────── */
 const DEMOS={
 /* ─── 1 · GIT: click-to-resolve conflict ────────────────────────────────── */
@@ -1491,9 +1832,24 @@ function etaLabel(){
 
 /* ─── Header progress ───────────────────────────────────────────────────── */
 function updHdr(){
-  const p=overallPct();
+  const p=S.track==='syllabus'?sylPct():overallPct();
   $('#hdr-pct-txt').textContent=p+'%';
   $('#hdr-pct-bar').style.width=p+'%';
+}
+
+/* ─── Syllabus (AI Engineering Path) progress helpers ───────────────────── */
+const PH=id=>PHASES.find(p=>p.id===id);
+function phaseItems(p){return p.groups.reduce((a,g)=>a+g.items.length,0)+1;} // +1 = the Build project
+function phaseDone(p){const s=S.syl[p.id]||{};let n=0;p.groups.forEach((g,gi)=>g.items.forEach((_,ii)=>{if(s[gi+'.'+ii])n++}));if(s.build)n++;return n;}
+function phasePct(p){return Math.round(phaseDone(p)/phaseItems(p)*100);}
+function phaseFin(p){return phaseDone(p)===phaseItems(p);}
+function sylPct(){const tot=PHASES.reduce((a,p)=>a+phaseItems(p),0),dn=PHASES.reduce((a,p)=>a+phaseDone(p),0);return tot?Math.round(dn/tot*100):0;}
+function currentPhase(){return PHASES.find(p=>!phaseFin(p))||PHASES[PHASES.length-1];}
+function sylEta(){
+  const remaining=PHASES.filter(p=>!phaseFin(p)).reduce((a,p)=>a+p.estDays,0);
+  if(remaining===0)return '🎉 Done!';
+  const d=new Date();d.setDate(d.getDate()+remaining); // estDays already paced at ~1 hr/day
+  return d.toLocaleDateString(undefined,{month:'short',year:'numeric'});
 }
 
 /* ─── Dashboard ─────────────────────────────────────────────────────────── */
@@ -1502,58 +1858,165 @@ const TIERS=[
   {n:2,cls:'t2h',icon:'🟡',name:'Tier 2 · Steady middle',desc:'1–2 weeks each'},
   {n:3,cls:'t3h',icon:'🔴',name:'Tier 3 · The hard core',desc:'2–4 weeks each, one at a time'},
 ];
+let OPEN_PHASES=new Set();
 function showDash(){
   $('#view-lesson').classList.remove('active');
   $('#view-dash').classList.add('active');
-  $('#crumb').innerHTML='<a onclick="showDash()">🗺️ Roadmap</a>';
+  $('#crumb').innerHTML='<a onclick="showDash()">🗺️ Overview</a>';
   renderDash();
   window.scrollTo({top:0});
 }
+function setTrack(t){S.track=t;save();renderDash();window.scrollTo({top:0});}
+function ringSVG(p){
+  const off=358-358*p/100;
+  return '<div class="ringw"><svg width="132" height="132" viewBox="0 0 132 132">'
+    +'<circle class="ring-bg" cx="66" cy="66" r="57"/>'
+    +'<circle class="ring-fg" cx="66" cy="66" r="57" stroke-dasharray="358" stroke-dashoffset="'+off+'"/>'
+    +'</svg><div class="ring-txt"><div class="ring-pct">'+p+'%</div><div class="ring-lbl">complete</div></div></div>';
+}
+function trackBtn(id,ic,t,s,p){
+  return '<button class="trackbtn'+(S.track===id?' active':'')+'" onclick="setTrack(\''+id+'\')">'
+    +'<span class="tb-ic">'+ic+'</span>'
+    +'<span style="display:flex;flex-direction:column;min-width:0"><span class="tb-t">'+t+'</span><span class="tb-s">'+s+'</span></span>'
+    +'<span class="tb-p"><span class="tb-pv">'+p+'%</span><span class="tb-pl">done</span></span></button>';
+}
 function renderDash(){
-  // hero
-  const p=overallPct();
-  $('#ring').style.strokeDashoffset=358-358*p/100;
-  $('#ring-pct').textContent=p+'%';
-  const sk=streak();
-  $('#st-streak').textContent=sk+(sk===1?' day':' days');
-  $('#st-topics').textContent=Object.keys(S.done).filter(k=>S.done[k]).length+' / '+TOPICS.length;
-  $('#st-tasks').textContent=TOPICS.reduce((a,t)=>a+taskCount(t),0);
-  $('#st-eta').textContent=etaLabel();
   updHdr();
-  // up next
-  const cur=currentTopic();
-  const allDone=TOPICS.every(t=>S.done[t.id]);
-  $('#upnext').innerHTML=allDone
-    ?'<div class="big">🏆</div><div><div class="t1">Path complete</div><div class="t2">You did all 13 topics — you\'re harness-engineer material.</div><div class="t3">Keep the streak: re-do old topics, or polish the portfolio project.</div></div>'
+  $('#trackbar').innerHTML=
+     trackBtn('harness','🎓','Harness Lab','13 hands-on interactive labs',overallPct())
+    +trackBtn('syllabus','🧭','AI Engineering Path','8 phases · your full syllabus',sylPct());
+  if(S.track==='syllabus')renderSyllabusTrack();else renderHarnessTrack();
+}
+function renderHarnessTrack(){
+  const p=overallPct(),sk=streak();
+  const topicsDone=Object.keys(S.done).filter(k=>S.done[k]).length;
+  const tasksDone=TOPICS.reduce((a,t)=>a+taskCount(t),0);
+  const cur=currentTopic(),allDone=TOPICS.every(t=>S.done[t.id]);
+  let h='<div class="hero">'+ringSVG(p)
+    +'<div class="hero-r"><h1>Your path to Harness Engineer</h1>'
+    +'<div class="sub">13 hands-on labs · one at a time. Small daily sessions beat weekend marathons.</div>'
+    +'<div class="stats">'
+    +'<div class="stat hot"><div class="k">🔥 Streak</div><div class="v">'+sk+(sk===1?' day':' days')+'</div></div>'
+    +'<div class="stat"><div class="k">✅ Labs done</div><div class="v">'+topicsDone+' / '+TOPICS.length+'</div></div>'
+    +'<div class="stat"><div class="k">📋 Tasks done</div><div class="v">'+tasksDone+'</div></div>'
+    +'<div class="stat"><div class="k">🎯 On track for</div><div class="v">'+etaLabel()+'</div></div>'
+    +'</div></div></div>';
+  h+='<div class="upnext">'+(allDone
+    ?'<div class="big">🏆</div><div><div class="t1">Division complete</div><div class="t2">You did all 13 labs — you\'re harness-engineer material.</div><div class="t3">Keep the streak: re-do old labs, or switch to the AI Engineering Path above.</div></div>'
     :'<div class="big">'+cur.icon+'</div><div><div class="t1">Up next — your only job</div><div class="t2">#'+cur.n+' · '+cur.title+'</div><div class="t3">⏱️ '+cur.time+' · '+topicPct(cur)+'% done'+(S.redo[cur.id]?' · 🔁 round '+(S.redo[cur.id]+1):'')+'</div></div>'
-    +'<div class="go"><button class="btn" onclick="openTopic(\''+cur.id+'\')">'+(topicPct(cur)>0?'Continue →':'Start →')+'</button></div>';
-  // roadmap
-  const cur2=currentTopic();
-  let html='';
+     +'<div class="go"><button class="btn" onclick="openTopic(\''+cur.id+'\')">'+(topicPct(cur)>0?'Continue →':'Start →')+'</button></div>')
+    +'</div>';
+  h+='<div class="rules">'
+    +'<div class="rule"><div class="ri">1️⃣</div><div class="rt">One topic at a time</div><div class="rp">Never two in parallel — that\'s where slow learners drown. The glowing item below is your only job.</div></div>'
+    +'<div class="rule"><div class="ri">⏱️</div><div class="rt">45–60 min daily</div><div class="rp">Daily beats marathons. Spaced repetition is literally how memory works — show up small, every day.</div></div>'
+    +'<div class="rule"><div class="ri">🔁</div><div class="rt">Re-do is the point</div><div class="rp">Repeating an exercise a week later isn\'t wasted time for you — it\'s the method. Use the Re-do button.</div></div>'
+    +'</div>';
   for(const tier of TIERS){
     const items=TOPICS.filter(t=>t.tier===tier.n);
     const tp=Math.round(items.reduce((a,t)=>a+(S.done[t.id]?100:topicPct(t)),0)/items.length);
-    html+='<div class="tier"><div class="tier-hd '+tier.cls+'">'
-      +'<span>'+tier.icon+'</span><span class="tt">'+tier.name+'</span>'
-      +'<div class="tbar"><i style="width:'+tp+'%"></i></div>'
-      +'<span class="td">'+tier.desc+'</span></div>';
+    h+='<div class="tier"><div class="tier-hd '+tier.cls+'"><span>'+tier.icon+'</span><span class="tt">'+tier.name+'</span><div class="tbar"><i style="width:'+tp+'%"></i></div><span class="td">'+tier.desc+'</span></div>';
     for(const t of items){
-      const isCur=t.id===cur2.id&&!S.done[t.id];
-      const fin=!!S.done[t.id];
-      const pct=fin?100:topicPct(t);
+      const isCur=t.id===cur.id&&!S.done[t.id],fin=!!S.done[t.id],pct=fin?100:topicPct(t);
       const pill=fin?'<span class="pill done">✓ done'+(S.redo[t.id]?' ×'+(S.redo[t.id]+1):'')+'</span>'
         :isCur?'<span class="pill now">▶ now</span>'
         :(S.once[t.id]?'<span class="pill redo">🔁 re-doing</span>':'<span class="pill later">🔒 later</span>');
-      html+='<div class="titem'+(isCur?' cur':'')+(fin?' fin':'')+((!isCur&&!fin&&pct===0)?' dim':'')+'" onclick="openTopic(\''+t.id+'\')">'
-        +'<div class="num">'+(fin?'✓':t.n)+'</div>'
-        +'<div class="ic">'+t.icon+'</div>'
+      h+='<div class="titem'+(isCur?' cur':'')+(fin?' fin':'')+((!isCur&&!fin&&pct===0)?' dim':'')+'" onclick="openTopic(\''+t.id+'\')">'
+        +'<div class="num">'+(fin?'✓':t.n)+'</div><div class="ic">'+t.icon+'</div>'
         +'<div class="tx"><div class="tt">'+t.title+' '+pill+'</div><div class="ts">'+t.tagline+'</div></div>'
-        +'<div class="meta"><span class="time">⏱ '+t.time+'</span><div class="mini"><i style="width:'+pct+'%"></i></div></div>'
-        +'</div>';
+        +'<div class="meta"><span class="time">⏱ '+t.time+'</span><div class="mini"><i style="width:'+pct+'%"></i></div></div></div>';
     }
-    html+='</div>';
+    h+='</div>';
   }
-  $('#roadmap').innerHTML=html;
+  $('#track-body').innerHTML=h;
+}
+function renderSyllabusTrack(){
+  const p=sylPct(),sk=streak();
+  const phasesDone=PHASES.filter(phaseFin).length;
+  const itemsDone=PHASES.reduce((a,ph)=>a+phaseDone(ph),0);
+  const itemsTot=PHASES.reduce((a,ph)=>a+phaseItems(ph),0);
+  const cur=currentPhase(),allDone=PHASES.every(phaseFin);
+  let h='<div class="hero">'+ringSVG(p)
+    +'<div class="hero-r"><h1>AI Engineering — top-down path</h1>'
+    +'<div class="sub">Your own 8-phase syllabus. Learn it, try it, tick it off. ~1 hour a day; do each phase\'s Build before moving on.</div>'
+    +'<div class="stats">'
+    +'<div class="stat hot"><div class="k">🔥 Streak</div><div class="v">'+sk+(sk===1?' day':' days')+'</div></div>'
+    +'<div class="stat"><div class="k">✅ Phases</div><div class="v">'+phasesDone+' / '+PHASES.length+'</div></div>'
+    +'<div class="stat"><div class="k">☑️ Items</div><div class="v">'+itemsDone+' / '+itemsTot+'</div></div>'
+    +'<div class="stat"><div class="k">🎯 On track for</div><div class="v">'+sylEta()+'</div></div>'
+    +'</div></div></div>';
+  h+='<div class="upnext">'+(allDone
+    ?'<div class="big">🏆</div><div><div class="t1">Path complete</div><div class="t2">All 8 phases done — that\'s the full AI-engineering arc.</div><div class="t3">Phase 8 was optional; if you skipped it, it\'s here when you need it.</div></div>'
+    :'<div class="big">'+cur.icon+'</div><div><div class="t1">Current phase — finish before the next</div><div class="t2">Phase '+cur.n+' · '+cur.title+'</div><div class="t3">⏱️ '+cur.time+' · '+phasePct(cur)+'% done</div></div>'
+     +'<div class="go"><button class="btn" onclick="openPhase(\''+cur.id+'\')">'+(phasePct(cur)>0?'Continue →':'Start →')+'</button></div>')
+    +'</div>';
+  h+='<div class="syl-note"><span class="ci">💡</span><span>This path starts where you are (Claude Code, prompting, automation) and moves outward — theory like neural nets comes <strong>last</strong>, only when you need it. Each phase ends with a <strong>Build</strong> tied to your automation work: do it before moving on. The Harness Lab labs are hands-on companions to Phases 1–5.</span></div>';
+  for(const ph of PHASES){
+    const dn=phaseDone(ph),tot=phaseItems(ph),pct=Math.round(dn/tot*100),fin=phaseFin(ph);
+    const isCur=ph.id===cur.id&&!fin,open=OPEN_PHASES.has(ph.id);
+    h+='<div class="phase'+(fin?' pdone':'')+'" id="phase-'+ph.id+'">'
+      +'<div class="ph-hd" onclick="togglePhase(\''+ph.id+'\')">'
+      +'<div class="ph-num"><span class="pn-k">PH</span><span class="pn-n">'+ph.n+'</span></div>'
+      +'<div class="ph-tx"><div class="ph-tt">'+ph.icon+' '+ph.title
+        +(fin?' <span class="pill done">✓ done</span>':isCur?' <span class="pill now">▶ current</span>':ph.optional?' <span class="pill later">optional</span>':'')+'</div>'
+      +'<div class="ph-goal">'+ph.goal+'</div></div>'
+      +'<div class="ph-right"><span class="ph-count">'+dn+' / '+tot+'</span><div class="ph-mini"><i style="width:'+pct+'%"></i></div></div>'
+      +'<div class="ph-chev'+(open?' up':'')+'" id="chev-'+ph.id+'">▾</div></div>'
+      +'<div class="ph-body'+(open?' open':'')+'" id="pbody-'+ph.id+'"><div class="ph-body-in">'+phaseInner(ph)+'</div></div></div>';
+  }
+  $('#track-body').innerHTML=h;
+}
+function phaseInner(ph){
+  const s=S.syl[ph.id]||{};
+  let h='';
+  ph.groups.forEach((g,gi)=>{
+    h+='<div class="grp"><div class="grp-h">'+esc(g.g)+'</div>';
+    g.items.forEach((it,ii)=>{
+      const key=gi+'.'+ii,on=!!s[key];
+      h+='<label class="sitem'+(on?' sdone':'')+'">'
+        +'<input type="checkbox" '+(on?'checked':'')+' onchange="tickSyl(\''+ph.id+'\',\''+key+'\',this)">'
+        +'<span class="si-tx"><span class="si-t">'+esc(it[0])+'</span><span class="si-d">'+esc(it[1])+'</span></span></label>';
+    });
+    h+='</div>';
+  });
+  h+='<div class="build"><span class="bi">🏗️</span><div style="min-width:0"><div class="bt">Build — do this before the next phase</div><div class="bd">'+esc(ph.build)+'</div>'
+    +'<label class="build-chk"><input type="checkbox" '+(s.build?'checked':'')+' onchange="tickSyl(\''+ph.id+'\',\'build\',this)"> Mark Build project complete</label></div></div>';
+  return h;
+}
+function togglePhase(id){
+  if(OPEN_PHASES.has(id))OPEN_PHASES.delete(id);else OPEN_PHASES.add(id);
+  const body=$('#pbody-'+id),chev=$('#chev-'+id),open=OPEN_PHASES.has(id);
+  if(body)body.classList.toggle('open',open);
+  if(chev)chev.classList.toggle('up',open);
+}
+function openPhase(id){
+  OPEN_PHASES.add(id);
+  if(S.track!=='syllabus'){S.track='syllabus';save();}
+  renderDash();
+  const el=$('#phase-'+id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function tickSyl(phaseId,key,el){
+  const on=el.checked,ph=PH(phaseId),wasFin=phaseFin(ph);
+  S.syl[phaseId]=S.syl[phaseId]||{};
+  if(on)S.syl[phaseId][key]=true;else delete S.syl[phaseId][key];
+  touch();save();
+  // When a phase flips complete/incomplete, the "current" marker, pills, phase
+  // count and ETA all move → full re-render (OPEN_PHASES keeps cards expanded).
+  if(wasFin!==phaseFin(ph)){renderDash();return;}
+  // Otherwise update in place — no flicker, no scroll jump, no lost focus.
+  const lab=el.closest('.sitem');if(lab)lab.classList.toggle('sdone',on);
+  const dn=phaseDone(ph),tot=phaseItems(ph),pct=Math.round(dn/tot*100);
+  const cEl=$('#phase-'+phaseId+' .ph-count');if(cEl)cEl.textContent=dn+' / '+tot;
+  const mEl=$('#phase-'+phaseId+' .ph-mini i');if(mEl)mEl.style.width=pct+'%';
+  updateSylChrome();
+}
+function updateSylChrome(){
+  const p=sylPct();
+  const ring=$('#track-body .ring-fg');if(ring)ring.setAttribute('stroke-dashoffset',358-358*p/100);
+  const rp=$('#track-body .ring-pct');if(rp)rp.textContent=p+'%';
+  const itemsDone=PHASES.reduce((a,x)=>a+phaseDone(x),0),itemsTot=PHASES.reduce((a,x)=>a+phaseItems(x),0);
+  const v=document.querySelectorAll('#track-body .hero .stat .v');if(v[2])v[2].textContent=itemsDone+' / '+itemsTot;
+  const pv=document.querySelectorAll('.trackbtn .tb-pv');if(pv[1])pv[1].textContent=p+'%';
+  updHdr();
 }
 
 /* ─── Lesson view ───────────────────────────────────────────────────────── */
@@ -1563,7 +2026,7 @@ function openTopic(id){
   const t=T(id);
   $('#view-dash').classList.remove('active');
   $('#view-lesson').classList.add('active');
-  $('#crumb').innerHTML='<a onclick="showDash()">🗺️ Roadmap</a><span class="sep">›</span><span class="here">'+t.icon+' #'+t.n+' '+t.title+'</span>';
+  $('#crumb').innerHTML='<a onclick="showDash()">🗺️ Overview</a><span class="sep">›</span><span class="here">'+t.icon+' #'+t.n+' '+t.title+'</span>';
   renderLesson(t);
   window.scrollTo({top:0});
 }
@@ -1577,7 +2040,7 @@ function renderLesson(t){
   const v=$('#view-lesson');
   v.innerHTML=
   '<div class="lhead">'
-    +'<button class="back" onclick="showDash()">← Roadmap</button>'
+    +'<button class="back" onclick="showDash()">← Overview</button>'
     +'<div class="lic">'+t.icon+'</div>'
     +'<div class="ltx"><h2>#'+t.n+' — '+t.title+'</h2><div class="lmeta">'+tierTag(t)
     +'<span class="tag n">⏱ '+t.time+'</span>'
