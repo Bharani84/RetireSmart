@@ -1,0 +1,64 @@
+flowchart TD
+
+  classDef page fill:#EAF4FF,stroke:#1E5AA7,stroke-width:1px,color:#0A2240;
+  classDef shared fill:#ECFDF3,stroke:#136F3A,stroke-width:1px,color:#0B2E19;
+  classDef nav fill:#FFF6E8,stroke:#B87300,stroke-width:1px,color:#4A2A00;
+
+  subgraph Shared["Shared Platform"]
+    pw_js["platform.js"]:::shared
+    pw_css["platform.css"]:::shared
+    pw_nav["PlanWise Top Navigation"]:::nav
+    pw_kids["Kids Sub Navigation"]:::nav
+  end
+
+  subgraph Pages["Project Pages"]
+    page_abc["abc.html\nABC"]:::page
+    page_alphaforge["alphaforge.html\nAlphaForge"]:::page
+    page_canadamortgage["canadamortgage.html\nMaple Home"]:::page
+    page_cosmos["cosmos.html\nCosmos"]:::page
+    page_dreamcar["dreamcar.html\nDream Car"]:::page
+    page_index["index.html\nRetireSmart"]:::page
+    page_kids["kids.html\nKids"]:::page
+    page_listen["listen.html\nListen"]:::page
+    page_mortgage["mortgage.html\nIndia Home"]:::page
+    page_spark["spark.html\nSpark"]:::page
+  end
+
+  page_abc --> pw_js
+  page_abc --> pw_css
+  page_alphaforge --> pw_js
+  page_alphaforge --> pw_css
+  page_canadamortgage --> pw_js
+  page_canadamortgage --> pw_css
+  page_cosmos --> pw_js
+  page_cosmos --> pw_css
+  page_dreamcar --> pw_js
+  page_dreamcar --> pw_css
+  page_index --> pw_js
+  page_index --> pw_css
+  page_kids --> pw_js
+  page_kids --> pw_css
+  page_listen --> pw_js
+  page_listen --> pw_css
+  page_mortgage --> pw_js
+  page_mortgage --> pw_css
+  page_spark --> pw_js
+  page_spark --> pw_css
+
+  pw_nav --> page_index
+  pw_nav --> page_mortgage
+  pw_nav --> page_canadamortgage
+  pw_nav --> page_dreamcar
+  pw_nav --> page_alphaforge
+  pw_nav --> page_kids
+
+  pw_kids --> page_kids
+  pw_kids --> page_spark
+  page_kids --> page_spark
+  pw_kids --> page_abc
+  page_kids --> page_abc
+  pw_kids --> page_listen
+  page_kids --> page_listen
+  pw_kids --> page_cosmos
+  page_kids --> page_cosmos
+
