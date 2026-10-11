@@ -789,7 +789,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
       recoCls='warn';
     }
 
-    const verdict=d.opts.map(o=>{
+    const verdict=sorted.map(o=>{   // cards ordered cheapest → most expensive (dynamic)
       const spendRows = o.key==='lease'
         ? `<div class="vc-row"><span>Lease payments</span><b>${money(o.dep)}</b></div>
            <div class="vc-row"><span>Maintenance <span style="color:var(--txt3)">(routine)</span></span><b>${money(o.maint)}</b></div>
