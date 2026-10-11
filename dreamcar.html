@@ -50,11 +50,25 @@ body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var
 .tbtn{padding:5px 12px;border-radius:6px;border:none;background:none;color:var(--txt2);font-family:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
 .tbtn.active{background:var(--acc-bg);color:var(--acc)}
 .tbtn:hover:not(.active){background:rgba(0,0,0,.04);color:var(--txt)}
-.car-ctry{margin-left:auto;display:flex;gap:4px;flex-shrink:0}
+.car-ctry{display:flex;gap:4px;flex-shrink:0}
 .car-ctry button{padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
 .car-ctry button.active{background:var(--acc-bg);color:var(--acc);border-color:var(--acc-bdr)}
 .car-ctry button:hover:not(.active){color:var(--txt)}
 [data-theme="dark"] .tbtn:hover:not(.active){background:rgba(255,255,255,.06)}
+/* Hide-inputs toggle (collapses the left panel so results go full-width) */
+.lp-toggle{margin-left:auto;display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:6px;border:1px solid var(--bdr);background:var(--ibg);color:var(--txt2);font-family:inherit;font-size:.72rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.lp-toggle:hover{color:var(--acc);border-color:var(--acc-bdr)}
+body.lp-collapsed .lp-toggle{background:var(--acc-bg);color:var(--acc);border-color:var(--acc-bdr)}
+body.lp-collapsed .layout{grid-template-columns:1fr}
+body.lp-collapsed .lp{display:none}
+/* Floating chevron handle sitting on the panel's right edge, vertically centered */
+.lp-handle{position:fixed;top:calc((var(--hh) + 100vh)/2);left:var(--lpw);margin-left:-11px;transform:translateY(-50%);z-index:95;
+  width:22px;height:54px;padding:0;border:1px solid var(--bdr2);border-radius:9px;background:var(--card);color:var(--txt2);
+  box-shadow:0 2px 8px rgba(0,0,0,.12);cursor:pointer;font-family:inherit;font-size:1rem;font-weight:800;line-height:1;
+  display:flex;align-items:center;justify-content:center;transition:left .28s cubic-bezier(.4,0,.2,1),background .15s,color .15s,border-color .15s}
+.lp-handle:hover{background:var(--acc-bg);color:var(--acc);border-color:var(--acc-bdr)}
+body.lp-collapsed .lp-handle{left:0;margin-left:0;border-top-left-radius:0;border-bottom-left-radius:0;border-left:none}
+@media (max-width:880px){.lp-handle{display:none!important}}
 
 /* ═══ PANELS / LAYOUT ═══════════════════════════════════════════════════ */
 .tab-panel{display:none;height:calc(100vh - var(--hh));overflow:hidden}
@@ -247,6 +261,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
     <button class="tbtn" data-tab="earn">💵 Earn</button>
     <button class="tbtn" data-tab="play">📚 Playbook</button>
   </nav>
+  <button type="button" id="lp-toggle" class="lp-toggle" title="Hide the input panel to see results full-width">◀ Hide inputs</button>
   <div class="car-ctry" id="car-ctry" role="group" aria-label="Country">
     <button type="button" data-ctry="CA">🍁 Canada</button>
     <button type="button" data-ctry="IN">🇮🇳 India</button>
@@ -272,10 +287,13 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
 </script>
 
 <!-- ═══════════════════════ TAB: DECIDE ═══════════════════════════════════ -->
+<!-- Floating chevron that collapses / reopens the left input panel (always visible) -->
+<button type="button" id="lp-handle" class="lp-handle" title="Collapse input panel — see results full-width" aria-label="Collapse input panel">‹</button>
+
 <section class="tab-panel active" id="tab-decide">
   <div class="layout">
     <div class="lp">
-      <div class="intro">Compare <b>buying new</b>, <b>buying a used car</b>, and <b>leasing</b> over the years you'll actually keep it. We total the real cost of ownership — depreciation, interest, maintenance and insurance — so you see the cheapest path, not the lowest sticker.</div>
+      <div class="intro">Compare <b>buying new</b>, <b>paying cash</b>, <b>buying used</b>, and <b>leasing</b> over the years you'll actually keep it. We total the real cost of ownership — depreciation, interest, maintenance and insurance — so you see the cheapest path, not the lowest sticker.</div>
 
       <div class="slw">
         <div class="slh"><span class="sll">How long will you keep it?</span><span class="slv"><span id="d-hold-v">6</span> yrs</span></div>
@@ -710,6 +728,9 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
     const newIns=insM*12*H;
     const newTotal=newDep+newInt+newMaint+newIns;
 
+    // CASH — the SAME new car, paid in full up front: no loan, so no interest
+    const cashTotal=newDep+newMaint+newIns;   // = newTotal − newInt
+
     // USED — same model, valued off the original new price curve
     const usedLoan=usedP*(1-dp);
     const usedInt=interestOver(usedLoan,usedRate,term,H*12);
@@ -735,6 +756,7 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
     //                    price = up-front vehicle cost,  gross = total spending (= total + resale).
     const opts=[
       {key:'new', name:'Buy New', ico:'🚗', total:newTotal, price:newP,  dep:newDep, int:newInt, maint:newMaint, ins:newIns, resale:newResale, own:true,  pay:emi(newLoan,rate,term), payMonths:term},
+      {key:'cash',name:'Pay Cash',ico:'💵', total:cashTotal,price:newP,  dep:newDep, int:0,      maint:newMaint, ins:newIns, resale:newResale, own:true,  pay:0, payMonths:0, upfront:newP},
       {key:'used',name:'Buy Used',ico:'🔑', total:usedTotal,price:usedP, dep:usedDep,int:usedInt,maint:usedMaint,ins:usedIns,resale:usedResale,own:true,  pay:emi(usedLoan,usedRate,term), payMonths:term},
       {key:'lease',name:'Lease',  ico:'📄', total:leaseTotal,price:0,    dep:leasePay,int:0,maint:leaseMaint,ins:newIns,resale:0,own:false, pay:lease, payMonths:leaseTerm},
     ];
@@ -751,8 +773,13 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
 
     // Smart-dealer reasoning
     let reco, recoCls='';
+    const saveInt=(d.opts.find(o=>o.key==='new')||{}).int||0;   // interest that paying cash avoids
+    const loanRate=num('d-rate');
     if(best.key==='used'){
       reco=`<b>Buying used wins by ${money(gap)}</b> over ${d.H} years. Someone else already ate the brutal first-year depreciation — you get most of the car for far less of the loss. Buy a <b>certified, single-owner</b> car with full service records and a clean history report to keep the reliability risk low.`;
+    } else if(best.key==='cash'){
+      reco=`<b>Buying new with cash is the lowest out-of-pocket over ${d.H} years</b> — paying up front skips <b>${money(saveInt)}</b> of loan interest entirely. The trade-off the sticker won't show: that <b>${money(best.price)}</b> is now tied up in a depreciating car instead of invested. If you can reliably earn more than your <b>${loanRate}%</b> loan rate by investing, financing and keeping the cash invested can edge ahead — otherwise cash (and being debt-free) wins. Keep your emergency fund intact either way.`;
+      recoCls='info';
     } else if(best.key==='new'){
       reco = gapPct<8
         ? `<b>New is cheapest here — but only by ${money(gap)} (${gapPct.toFixed(0)}%).</b> That's close enough that a clean low-km used car is still smart if you'd rather keep cash free. New makes sense for the full warranty, latest safety, and if you keep cars 8+ years.`
@@ -799,8 +826,13 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
             <div class="vc-row"><span>🛡️ Insurance</span><b>${money(o.ins/(d.H*12))}/mo</b></div>
           </div>
           <div class="vc-row sub"><span>= All-in cost</span><b>${money(o.total/(d.H*12))}/mo</b></div>
-          <div class="vc-row vc-mo-pay"><span>💳 ${o.own?'Loan payment to bank':'Lease payment'}</span><b>${money(o.pay)}/mo · ${payDur}</b></div>
-          <div class="vc-mo-note">${o.own
+          ${o.key==='cash'
+            ? `<div class="vc-row vc-mo-pay"><span>💵 Paid up front, in full</span><b>${money(o.upfront)}</b></div>`
+            : `<div class="vc-row vc-mo-pay"><span>💳 ${o.own?'Loan payment to bank':'Lease payment'}</span><b>${money(o.pay)}/mo · ${payDur}</b></div>`}
+          <div class="vc-mo-note">${
+            o.key==='cash'
+            ? `You pay the full <b>${money(o.upfront)}</b> on day one — no loan, no interest. The all-in ${money(o.total/(d.H*12))}/mo is pure depreciation, maintenance &amp; insurance. Trade-off: that cash is tied up in the car instead of earning a return.`
+            : o.own
             ? (pmRaw <= d.H*12
                 ? `You pay that for the <b>${payDur}</b> loan, then own it free for the rest of the ${d.H} yrs. The all-in ${money(o.total/(d.H*12))}/mo runs the full ${d.H} yrs — mostly depreciation &amp; insurance.`
                 : `This is an <b>${payDur}</b> loan but you keep it only ${d.H} yrs, so you'd still owe a balance at sale. The all-in ${money(o.total/(d.H*12))}/mo runs the full ${d.H} yrs — mostly depreciation &amp; insurance.`)
@@ -1414,7 +1446,25 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
     active=tab;
     document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
     document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='tab-'+tab));
+    // The Playbook tab has no input panel, so the collapse controls are irrelevant there.
+    const noLp = (tab==='play');
+    const lpt=document.getElementById('lp-toggle'); if(lpt) lpt.style.display = noLp?'none':'';
+    const hnd=document.getElementById('lp-handle'); if(hnd) hnd.style.display = noLp?'none':'';
     RENDER[tab]();
+  }
+
+  /* ── Collapse / reopen the left input panel ──────────────────────────── */
+  const LPKEY='cs_lp_collapsed';
+  function setLpCollapsed(on){
+    document.body.classList.toggle('lp-collapsed',on);
+    try{ localStorage.setItem(LPKEY,on?'1':'0'); }catch(e){}
+    const b=document.getElementById('lp-toggle');
+    if(b){ b.innerHTML = on?'▶ Show inputs':'◀ Hide inputs';
+           b.title = on?'Show the input panel':'Hide the input panel to see results full-width'; }
+    const h=document.getElementById('lp-handle');
+    if(h){ h.textContent = on?'›':'‹';
+           h.title = on?'Show input panel':'Collapse input panel — see results full-width'; }
+    if(RENDER[active]) RENDER[active]();   // redraw charts at the new width
   }
 
   /* ── Collapsible cards ───────────────────────────────────────────────── */
@@ -1447,6 +1497,15 @@ input[type=range]::-webkit-slider-thumb:hover{box-shadow:0 0 0 5px var(--acc-bg)
     document.getElementById('tabs').querySelectorAll('.tbtn').forEach(b=>b.addEventListener('click',()=>show(b.dataset.tab)));
     // recompute active tab on any input change
     document.addEventListener('input',e=>{ if(e.target.matches('input,select')) RENDER[active](); });
+    // Hide-inputs toggle — restore saved state, then wire the click
+    let lpCollapsed=false; try{ lpCollapsed=localStorage.getItem(LPKEY)==='1'; }catch(e){}
+    if(lpCollapsed) document.body.classList.add('lp-collapsed');
+    const lpt=document.getElementById('lp-toggle');
+    if(lpt){ lpt.innerHTML = lpCollapsed?'▶ Show inputs':'◀ Hide inputs';
+             lpt.addEventListener('click',()=>setLpCollapsed(!document.body.classList.contains('lp-collapsed'))); }
+    const hnd=document.getElementById('lp-handle');
+    if(hnd){ hnd.textContent = lpCollapsed?'›':'‹';
+             hnd.addEventListener('click',()=>setLpCollapsed(!document.body.classList.contains('lp-collapsed'))); }
     show('decide');
 
     window.addEventListener('pw-theme-change',()=>RENDER[active]());
